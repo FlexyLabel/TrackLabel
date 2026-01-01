@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Planta</title>
+    <title>Track Label Pro - Producción</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -28,7 +28,7 @@
             text-align: center; border: 1px solid var(--border); width: 100%; max-width: 400px;
         }
 
-        /* --- LOGIN DE OPERARIOS --- */
+        /* --- LOGIN DE OPERARIOS (NOMBRES CORREGIDOS) --- */
         .login-overlay {
             position: fixed; inset: 0; background: var(--bg); z-index: 40000;
             display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -37,20 +37,23 @@
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0;
         }
         .user-item {
-            background: var(--sidebar); padding: 15px; border-radius: 20px; border: 1px solid #333;
+            background: var(--sidebar); padding: 15px 5px; border-radius: 20px; border: 1px solid #333;
             cursor: pointer; text-align: center; transition: 0.3s;
         }
         .user-item:hover, .user-item.selected { border-color: var(--orange); background: #222; }
         .user-initial { 
-            width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; 
-            display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold;
+            width: 45px; height: 45px; border-radius: 50%; border: 2px solid #444; 
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; 
+            font-weight: bold; font-size: 18px; color: #fff;
         }
+        .user-name { font-size: 12px; font-weight: 500; color: #aaa; }
+        .selected .user-name { color: var(--orange); }
 
         /* --- LAYOUT --- */
         .app-container { display: flex; flex-direction: row; min-height: 100vh; }
 
         .sidebar-planta {
-            width: 310px; background: var(--sidebar); border-right: 1px solid var(--border);
+            width: 320px; background: var(--sidebar); border-right: 1px solid var(--border);
             padding: 25px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px;
         }
 
@@ -70,7 +73,7 @@
         }
         .machine-block { background: var(--sidebar); border-radius: 25px; border: 1px solid var(--border); overflow: hidden; }
         .machine-header { 
-            padding: 15px 25px; background: rgba(255,255,255,0.02); 
+            padding: 18px 25px; background: rgba(255,255,255,0.02); 
             display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; 
         }
         .drop-zone { padding: 15px; min-height: 110px; }
@@ -115,25 +118,25 @@
 
 <div id="master-lock">
     <div class="lock-box">
-        <h2 style="color:var(--orange); margin-top:0;">ACCESO RESTRINGIDO</h2>
-        <p style="color:#666; font-size:14px;">Introduce la contraseña para continuar</p>
-        <input type="password" id="m-pass" placeholder="••••••••" style="text-align:center;">
-        <button class="btn-action btn-orange" onclick="unlock()">DESBLOQUEAR SISTEMA</button>
+        <h2 style="color:var(--orange); margin-top:0;">CONTROL DE ACCESO</h2>
+        <p style="color:#666; font-size:14px;">Introduce la clave del sistema</p>
+        <input type="password" id="m-pass" placeholder="••••••••" style="text-align:center; letter-spacing: 3px;">
+        <button class="btn-action btn-orange" onclick="unlock()">ENTRAR AL PANEL</button>
     </div>
 </div>
 
 <div id="login-screen" class="login-overlay" style="display:none">
-    <div class="lock-box" style="max-width:450px;">
-        <h3 style="margin-top:0;">PANEL DE OPERARIOS</h3>
+    <div class="lock-box" style="max-width:480px;">
+        <h3 style="margin-top:0;">OPERARIOS EN PLANTA</h3>
         <div class="user-grid">
-            <div class="user-item" onclick="selUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
-            <div class="user-item" onclick="selUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
-            <div class="user-item" onclick="selUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange); color:var(--orange)">I</div><span>Ivan</span></div>
-            <div class="user-item" onclick="selUser('Anna', this)"><div class="user-initial">A</div><span>Anna</span></div>
-            <div class="user-item" onclick="selUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
+            <div class="user-item" onclick="selUser('Isa', this)"><div class="user-initial">I</div><div class="user-name">Isa</div></div>
+            <div class="user-item" onclick="selUser('Jaume', this)"><div class="user-initial">J</div><div class="user-name">Jaume</div></div>
+            <div class="user-item" onclick="selUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange); color:var(--orange)">I</div><div class="user-name">Ivan</div></div>
+            <div class="user-item" onclick="selUser('Anna', this)"><div class="user-initial">A</div><div class="user-name">Anna</div></div>
+            <div class="user-item" onclick="selUser('Toni', this)"><div class="user-initial">T</div><div class="user-name">Toni</div></div>
         </div>
-        <input type="password" id="u-pin" placeholder="PIN de Usuario" style="text-align:center;">
-        <button class="btn-action btn-orange" onclick="login()">ENTRAR A PLANTA</button>
+        <input type="password" id="u-pin" placeholder="PIN" style="text-align:center;">
+        <button class="btn-action btn-orange" onclick="login()">INICIAR SESIÓN</button>
     </div>
 </div>
 
@@ -152,39 +155,39 @@
         </div>
 
         <div class="panel-stats">
-            <h4>TRABAJOS HOY</h4>
+            <h4>TRABAJOS ACTIVOS</h4>
             <div style="display:flex; justify-content:space-between; margin-bottom:8px;">Activos: <strong id="s-act">0</strong></div>
-            <div style="display:flex; justify-content:space-between;">Finalizados: <strong id="s-fin" style="color:var(--green)">0</strong></div>
+            <div style="display:flex; justify-content:space-between;">Hechos Hoy: <strong id="s-fin" style="color:var(--green)">0</strong></div>
         </div>
 
         <div class="panel-stats" style="flex:1;">
-            <h4>REGISTRO</h4>
-            <div id="log" style="font-size:11px; color:#555; overflow-y:auto; max-height:250px;"></div>
+            <h4>ACTIVIDAD RECIENTE</h4>
+            <div id="log" style="font-size:11px; color:#555; overflow-y:auto; max-height:300px;"></div>
         </div>
         
-        <button onclick="location.reload()" style="background:none; border:none; color:#444; font-size:11px; cursor:pointer;">Cerrar Sesión</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:#444; font-size:11px; cursor:pointer; text-decoration: underline;">Cerrar Sesión / Bloquear</button>
     </aside>
 
     <main class="main-content">
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <div>
-                <h2 id="welcome" style="margin:0; font-size:24px;">Hola</h2>
-                <span style="color:var(--orange); font-size:12px; font-weight:bold;">SISTEMA EN LÍNEA</span>
+                <h2 id="welcome" style="margin:0; font-size:24px;">Cargando...</h2>
+                <span style="color:var(--orange); font-size:11px; font-weight:bold; letter-spacing: 1px;">SISTEMA TRACK LABEL V3</span>
             </div>
-            <button class="btn-action btn-orange" style="width:auto; padding:12px 25px" onclick="openNew()">+ NUEVO PEDIDO</button>
+            <button class="btn-action btn-orange" style="width:auto; padding:12px 25px" onclick="openNew()">+ NUEVA ORDEN</button>
         </header>
 
         <div class="kanban-vertical">
             <div class="machine-block">
-                <div class="machine-header"><span>FLEXO / OFFSET</span> <span id="c-flexo" class="badge" style="color:var(--orange)">0</span></div>
+                <div class="machine-header"><span>FLEXO / OFFSET</span> <span id="c-flexo" style="background:#000; padding:4px 10px; border-radius:8px; color:var(--orange)">0</span></div>
                 <div id="list-flexo" class="drop-zone"></div>
             </div>
             <div class="machine-block">
-                <div class="machine-header"><span>DIGITAL</span> <span id="c-digital" class="badge" style="color:var(--orange)">0</span></div>
+                <div class="machine-header"><span>DIGITAL</span> <span id="c-digital" style="background:#000; padding:4px 10px; border-radius:8px; color:var(--orange)">0</span></div>
                 <div id="list-digital" class="drop-zone"></div>
             </div>
             <div class="machine-block">
-                <div class="machine-header"><span>REPASO / ACABADOS</span> <span id="c-repaso" class="badge" style="color:var(--orange)">0</span></div>
+                <div class="machine-header"><span>REPASO / EXPEDICIÓN</span> <span id="c-repaso" style="background:#000; padding:4px 10px; border-radius:8px; color:var(--orange)">0</span></div>
                 <div id="list-acabados" class="drop-zone"></div>
             </div>
         </div>
@@ -193,9 +196,9 @@
 
 <div id="modal-new" class="modal">
     <div class="modal-box">
-        <h3 style="margin-top:0">NUEVA ORDEN</h3>
+        <h3 style="margin-top:0">LANZAR ORDEN</h3>
         <label style="font-size:11px; color:var(--orange); font-weight:bold;">CLIENTE</label>
-        <input type="text" id="in-cli" placeholder="Nombre cliente">
+        <input type="text" id="in-cli" placeholder="Empresa">
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
             <div>
@@ -211,10 +214,10 @@
             </div>
         </div>
 
-        <label style="font-size:11px; color:var(--orange); font-weight:bold;">REFERENCIA TÉCNICA</label>
-        <input type="text" id="in-tec" placeholder="Troquel / Grabado">
+        <label style="font-size:11px; color:var(--orange); font-weight:bold;">TÉCNICO (TROQUEL/GRABADO)</label>
+        <input type="text" id="in-tec" placeholder="Referencias">
 
-        <button class="btn-action btn-orange" onclick="saveJob()">CREAR TRABAJO</button>
+        <button class="btn-action btn-orange" onclick="saveJob()">GUARDAR EN COLA</button>
         <button class="btn-action" style="background:none; color:#555" onclick="closeNew()">Cancelar</button>
     </div>
 </div>
@@ -225,12 +228,11 @@
 </div>
 
 <script>
-// CONFIGURACIÓN (Ivan, la contraseña es la de siempre: TrackLabel#)
 const MASTER_PASS = "TrackLabel#";
 const USERS = {"Ivan":"1234", "Isa":"1234", "Jaume":"1234", "Anna":"1234", "Toni":"1234"};
 
-let db = JSON.parse(localStorage.getItem('tl_prod_db')) || {};
-let finCount = parseInt(localStorage.getItem('tl_prod_fin')) || 0;
+let db = JSON.parse(localStorage.getItem('tl_final_db')) || {};
+let finCount = parseInt(localStorage.getItem('tl_final_count')) || 0;
 let activeUser = "Ivan";
 let currentJobId = null;
 
@@ -239,7 +241,7 @@ function unlock() {
     if(document.getElementById('m-pass').value === MASTER_PASS) {
         document.getElementById('master-lock').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
-    } else { alert("Contraseña Maestra Incorrecta"); }
+    } else { alert("Acceso Denegado"); }
 }
 
 function selUser(n, el) {
@@ -255,10 +257,10 @@ function login() {
         document.getElementById('welcome').innerText = "Hola, " + activeUser;
         render();
         initSort();
-    } else { alert("PIN de usuario incorrecto"); }
+    } else { alert("PIN Incorrecto"); }
 }
 
-// LÓGICA DE PRODUCCIÓN
+// PRODUCCIÓN
 function render() {
     document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = "");
     Object.keys(db).forEach(id => {
@@ -273,7 +275,7 @@ function render() {
         
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong>${item.cli.toUpperCase()}</strong>
+                <strong style="font-size:16px;">${item.cli.toUpperCase()}</strong>
                 <span class="status-dot" style="background:${dotColor}"></span>
             </div>
             <div style="font-size:12px; color:#777; margin-top:8px;">
@@ -310,7 +312,7 @@ function openTime(id) {
         }
 
         ${item.start ? 
-            `<button class="btn-action btn-red" onclick="timerAction('end')">FINALIZAR TRABAJO</button>` : 
+            `<button class="btn-action btn-red" onclick="timerAction('end')">TERMINAR TRABAJO</button>` : 
             ""
         }
 
@@ -323,9 +325,9 @@ function timerAction(type) {
     const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     if(type === 'start') {
         db[currentJobId].start = now;
-        addLog("▶ " + activeUser + " inició " + db[currentJobId].cli);
+        addLog("▶ " + activeUser + " inició: " + db[currentJobId].cli);
     } else {
-        addLog("✔ " + activeUser + " terminó " + db[currentJobId].cli);
+        addLog("✔ " + activeUser + " terminó: " + db[currentJobId].cli);
         delete db[currentJobId];
         finCount++;
     }
@@ -335,7 +337,7 @@ function timerAction(type) {
 
 function initSort() {
     document.querySelectorAll('.drop-zone').forEach(z => {
-        new Sortable(z, { group: 'prod', animation: 150, onEnd: (e) => {
+        new Sortable(z, { group: 'prod_planta', animation: 150, onEnd: (e) => {
             db[e.item.id].maq = e.to.id;
             save();
         }});
@@ -343,8 +345,8 @@ function initSort() {
 }
 
 function save() {
-    localStorage.setItem('tl_prod_db', JSON.stringify(db));
-    localStorage.setItem('tl_prod_fin', finCount);
+    localStorage.setItem('tl_final_db', JSON.stringify(db));
+    localStorage.setItem('tl_final_count', finCount);
     render();
 }
 
@@ -358,7 +360,7 @@ function updateStats() {
     const total = Object.keys(db).length + finCount;
     const perc = total === 0 ? 0 : Math.round((finCount/total)*100);
     document.getElementById('prog-bar').style.width = perc + "%";
-    document.getElementById('prog-text').innerText = perc + "% de la producción completada";
+    document.getElementById('prog-text').innerText = perc + "% completado";
 }
 
 function addLog(m) {
