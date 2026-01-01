@@ -2,206 +2,420 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Vertical</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Label Pro - Control de Planta</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
             --bg: #0b0e11; --sidebar: #15191d; --surface: #1e2329;
-            --orange: #ff7a00; --green: #00ff88; --text: #f0f0f0; --border: #282e35;
+            --orange: #ff7a00; --green: #00ff88; --text: #f0f0f0;
         }
-        
-        * { box-sizing: border-box; outline: none; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
 
-        /* SEGURIDAD INICIAL */
-        .master-overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 20000; }
-        .login-overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
-        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; }
-        
-        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
-        .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.3s; font-size: 14px; }
-        .user-item.selected { border-color: var(--orange); background: #2a3139; }
+        /* LOGIN */
+        .login-overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 440px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .logo-icon-big { background: var(--orange); color: black; width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 30px; margin: 0 auto 20px; }
+        .subtitle { color: #666; font-size: 11px; letter-spacing: 3px; margin-bottom: 30px; }
+        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+        .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
+        .user-item.selected { border-color: var(--orange); background: #2a3139; transform: translateY(-5px); }
+        .user-initial { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
+        .user-item.selected .user-initial { border-color: var(--orange); color: var(--orange); }
 
-        /* LAYOUT PRINCIPAL */
-        .app-container { display: flex; flex-direction: column; min-height: 100vh; }
-        
-        .top-bar { background: var(--sidebar); padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; sticky; top: 0; z-index: 100; }
-        .content-area { flex: 1; padding: 15px; max-width: 800px; margin: 0 auto; width: 100%; }
+        /* DASHBOARD */
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid #222; padding: 30px 20px; }
+        .info-card { background: var(--surface); padding: 18px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #282e35; }
+        .info-card h4 { margin: 0 0 12px; font-size: 10px; color: var(--orange); letter-spacing: 1.5px; }
+        .progress-bar { background: #000; height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-fill { background: var(--green); height: 100%; width: 0%; transition: 0.8s; box-shadow: 0 0 15px var(--green); }
+        .stat-row { display: flex; justify-content: space-between; font-size: 12px; margin: 5px 0; }
+        .activity ul { list-style: none; padding: 0; font-size: 10px; color: #666; height: 150px; overflow-y: auto; }
 
-        /* KANBAN VERTICAL (UNA ENCIMA DE OTRA) */
-        .kanban-board { display: flex; flex-direction: column; gap: 30px; }
-        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid var(--border); }
-        .col-header { border-bottom: 1px solid #222; margin-bottom: 15px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .col-header h3 { margin: 0; color: var(--orange); font-size: 18px; letter-spacing: 1px; }
-        .badge { background: #000; color: #fff; padding: 5px 12px; border-radius: 10px; font-size: 12px; }
+        .content-area { flex: 1; padding: 25px; display: flex; flex-direction: column; overflow: hidden; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--orange); display: flex; align-items: center; justify-content: center; color: var(--orange); font-weight: bold; font-size: 20px; }
 
-        /* TARJETAS */
-        .drag-zone { min-height: 80px; }
-        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 6px solid var(--orange); cursor: pointer; position: relative; }
-        .job-card strong { font-size: 18px; display: block; margin-bottom: 5px; }
-        .job-card small { color: #888; font-size: 14px; }
+        /* CABECERA BOTONES */
+        .header-actions { display: flex; gap: 12px; }
+        .btn-header { padding: 12px 24px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; font-size: 13px; }
+        .btn-add { background: var(--orange); color: white; box-shadow: 0 4px 15px rgba(255,122,0,0.3); }
+        .btn-logout { background: #2a3139; color: #999; border: 1px solid #333; }
+
+        /* KANBAN */
+        .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex: 1; margin-bottom: 25px; }
+        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid #222; display: flex; flex-direction: column; }
+        .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .col-header h3 { font-size: 14px; color: #666; margin: 0; letter-spacing: 1px; }
+        .badge { background: #000; color: var(--orange); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+
+        .job-card { background: var(--surface); padding: 18px; border-radius: 18px; margin-bottom: 15px; border-left: 5px solid; cursor: pointer; transition: 0.3s; }
+        .job-card:hover { transform: scale(1.03); background: #252a31; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .job-card strong { font-size: 15px; display: block; margin-bottom: 8px; }
+        .job-card small { font-size: 11px; color: #888; display: block; line-height: 1.5; }
+
+        /* FOOTER */
+        .finished-area { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid #222; height: 160px; }
+        .finished-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .finished-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; }
+        .finished-card { min-width: 180px; background: #000; padding: 12px; border-radius: 15px; border-bottom: 3px solid var(--green); }
 
         /* MODALES */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 15000; padding: 20px; overflow-y: auto; }
-        .modal-content { background: var(--surface); margin: 5% auto; padding: 30px; border-radius: 30px; width: 100%; max-width: 500px; border: 1px solid #333; }
-        
-        input, select { width: 100%; background: #000; border: 1px solid #333; padding: 15px; color: white; border-radius: 12px; margin-bottom: 20px; font-size: 16px; }
-        .btn-action { width: 100%; padding: 20px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; backdrop-filter: blur(8px); }
+        .modal-content { background: var(--surface); margin: 3% auto; padding: 35px; border-radius: 35px; width: 500px; border: 1px solid #333; }
+        .section-tag { font-size: 10px; font-weight: bold; color: var(--orange); margin: 15px 0 10px; text-transform: uppercase; }
+        .input-row { display: flex; gap: 15px; margin-bottom: 12px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        label { font-size: 11px; color: #666; margin-bottom: 6px; }
+        input, select { background: #000; border: 1px solid #333; padding: 14px; color: white; border-radius: 12px; font-size: 14px; }
+        .btn-save-order { width: 100%; padding: 18px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; margin-top: 25px; font-size: 16px; }
 
+        .timer-box { background: #111; padding: 18px; border-radius: 18px; margin-bottom: 15px; border: 1px solid #222; }
+        .fase-title { font-size: 11px; color: #555; margin-bottom: 10px; font-weight: bold; }
+        .timer-controls { display: flex; align-items: center; gap: 12px; }
+        .t-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .t-btn.start { background: #28a745; color: white; }
+        .t-btn.end { background: #dc3545; color: white; }
+        .t-display { font-family: monospace; font-size: 16px; flex: 1.5; text-align: center; color: var(--orange); }
+        .btn-complete-all { width: 100%; padding: 18px; background: var(--green); color: black; border: none; border-radius: 15px; font-weight: 900; margin-top: 15px; cursor: pointer; }
+        .close { float: right; cursor: pointer; color: #444; font-size: 24px; }
+        .login-form input { background: #000; border: 1px solid #333; padding: 15px; color: white; border-radius: 12px; text-align: center; letter-spacing: 5px; width: 80%; margin-bottom: 15px;}
+        .btn-login-action { background: var(--orange); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 90%; }
+        .error-msg { color: #ff4444; font-size: 12px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-<div id="master-lock" class="master-overlay">
+<div id="login-screen" class="login-overlay">
     <div class="login-box">
-        <h2 style="color:var(--orange)">TRACK LABEL</h2>
-        <input type="password" id="pass-web" placeholder="Password: TrackLabel#" style="text-align:center;">
-        <button class="btn-action" onclick="unlockWeb()">ENTRAR</button>
+        <div class="logo-icon-big">TL</div>
+        <h2>TRACK LABEL <span style="color:var(--orange)">PRO</span></h2>
+        <p class="subtitle">SISTEMA DE CONTROL DE PLANTA</p>
+        <div class="user-grid" id="user-grid">
+            <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
+            <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
+            <div class="user-item" onclick="selectUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange); color:var(--orange)">I</div><span>Ivan</span></div>
+            <div class="user-item" onclick="selectUser('Anna', this)"><div class="user-initial">A</div><span>Anna</span></div>
+            <div class="user-item" onclick="selectUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
+        </div>
+        <div class="login-form">
+            <input type="password" id="user-pin" placeholder="PIN" maxlength="4">
+            <button class="btn-login-action" onclick="login()">ENTRAR AL SISTEMA</button>
+        </div>
+        <p id="login-error" class="error-msg">⚠️ PIN INCORRECTO</p>
     </div>
 </div>
 
-<div id="login-screen" class="login-overlay" style="display:none">
-    <div class="login-box">
-        <h3>SISTEMA DE PLANTA</h3>
-        <div class="user-grid">
-            <div class="user-item" onclick="selectUser('Isa', this)">Isa</div>
-            <div class="user-item" onclick="selectUser('Jaume', this)">Jaume</div>
-            <div class="user-item" onclick="selectUser('Ivan', this)">Ivan</div>
-            <div class="user-item" onclick="selectUser('Anna', this)">Anna</div>
-            <div class="user-item" onclick="selectUser('Toni', this)">Toni</div>
+<div id="main-app" class="app-container" style="display: none;">
+    <aside class="sidebar">
+        <div class="sidebar-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 30px;">
+            <div class="logo-icon-big" style="width:35px; height:35px; font-size:15px; margin:0">TL</div>
+            <span style="font-weight: bold; letter-spacing: 1px;">PLANTA</span>
         </div>
-        <input type="password" id="user-pin" placeholder="PIN Operario" style="text-align:center;">
-        <button class="btn-action" onclick="loginApp()">ACCEDER</button>
-    </div>
-</div>
+        <div class="info-card">
+            <h4>RENDIMIENTO</h4>
+            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+            <small id="progress-text">0% completado</small>
+        </div>
+        <div class="info-card">
+            <h4>ESTADÍSTICAS</h4>
+            <div class="stat-row"><span>Activos:</span> <strong id="stat-pend">0</strong></div>
+            <div class="stat-row"><span>Finalizados:</span> <strong id="stat-done" style="color:var(--green)">0</strong></div>
+        </div>
+        <div class="info-card activity">
+            <h4>HISTORIAL</h4>
+            <ul id="activity-log"></ul>
+        </div>
+        <button onclick="resetSistema()" style="background:none; border:none; color:#444; font-size:10px; cursor:pointer; margin-top:20px;">BORRAR MEMORIA LOCAL</button>
+    </aside>
 
-<div id="main-app" class="app-container" style="display:none">
-    <header class="top-bar">
-        <div>
-            <span id="welcome-text" style="font-weight:bold; color:var(--orange)">Usuario</span>
-        </div>
-        <button onclick="openModal()" style="background:var(--orange); border:none; padding:10px 20px; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">+ NUEVO</button>
-    </header>
+    <section class="content-area">
+        <header class="main-header">
+            <div class="user-profile">
+                <div class="user-avatar" id="avatar-char">U</div>
+                <div><h2 id="welcome-text" style="margin:0">Usuario</h2><small id="user-role-text" style="color:var(--orange)">Rol</small></div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-nuevo-pedido" class="btn-header btn-add" onclick="openModal()">+ NUEVO PEDIDO</button>
+                <button class="btn-header btn-logout" onclick="logout()">CAMBIAR USUARIO</button>
+            </div>
+        </header>
 
-    <main class="content-area">
-        <div class="kanban-board">
+        <main class="kanban-board">
             <div class="machine-col">
-                <div class="col-header"><h3>FLEXO</h3> <span id="badge-flexo" class="badge">0</span></div>
-                <div id="list-flexo" class="drag-zone"></div>
+                <div class="col-header"><h3>FLEXO / OFFSET</h3> <span class="badge" id="badge-list-flexo">0</span></div>
+                <div class="container-cards drag-zone" id="list-flexo"></div>
             </div>
             <div class="machine-col">
-                <div class="col-header"><h3>DIGITAL</h3> <span id="badge-digital" class="badge">0</span></div>
-                <div id="list-digital" class="drag-zone"></div>
+                <div class="col-header"><h3>DIGITAL</h3> <span class="badge" id="badge-list-digital">0</span></div>
+                <div class="container-cards drag-zone" id="list-digital"></div>
             </div>
             <div class="machine-col">
-                <div class="col-header"><h3>REPASO</h3> <span id="badge-acabados" class="badge">0</span></div>
-                <div id="list-acabados" class="drag-zone"></div>
+                <div class="col-header"><h3>REPASO / ACABADOS</h3> <span class="badge" id="badge-list-acabados">0</span></div>
+                <div class="container-cards drag-zone" id="list-acabados"></div>
             </div>
-        </div>
-        <button onclick="location.reload()" style="width:100%; background:none; border:none; color:#444; margin-top:40px; font-size:12px;">CERRAR SESIÓN</button>
-    </main>
+        </main>
+
+        <footer class="finished-area">
+            <div class="finished-header">
+                <h3>EXPEDICIONES (HOY)</h3>
+                <span class="badge" id="count-finished-footer" style="background:var(--green); color:black">0</span>
+            </div>
+            <div class="finished-scroll" id="list-finished"></div>
+        </footer>
+    </section>
 </div>
 
 <div id="modalPedido" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0">NUEVA ORDEN</h3>
-        <label style="display:block; margin-bottom:10px; font-size:12px; color:#666;">CLIENTE</label>
-        <input type="text" id="inCli" placeholder="Nombre cliente">
-        
-        <label style="display:block; margin-bottom:10px; font-size:12px; color:#666;">MÁQUINA</label>
-        <select id="inMaq">
-            <option value="list-flexo">Flexo</option>
-            <option value="list-digital">Digital</option>
-        </select>
-        
-        <label style="display:block; margin-bottom:10px; font-size:12px; color:#666;">METROS</label>
-        <input type="number" id="inMet" placeholder="0">
-        
-        <button class="btn-action" onclick="addPedido()">CREAR PEDIDO</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:20px; cursor:pointer;">Cancelar</button>
+        <div class="modal-header">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 style="margin:0">NUEVA ORDEN</h2>
+        </div>
+        <div class="modal-body">
+            <div class="section-tag">Cliente</div>
+            <div class="input-row">
+                <div class="input-group" style="flex:2"><input type="text" id="inputCliente" placeholder="Nombre cliente"></div>
+                <div class="input-group"><input type="color" id="inputColor" value="#ff7a00" style="padding:0; height:45px"></div>
+            </div>
+            <div class="section-tag">Producción</div>
+            <div class="input-row">
+                <div class="input-group">
+                    <select id="inputMaquina">
+                        <option value="list-flexo">Flexo / Offset</option>
+                        <option value="list-digital">Digital</option>
+                    </select>
+                </div>
+                <div class="input-group"><input type="number" id="inputMetros" placeholder="Metros"></div>
+            </div>
+            <div class="input-row">
+                <div class="input-group"><input type="text" id="inputTroquel" placeholder="Nº Troquel"></div>
+                <div class="input-group"><input type="text" id="inputGrabado" placeholder="Nº Grabado"></div>
+            </div>
+            <button class="btn-save-order" onclick="guardarPedido()">LANZAR A PLANTA</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalTiempos" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close" onclick="closeModalTiempos()">&times;</span>
+            <h2 id="tiempo-cliente" style="margin:0">CLIENTE</h2>
+            <small id="info-maquina" style="color:var(--orange)"></small>
+        </div>
+        <div class="modal-body" style="margin-top:20px">
+            <div class="timer-box">
+                <div class="fase-title">1. PREPARACIÓN</div>
+                <div class="timer-controls">
+                    <button class="t-btn start" onclick="registrarTiempo('prep','inicio')">INICIAR</button>
+                    <div class="t-display" id="display-prep">--:--</div>
+                    <button class="t-btn end" onclick="registrarTiempo('prep','fin')">FIN</button>
+                </div>
+            </div>
+            <div class="timer-box">
+                <div class="fase-title">2. TIRAJE</div>
+                <div class="timer-controls">
+                    <button class="t-btn start" onclick="registrarTiempo('tiraje','inicio')">INICIAR</button>
+                    <div class="t-display" id="display-tiraje">--:--</div>
+                    <button class="t-btn end" onclick="registrarTiempo('tiraje','fin')">FIN TIRAJE</button>
+                </div>
+            </div>
+            <div id="seccion-repaso" class="timer-box" style="display:none; border-color:var(--green)">
+                <div class="fase-title" style="color:var(--green)">3. REPASO / ACABADO</div>
+                <div class="timer-controls">
+                    <button class="t-btn start" onclick="registrarTiempo('repaso','inicio')">INICIAR</button>
+                    <div class="t-display" id="display-repaso">--:--</div>
+                    <button class="t-btn end" onclick="registrarTiempo('repaso','fin')">FIN TOTAL</button>
+                </div>
+            </div>
+            <button id="btn-completar-final" class="btn-complete-all" style="display:none" onclick="completarTrabajo()">MARCAR COMO EXPEDIDO</button>
+        </div>
     </div>
 </div>
 
 <script>
-const PASS_MAESTRA = "TrackLabel#";
-const USUARIOS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
-let db = JSON.parse(localStorage.getItem('track_db_v2')) || {};
-let userActivo = null;
+const USUARIOS = {
+    "Isa":   { pin: "1234", rol: "operario" },
+    "Jaume": { pin: "1234", rol: "operario" },
+    "Ivan":  { pin: "1234", rol: "admin" },
+    "Anna":  { pin: "1234", rol: "admin" },
+    "Toni":  { pin: "1234", rol: "admin" }
+};
 
-// SEGURIDAD
-function unlockWeb() {
-    if(document.getElementById('pass-web').value === PASS_MAESTRA) {
-        document.getElementById('master-lock').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'flex';
-    } else { alert("Error contraseña"); }
+let userSeleccionadoId = null;
+let userLogueado = null;
+let db = {}; 
+let finalizadosDb = [];
+let pedidoActualId = null;
+let totalFinalizados = 0;
+
+window.onload = function() {
+    loadFromLocal();
+    actualizarDashboard();
+};
+
+function saveToLocal() {
+    localStorage.setItem('trackLabel_db', JSON.stringify(db));
+    localStorage.setItem('trackLabel_finalizados', JSON.stringify(finalizadosDb));
+    localStorage.setItem('trackLabel_total', totalFinalizados);
 }
 
-function selectUser(name, el) {
-    userActivo = name;
-    document.querySelectorAll('.user-item').forEach(i => i.style.borderColor = "#222");
-    el.style.borderColor = "var(--orange)";
+function loadFromLocal() {
+    const savedDb = localStorage.getItem('trackLabel_db');
+    const savedFinal = localStorage.getItem('trackLabel_finalizados');
+    const savedTotal = localStorage.getItem('trackLabel_total');
+    if(savedDb) db = JSON.parse(savedDb);
+    if(savedFinal) finalizadosDb = JSON.parse(savedFinal);
+    if(savedTotal) totalFinalizados = parseInt(savedTotal);
+
+    Object.keys(db).forEach(id => crearTarjetaDOM(id, db[id]));
+    finalizadosDb.forEach(item => crearTarjetaFinalizadaDOM(item));
 }
 
-function loginApp() {
-    const pin = document.getElementById('user-pin').value;
-    if(userActivo && USUARIOS[userActivo] === pin) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('main-app').style.display = 'flex';
-        document.getElementById('welcome-text').innerText = "Operario: " + userActivo;
-        render();
-        initSortable();
-    } else { alert("PIN incorrecto"); }
+function selectUser(nombre, element) {
+    userSeleccionadoId = nombre;
+    document.querySelectorAll('.user-item').forEach(el => el.classList.remove('selected'));
+    element.classList.add('selected');
 }
 
-// LOGICA
-function addPedido() {
-    const cli = document.getElementById('inCli').value;
-    if(!cli) return;
+function login() {
+    const pin = document.getElementById("user-pin").value;
+    const u = USUARIOS[userSeleccionadoId];
+    if (u && u.pin === pin) {
+        userLogueado = userSeleccionadoId;
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("main-app").style.display = "flex";
+        document.getElementById("welcome-text").innerText = "Hola, " + userLogueado;
+        document.getElementById("avatar-char").innerText = userLogueado.charAt(0);
+        document.getElementById("user-role-text").innerText = "ACCESO: " + u.rol.toUpperCase();
+        document.getElementById("btn-nuevo-pedido").style.visibility = (u.rol === "admin") ? "visible" : "hidden";
+        initSortable(u.rol === "admin");
+    } else { document.getElementById("login-error").style.display = "block"; }
+}
+
+function initSortable(canDrag) {
+    document.querySelectorAll('.drag-zone').forEach(zona => {
+        new Sortable(zona, { 
+            animation: 150, disabled: !canDrag,
+            onEnd: function() {
+                document.querySelectorAll('.drag-zone').forEach(col => {
+                    col.querySelectorAll('.job-card').forEach(card => db[card.id].maquina = col.id);
+                });
+                saveToLocal();
+                actualizarDashboard();
+            }
+        });
+    });
+}
+
+function guardarPedido() {
+    const cliente = document.getElementById("inputCliente").value;
+    if(!cliente) return;
     const id = "ID-" + Date.now();
-    db[id] = { cli: cli, maq: document.getElementById('inMaq').value, met: document.getElementById('inMet').value };
-    save();
+    const maquina = document.getElementById("inputMaquina").value;
+    db[id] = { 
+        cliente, maquina, color: document.getElementById("inputColor").value,
+        tiempos: { prep: {}, tiraje: {}, repaso: {} },
+        metros: document.getElementById("inputMetros").value,
+        troquel: document.getElementById("inputTroquel").value,
+        grabado: document.getElementById("inputGrabado").value
+    };
+    crearTarjetaDOM(id, db[id]);
+    saveToLocal();
+    actualizarDashboard();
     closeModal();
-    render();
+    logActividad("Pedido creado: " + cliente);
 }
 
-function render() {
-    document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
-    Object.keys(db).forEach(id => {
-        const item = db[id];
-        const card = document.createElement('div');
-        card.className = "job-card";
-        card.id = id;
-        card.innerHTML = `<strong>${item.cli.toUpperCase()}</strong><small>${item.met} metros</small>`;
-        card.onclick = () => { if(confirm("¿Pedido completado?")) { delete db[id]; save(); render(); } };
-        document.getElementById(item.maq).appendChild(card);
+function crearTarjetaDOM(id, data) {
+    const card = document.createElement("div");
+    card.className = "job-card";
+    card.id = id;
+    card.style.borderLeftColor = data.color;
+    card.onclick = () => abrirTiempos(id);
+    card.innerHTML = `<strong>${data.cliente.toUpperCase()}</strong><small>📏 ${data.metros}m | T: ${data.troquel}</small><small>G: ${data.grabado}</small>`;
+    document.getElementById(data.maquina).appendChild(card);
+}
+
+function abrirTiempos(id) { 
+    pedidoActualId = id;
+    const data = db[id];
+    document.getElementById("tiempo-cliente").innerText = data.cliente.toUpperCase();
+    document.getElementById("info-maquina").innerText = "SALA: " + data.maquina.replace('list-','').toUpperCase();
+    ['prep', 'tiraje', 'repaso'].forEach(fase => {
+        const f = data.tiempos[fase];
+        document.getElementById(`display-${fase}`).innerText = (f.inicio || "--") + " ➔ " + (f.fin || "--");
     });
-    actualizarBadges();
+    const estaEnRepaso = (data.maquina === 'list-acabados');
+    document.getElementById("seccion-repaso").style.display = estaEnRepaso ? "block" : "none";
+    document.getElementById("btn-completar-final").style.display = estaEnRepaso ? "block" : "none";
+    document.getElementById("modalTiempos").style.display = "block"; 
 }
 
-function initSortable() {
-    document.querySelectorAll('.drag-zone').forEach(z => {
-        new Sortable(z, { group: 'planta', animation: 150, onEnd: (e) => {
-            db[e.item.id].maq = e.to.id;
-            save();
-            actualizarBadges();
-        }});
+function registrarTiempo(fase, hito) {
+    const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    db[pedidoActualId].tiempos[fase][hito] = hora;
+    if(fase === 'tiraje' && hito === 'fin') {
+        const card = document.getElementById(pedidoActualId);
+        document.getElementById("list-acabados").appendChild(card);
+        db[pedidoActualId].maquina = 'list-acabados';
+    }
+    saveToLocal();
+    abrirTiempos(pedidoActualId);
+}
+
+function completarTrabajo() {
+    const data = db[pedidoActualId];
+    const item = { cliente: data.cliente, hora: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
+    finalizadosDb.unshift(item);
+    crearTarjetaFinalizadaDOM(item);
+    document.getElementById(pedidoActualId).remove();
+    delete db[pedidoActualId];
+    totalFinalizados++;
+    saveToLocal();
+    actualizarDashboard();
+    closeModalTiempos();
+    logActividad("Finalizado: " + data.cliente);
+}
+
+function crearTarjetaFinalizadaDOM(item) {
+    const fCard = document.createElement("div");
+    fCard.className = "finished-card";
+    fCard.innerHTML = `<strong>${item.cliente}</strong><br><small>Finalizado: ${item.hora}</small>`;
+    document.getElementById("list-finished").prepend(fCard);
+}
+
+function actualizarDashboard() {
+    const activos = Object.keys(db).length;
+    document.getElementById("stat-pend").innerText = activos;
+    document.getElementById("stat-done").innerText = totalFinalizados;
+    document.getElementById("count-finished-footer").innerText = totalFinalizados;
+    const total = activos + totalFinalizados;
+    const porc = total > 0 ? (totalFinalizados / total) * 100 : 0;
+    document.getElementById("progress-fill").style.width = porc + "%";
+    document.getElementById("progress-text").innerText = Math.round(porc) + "% completado";
+    ['list-flexo', 'list-digital', 'list-acabados'].forEach(id => {
+        document.getElementById('badge-' + id).innerText = document.getElementById(id).children.length;
     });
 }
 
-function save() {
-    localStorage.setItem('track_db_v2', JSON.stringify(db));
+function logActividad(msg) {
+    const log = document.getElementById("activity-log");
+    const item = document.createElement("li");
+    item.innerHTML = `<small style="color:var(--orange)">[${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}]</small> ${msg}`;
+    log.prepend(item);
 }
 
-function actualizarBadges() {
-    document.getElementById('badge-flexo').innerText = document.getElementById('list-flexo').children.length;
-    document.getElementById('badge-digital').innerText = document.getElementById('list-digital').children.length;
-    document.getElementById('badge-acabados').innerText = document.getElementById('list-acabados').children.length;
+function resetSistema() {
+    if(confirm("Iván, ¿borrar toda la base de datos de planificación?")) { localStorage.clear(); location.reload(); }
 }
-
-function openModal() { document.getElementById('modalPedido').style.display = 'block'; document.body.style.overflow = 'hidden'; }
-function closeModal() { document.getElementById('modalPedido').style.display = 'none'; document.body.style.overflow = 'auto'; }
+function logout() { location.reload(); }
+function openModal() { document.getElementById("modalPedido").style.display = "block"; }
+function closeModal() { document.getElementById("modalPedido").style.display = "none"; }
+function closeModalTiempos() { document.getElementById("modalTiempos").style.display = "none"; }
 </script>
-
 </body>
 </html>
