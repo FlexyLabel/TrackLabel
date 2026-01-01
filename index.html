@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Control Total</title>
+    <title>Track Label Pro - Mensajes Directos</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -15,10 +15,10 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; 
-            margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden;
+            margin: 0; padding: 0; min-height: 100vh;
         }
 
-        /* --- LOCK SCREENS --- */
+        /* --- LOGIN & LOCK --- */
         #master-lock, #login-screen {
             position: fixed; inset: 0; background: var(--bg); z-index: 50000;
             display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -30,7 +30,6 @@
             text-align: center; border: 1px solid var(--border); width: 100%; max-width: 450px;
         }
 
-        /* --- USER GRID --- */
         .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
         .user-item {
             background: var(--sidebar); padding: 15px 5px; border-radius: 20px; border: 1px solid #333;
@@ -81,6 +80,10 @@
         .job-card strong { font-size: 18px; display: block; margin-bottom: 8px; }
         .card-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: #888; }
         
+        .msg-badge { 
+            position: absolute; top: 20px; right: 20px; color: var(--orange); font-size: 18px;
+        }
+
         .status-bar { 
             margin-top: 12px; padding-top: 10px; border-top: 1px solid #333;
             display: flex; align-items: center; gap: 8px; font-size: 11px;
@@ -94,17 +97,18 @@
         }
         .modal-box {
             background: var(--surface); border-radius: 35px; padding: 35px;
-            width: 100%; max-width: 550px; margin: 20px auto; border: 1px solid #333;
+            width: 100%; max-width: 600px; margin: 20px auto; border: 1px solid #333;
         }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .input-group { margin-bottom: 15px; text-align: left; }
         label { font-size: 10px; font-weight: 900; color: var(--orange); display: block; margin-bottom: 5px; }
 
-        input, select {
+        input, select, textarea {
             width: 100%; padding: 15px; background: #000; border: 1px solid #333;
-            color: white; border-radius: 12px; font-size: 16px;
+            color: white; border-radius: 12px; font-size: 16px; font-family: inherit;
         }
+        textarea { resize: none; height: 80px; }
 
         .btn {
             width: 100%; padding: 18px; border-radius: 18px; border: none;
@@ -124,15 +128,15 @@
 
 <div id="master-lock">
     <div class="lock-box">
-        <h2 style="color:var(--orange)">SISTEMA TRACK LABEL</h2>
-        <input type="password" id="m-pass" placeholder="Password" style="text-align:center;">
-        <button class="btn btn-orange" onclick="checkMaster()">ENTRAR</button>
+        <h2 style="color:var(--orange)">TRACK LABEL PRO</h2>
+        <input type="password" id="m-pass" placeholder="Password Maestro" style="text-align:center;">
+        <button class="btn btn-orange" onclick="checkMaster()">ENTRAR AL SISTEMA</button>
     </div>
 </div>
 
 <div id="login-screen" style="display:none">
     <div class="lock-box">
-        <h3>QUIÉN ESTÁ EN PLANTA?</h3>
+        <h3>ACCESO DE OPERARIO</h3>
         <div class="user-grid">
             <div class="user-item" onclick="setUser('Isa', this)"><div class="user-initial">I</div><div class="user-name">Isa</div></div>
             <div class="user-item" onclick="setUser('Jaume', this)"><div class="user-initial">J</div><div class="user-name">Jaume</div></div>
@@ -140,8 +144,8 @@
             <div class="user-item" onclick="setUser('Anna', this)"><div class="user-initial">A</div><div class="user-name">Anna</div></div>
             <div class="user-item" onclick="setUser('Toni', this)"><div class="user-initial">T</div><div class="user-name">Toni</div></div>
         </div>
-        <input type="password" id="u-pin" placeholder="PIN" style="text-align:center;">
-        <button class="btn btn-orange" onclick="doLogin()">VALIDAR ACCESO</button>
+        <input type="password" id="u-pin" placeholder="PIN de Seguridad" style="text-align:center;">
+        <button class="btn btn-orange" onclick="doLogin()">INICIAR SESIÓN</button>
     </div>
 </div>
 
@@ -154,40 +158,45 @@
         </div>
 
         <div class="panel-stats">
-            <h4>RENDIMIENTO</h4>
+            <h4>PROGRESO HOY</h4>
             <div class="bar-bg"><div id="p-bar" class="bar-fill"></div></div>
             <small id="p-text">0% completado</small>
         </div>
 
         <div class="panel-stats">
-            <h4>DATOS HOY</h4>
-            <p>Activos: <strong id="c-act">0</strong></p>
+            <h4>TRABAJOS</h4>
+            <p>En cola: <strong id="c-act">0</strong></p>
             <p>Hechos: <strong id="c-fin" style="color:var(--green)">0</strong></p>
         </div>
 
         <div class="panel-stats" style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
-            <h4>HISTORIAL</h4>
+            <h4>REGISTRO LOG</h4>
             <div id="log-box" style="font-size:10px; color:#555; overflow-y:auto;"></div>
         </div>
+        
+        <button onclick="location.reload()" style="background:none; border:none; color:#444; font-size:11px; cursor:pointer; text-decoration:underline;">Bloquear Terminal</button>
     </aside>
 
     <main class="main-content">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 id="user-display">Hola</h2>
-            <button class="btn btn-orange" style="width:auto; padding:10px 25px" onclick="openNew()">+ NUEVO TRABAJO</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+                <h2 id="user-display" style="margin:0;">-</h2>
+                <span style="font-size:11px; color:var(--orange); font-weight:bold;">V3.5 | MENSAJES ACTIVOS</span>
+            </div>
+            <button class="btn btn-orange" style="width:auto; padding:12px 30px" onclick="openNew()">+ NUEVO TRABAJO</button>
         </div>
 
         <div class="kanban-vertical">
             <div class="machine-block">
-                <div class="machine-header">FLEXO / OFFSET <span id="n-flexo">0</span></div>
+                <div class="machine-header">FLEXO / OFFSET <span id="n-flexo" style="color:var(--orange)">0</span></div>
                 <div id="list-flexo" class="drop-zone"></div>
             </div>
             <div class="machine-block">
-                <div class="machine-header">DIGITAL <span id="n-digital">0</span></div>
+                <div class="machine-header">DIGITAL <span id="n-digital" style="color:var(--orange)">0</span></div>
                 <div id="list-digital" class="drop-zone"></div>
             </div>
             <div class="machine-block">
-                <div class="machine-header">REPASO <span id="n-repaso">0</span></div>
+                <div class="machine-header">REPASO / ACABADOS <span id="n-repaso" style="color:var(--orange)">0</span></div>
                 <div id="list-repaso" class="drop-zone"></div>
             </div>
         </div>
@@ -196,22 +205,27 @@
 
 <div id="modal-new" class="modal">
     <div class="modal-box">
-        <h3>NUEVO PEDIDO</h3>
-        <div class="input-group"><label>CLIENTE</label><input type="text" id="f-cli"></div>
+        <h3 style="margin-top:0">NUEVA ORDEN DE TRABAJO</h3>
+        <div class="input-group"><label>CLIENTE</label><input type="text" id="f-cli" placeholder="Nombre cliente"></div>
         <div class="grid-2">
-            <div class="input-group"><label>MÁQUINA</label><select id="f-maq"><option value="list-flexo">FLEXO</option><option value="list-digital">DIGITAL</option></select></div>
-            <div class="input-group"><label>METROS</label><input type="number" id="f-met"></div>
+            <div class="input-group"><label>SECCIÓN</label><select id="f-maq"><option value="list-flexo">FLEXO</option><option value="list-digital">DIGITAL</option></select></div>
+            <div class="input-group"><label>METROS</label><input type="number" id="f-met" placeholder="Cant."></div>
         </div>
         <div class="grid-2">
-            <div class="input-group"><label>TROQUEL</label><input type="text" id="f-tro"></div>
-            <div class="input-group"><label>GRABADO</label><input type="text" id="f-gra"></div>
+            <div class="input-group"><label>TROQUEL</label><input type="text" id="f-tro" placeholder="Ref."></div>
+            <div class="input-group"><label>GRABADO</label><input type="text" id="f-gra" placeholder="Ref."></div>
         </div>
         <div class="grid-2">
-            <div class="input-group"><label>MATERIAL</label><input type="text" id="f-mat"></div>
-            <div class="input-group"><label>ACABADO</label><input type="text" id="f-aca"></div>
+            <div class="input-group"><label>MATERIAL</label><input type="text" id="f-mat" placeholder="Papel/PP"></div>
+            <div class="input-group"><label>ACABADO</label><input type="text" id="f-aca" placeholder="Barniz/Lam."></div>
         </div>
-        <div class="input-group"><label>COLOR TARJETA</label><input type="color" id="f-col" value="#ff7a00"></div>
-        <button class="btn btn-orange" onclick="saveNew()">LANZAR</button>
+        <div class="input-group">
+            <label>MENSAJE / OBSERVACIONES ESPECIALES</label>
+            <textarea id="f-msg" placeholder="Escribe aquí instrucciones para Ivan, Anna o Toni..."></textarea>
+        </div>
+        <div class="input-group"><label>COLOR PRIORIDAD</label><input type="color" id="f-col" value="#ff7a00"></div>
+        
+        <button class="btn btn-orange" onclick="saveNew()">PUBLICAR EN PLANTA</button>
         <button class="btn" style="background:none;" onclick="closeNew()">Cancelar</button>
     </div>
 </div>
@@ -221,12 +235,12 @@
 </div>
 
 <script>
-// --- CORE DATA ---
+// --- CONFIGURACIÓN ---
 const MASTER_KEY = "TrackLabel#";
 const OPERARIOS = {"Ivan":"1234", "Isa":"1234", "Jaume":"1234", "Anna":"1234", "Toni":"1234"};
 
-let db = JSON.parse(localStorage.getItem('tl_db_v4')) || {};
-let finCount = parseInt(localStorage.getItem('tl_fin_v4')) || 0;
+let db = JSON.parse(localStorage.getItem('tl_final_v5')) || {};
+let finCount = parseInt(localStorage.getItem('tl_fin_v5')) || 0;
 let currentOp = "Ivan";
 let selectedJobId = null;
 
@@ -235,7 +249,7 @@ function checkMaster() {
     if(document.getElementById('m-pass').value === MASTER_KEY) {
         document.getElementById('master-lock').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
-    } else { alert("Error"); }
+    } else { alert("Acceso denegado"); }
 }
 
 function setUser(n, el) {
@@ -248,16 +262,15 @@ function doLogin() {
     if(OPERARIOS[currentOp] === document.getElementById('u-pin').value) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-body').style.display = 'flex';
-        document.getElementById('user-display').innerText = "Hola, " + currentOp;
+        document.getElementById('user-display').innerText = "Bienvenido, " + currentOp;
         render();
         initSort();
-    } else { alert("PIN Incorrecto"); }
+    } else { alert("PIN incorrecto"); }
 }
 
-// --- LOGICA DE TIEMPOS (FIXED) ---
+// --- RENDERIZADO Y CLIC ---
 function render() {
-    const zones = ['list-flexo', 'list-digital', 'list-repaso'];
-    zones.forEach(z => document.getElementById(z).innerHTML = "");
+    ['list-flexo', 'list-digital', 'list-repaso'].forEach(z => document.getElementById(z).innerHTML = "");
 
     Object.keys(db).forEach(id => {
         const job = db[id];
@@ -266,15 +279,15 @@ function render() {
         card.id = id;
         card.style.borderLeftColor = job.col;
         
-        // El evento se asigna directamente al elemento
-        card.addEventListener('click', function(e) {
-            // Evitamos que el click se dispare si estamos arrastrando
-            if (!card.classList.contains('sortable-chosen')) {
-                openTime(id);
-            }
-        });
+        // El Clic ahora es independiente del arrastre
+        card.onclick = function() {
+            if (!card.classList.contains('sortable-chosen')) openTime(id);
+        };
+
+        const hasMsg = job.msg && job.msg.trim() !== "";
 
         card.innerHTML = `
+            ${hasMsg ? '<span class="msg-badge">📝</span>' : ''}
             <strong>${job.cli.toUpperCase()}</strong>
             <div class="card-details">
                 <span>📏 ${job.met}m</span>
@@ -284,12 +297,11 @@ function render() {
             </div>
             <div class="status-bar">
                 <div class="dot" style="background:${job.start ? 'var(--green)' : '#444'}"></div>
-                <span>${job.start ? 'Iniciado a las ' + job.start : 'En espera'}</span>
+                <span>${job.start ? 'Fichado: ' + job.start : 'Sin iniciar'}</span>
             </div>
         `;
         
-        const targetList = document.getElementById(job.maq) || document.getElementById('list-repaso');
-        targetList.appendChild(card);
+        document.getElementById(job.maq).appendChild(card);
     });
     updateStats();
 }
@@ -301,23 +313,31 @@ function openTime(id) {
     
     ui.innerHTML = `
         <h2 style="margin:0; color:${job.col}">${job.cli}</h2>
-        <p style="color:#666">Orden técnica: ${job.tro} / ${job.gra}</p>
-        <div style="background:#000; padding:20px; border-radius:20px; margin:20px 0; font-size:14px;">
-            <p>📏 Metros: ${job.met}</p>
-            <p>📄 Material: ${job.mat}</p>
-            <p>✨ Acabado: ${job.aca}</p>
+        <p style="color:#666; margin-bottom:20px;">Ref: ${job.tro} / ${job.gra}</p>
+        
+        ${job.msg ? `
+            <div style="background:rgba(255,122,0,0.1); border:1px dashed var(--orange); padding:15px; border-radius:15px; margin-bottom:20px; color:var(--orange);">
+                <label style="margin-bottom:5px;">INSTRUCCIONES ESPECIALES:</label>
+                <div style="font-size:16px; font-weight:bold;">"${job.msg}"</div>
+            </div>
+        ` : ''}
+
+        <div style="background:#000; padding:20px; border-radius:20px; margin-bottom:20px; font-size:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>Metros: <b>${job.met}</b></div>
+            <div>Material: <b>${job.mat}</b></div>
+            <div style="grid-column:span 2">Acabado: <b>${job.aca}</b></div>
         </div>
 
         ${!job.start ? 
             `<button class="btn btn-green" onclick="fichar('start')">INICIAR TIRADA</button>` : 
-            `<div style="color:var(--green); text-align:center; margin-bottom:15px;">▶ TRABAJANDO DESDE: ${job.start}</div>`
+            `<div style="color:var(--green); text-align:center; margin-bottom:15px; font-weight:bold;">▶ EN PROCESO DESDE: ${job.start}</div>`
         }
 
         ${job.start ? 
             `<button class="btn btn-red" onclick="fichar('end')">FINALIZAR TRABAJO</button>` : 
             ""
         }
-        <button class="btn" style="background:#222; color:white;" onclick="closeTime()">VOLVER</button>
+        <button class="btn" style="background:#222; color:white; margin-top:15px" onclick="closeTime()">CERRAR</button>
     `;
     document.getElementById('modal-time').style.display = 'block';
 }
@@ -326,9 +346,9 @@ function fichar(type) {
     const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     if(type === 'start') {
         db[selectedJobId].start = hora;
-        addLog("Iniciado: " + db[selectedJobId].cli);
+        addLog(currentOp + " inició " + db[selectedJobId].cli);
     } else {
-        addLog("Terminado: " + db[selectedJobId].cli);
+        addLog(currentOp + " completó " + db[selectedJobId].cli);
         delete db[selectedJobId];
         finCount++;
     }
@@ -336,30 +356,32 @@ function fichar(type) {
     closeTime();
 }
 
-// --- AUXILIARES ---
+// --- FUNCIONES EXTRA ---
 function saveNew() {
     const id = "ID-" + Date.now();
     db[id] = {
-        cli: document.getElementById('f-cli').value || "S/N",
+        cli: document.getElementById('f-cli').value || "CLIENTE",
         maq: document.getElementById('f-maq').value,
         met: document.getElementById('f-met').value || 0,
         tro: document.getElementById('f-tro').value || "-",
         gra: document.getElementById('f-gra').value || "-",
         mat: document.getElementById('f-mat').value || "-",
         aca: document.getElementById('f-aca').value || "-",
+        msg: document.getElementById('f-msg').value || "",
         col: document.getElementById('f-col').value,
         start: null
     };
     save();
     closeNew();
+    // Limpiar campos
+    document.getElementById('f-cli').value = "";
+    document.getElementById('f-msg').value = "";
 }
 
 function initSort() {
     ['list-flexo', 'list-digital', 'list-repaso'].forEach(id => {
         new Sortable(document.getElementById(id), {
-            group: 'planta',
-            animation: 150,
-            ghostClass: 'sortable-ghost',
+            group: 'planta', animation: 150, ghostClass: 'sortable-ghost',
             onEnd: (evt) => {
                 db[evt.item.id].maq = evt.to.id;
                 save();
@@ -369,8 +391,8 @@ function initSort() {
 }
 
 function save() {
-    localStorage.setItem('tl_db_v4', JSON.stringify(db));
-    localStorage.setItem('tl_fin_v4', finCount);
+    localStorage.setItem('tl_final_v5', JSON.stringify(db));
+    localStorage.setItem('tl_fin_v5', finCount);
     render();
 }
 
@@ -378,12 +400,10 @@ function updateStats() {
     const act = Object.keys(db).length;
     document.getElementById('c-act').innerText = act;
     document.getElementById('c-fin').innerText = finCount;
-    
     const total = act + finCount;
     const perc = total === 0 ? 0 : Math.round((finCount / total) * 100);
     document.getElementById('p-bar').style.width = perc + "%";
     document.getElementById('p-text').innerText = perc + "% completado";
-
     document.getElementById('n-flexo').innerText = document.getElementById('list-flexo').children.length;
     document.getElementById('n-digital').innerText = document.getElementById('list-digital').children.length;
     document.getElementById('n-repaso').innerText = document.getElementById('list-repaso').children.length;
@@ -392,7 +412,7 @@ function updateStats() {
 function addLog(msg) {
     const box = document.getElementById('log-box');
     const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    box.innerHTML = `<div>[${time}] ${msg}</div>` + box.innerHTML;
+    box.innerHTML = `<div style="padding:4px 0; border-bottom:1px solid #222;">[${time}] ${msg}</div>` + box.innerHTML;
 }
 
 function openNew() { document.getElementById('modal-new').style.display = 'block'; }
