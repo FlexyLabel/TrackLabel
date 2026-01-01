@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Sincronizado</title>
+    <title>Track Label Pro - Sistema Integral</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -16,7 +16,7 @@
 
         /* SEGURIDAD Y LOGIN */
         .overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
-        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; }
+        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
         .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.2s; font-size: 13px; }
         .user-item.selected { border-color: var(--orange); background: #2a3139; }
@@ -29,28 +29,34 @@
 
         /* KANBAN */
         .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .machine-col { background: #15191d; padding: 15px; border-radius: 25px; border: 1px solid var(--border); min-height: 60vh; }
-        .col-header { color: #666; font-size: 12px; letter-spacing: 2px; margin-bottom: 15px; text-align: center; font-weight: bold; }
+        .machine-col { background: #15191d; padding: 15px; border-radius: 25px; border: 1px solid var(--border); min-height: 70vh; }
+        .col-header { color: #666; font-size: 11px; letter-spacing: 2px; margin-bottom: 15px; text-align: center; font-weight: bold; text-transform: uppercase; }
         
-        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid var(--orange); cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .job-card:hover { transform: translateY(-3px); background: #252b32; }
-        .job-card strong { font-size: 16px; display: block; margin-bottom: 5px; }
-        .job-card small { color: #888; font-size: 12px; }
+        .job-card strong { font-size: 16px; display: block; margin-bottom: 5px; color: #fff; }
+        .job-card small { color: #aaa; font-size: 12px; display: block; line-height: 1.5; }
 
         /* MODALES */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9000; backdrop-filter: blur(10px); padding: 20px; overflow-y: auto; }
-        .modal-content { background: var(--surface); margin: 2% auto; padding: 30px; border-radius: 30px; width: 100%; max-width: 500px; border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9000; backdrop-filter: blur(10px); padding: 20px; overflow-y: auto; }
+        .modal-content { background: var(--surface); margin: 1% auto; padding: 30px; border-radius: 30px; width: 100%; max-width: 550px; border: 1px solid #444; }
         
-        /* BOTONES Y INPUTS */
-        input, select { width: 100%; padding: 15px; border-radius: 12px; background: #000; border: 1px solid #333; color: white; margin-bottom: 15px; }
-        .btn-main { width: 100%; padding: 18px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); }
+        /* FORMULARIO */
+        .form-section { font-size: 10px; font-weight: bold; color: var(--orange); margin: 15px 0 10px; letter-spacing: 1.5px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .input-row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .input-group { flex: 1; }
+        label { display: block; font-size: 11px; color: #666; margin-bottom: 5px; margin-left: 5px; }
+        input, select { width: 100%; padding: 14px; border-radius: 12px; background: #000; border: 1px solid #333; color: white; font-size: 14px; }
+        input:focus { border-color: var(--orange); }
         
+        .btn-main { width: 100%; padding: 18px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; margin-top: 10px; }
+        .btn-main:active { transform: scale(0.97); }
+
         /* TIEMPOS */
         .timer-box { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #222; }
         .timer-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-        .t-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .t-display { flex: 1.5; background: #000; text-align: center; padding: 10px; font-family: monospace; color: var(--orange); border-radius: 8px; font-size: 16px; }
+        .t-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; color: white; }
+        .t-display { flex: 1.5; background: #000; text-align: center; padding: 10px; font-family: monospace; color: var(--orange); border-radius: 8px; font-size: 16px; border: 1px solid #222; }
 
         @media (max-width: 1024px) {
             .app-container { flex-direction: column; }
@@ -63,16 +69,16 @@
 
 <div id="master-lock" class="overlay">
     <div class="login-box">
-        <h2 style="color:var(--orange)">TRACK LABEL</h2>
-        <p>Introduce la clave maestra de acceso</p>
-        <input type="password" id="master-pass" placeholder="Contraseña">
-        <button class="btn-main" onclick="checkMasterPass()">DESBLOQUEAR SISTEMA</button>
+        <h2 style="color:var(--orange); margin-bottom:5px">TRACK LABEL PRO</h2>
+        <p style="font-size:12px; color:#666">SISTEMA RESTRINGIDO</p>
+        <input type="password" id="master-pass" placeholder="Contraseña de la web" style="text-align:center; margin:20px 0;">
+        <button class="btn-main" onclick="checkMasterPass()">DESBLOQUEAR</button>
     </div>
 </div>
 
 <div id="login-screen" class="overlay" style="display:none">
     <div class="login-box">
-        <h3>OPERARIO EN PLANTA</h3>
+        <h3>SELECCIONA USUARIO</h3>
         <div class="user-grid">
             <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
             <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
@@ -80,7 +86,7 @@
             <div class="user-item" onclick="selectUser('Anna', this)"><div class="user-initial">A</div><span>Anna</span></div>
             <div class="user-item" onclick="selectUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
         </div>
-        <input type="password" id="user-pin" placeholder="PIN Personal">
+        <input type="password" id="user-pin" placeholder="PIN (1234)" style="text-align:center;">
         <button class="btn-main" onclick="login()">ENTRAR</button>
     </div>
 </div>
@@ -88,17 +94,17 @@
 <div id="main-app" class="app-container" style="display: none;">
     <aside class="sidebar">
         <h2 style="color:var(--orange); margin-bottom:0">PLANTA</h2>
-        <small id="sync-status" style="color:var(--green)">● Conectado local</small>
+        <small id="sync-status" style="color:var(--green)">● Conectado Local</small>
         <div style="margin-top:30px">
-            <p style="font-size: 14px; color: #888;">Ordenes activas: <strong id="stat-pend" style="color:white">0</strong></p>
+            <p style="font-size:14px; color:#888">Pedidos en cola: <strong id="stat-pend" style="color:white">0</strong></p>
         </div>
-        <button onclick="logout()" style="margin-top:auto; background:none; border:none; color:#555; cursor:pointer; font-size: 12px;">Cerrar Sesión / Salir</button>
+        <button onclick="logout()" style="margin-top:auto; background:none; border:none; color:#555; cursor:pointer; font-size:11px;">Cambiar Usuario / Salir</button>
     </aside>
 
     <section class="content-area">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
-            <h1 id="welcome-text" style="margin:0; font-size: 24px;">Panel Control</h1>
-            <button class="btn-main" style="width:auto; padding:12px 25px" onclick="openModal('modalPedido')">+ NUEVA ORDEN</button>
+            <h1 id="welcome-text" style="margin:0; font-size:24px;">Panel Control</h1>
+            <button class="btn-main" style="width:auto; padding:12px 25px" onclick="openModal('modalPedido')">+ NUEVO PEDIDO</button>
         </div>
 
         <div class="kanban-board">
@@ -111,29 +117,59 @@
 
 <div id="modalPedido" class="modal">
     <div class="modal-content">
-        <h3>CREAR NUEVA ORDEN</h3>
-        <input type="text" id="inputCliente" placeholder="Nombre del Cliente">
-        <select id="inputMaquina">
-            <option value="list-flexo">Flexo / Offset</option>
-            <option value="list-digital">Digital</option>
-        </select>
-        <input type="number" id="inputMetros" placeholder="Cantidad Metros">
+        <h3 style="margin-top:0">NUEVA ORDEN DE PRODUCCIÓN</h3>
+        
+        <div class="form-section">Datos del Cliente</div>
+        <div class="input-row">
+            <div class="input-group" style="flex:2"><label>CLIENTE</label><input type="text" id="inputCliente" placeholder="Ej: Coca-Cola"></div>
+            <div class="input-group"><label>COLOR</label><input type="color" id="inputColor" value="#ff7a00" style="padding:2px; height:50px"></div>
+        </div>
+
+        <div class="form-section">Ficha Técnica</div>
+        <div class="input-row">
+            <div class="input-group"><label>MÁQUINA</label>
+                <select id="inputMaquina">
+                    <option value="list-flexo">Flexo / Offset</option>
+                    <option value="list-digital">Digital</option>
+                </select>
+            </div>
+            <div class="input-group"><label>METROS TOTALES</label><input type="number" id="inputMetros" placeholder="0"></div>
+        </div>
+        <div class="input-row">
+            <div class="input-group"><label>Nº TROQUEL</label><input type="text" id="inputTroquel" placeholder="Ref. Troquel"></div>
+            <div class="input-group"><label>Nº GRABADO</label><input type="text" id="inputGrabado" placeholder="Ref. Grabado"></div>
+        </div>
+
+        <div class="form-section">Material y Almacén</div>
+        <div class="input-row">
+            <div class="input-group"><label>MATERIAL</label>
+                <select id="inputMaterial" onchange="actualizarEstanteria()">
+                    <option value="">Seleccionar...</option>
+                    <option value="Couché">Couché</option>
+                    <option value="PP Mate">PP Mate</option>
+                    <option value="PP Brillo">PP Brillo</option>
+                    <option value="PE">PE</option>
+                </select>
+            </div>
+            <div class="input-group"><label>ESTANTERÍA</label><input type="text" id="inputEstanteria" readonly placeholder="Auto"></div>
+        </div>
+
         <button class="btn-main" onclick="guardarPedido()">LANZAR A PLANTA</button>
-        <button class="btn-main" style="background:none; color:#666; margin-top:10px" onclick="closeModal('modalPedido')">Cancelar</button>
+        <button class="btn-main" style="background:none; color:#666; margin-top:5px" onclick="closeModal('modalPedido')">Cancelar</button>
     </div>
 </div>
 
 <div id="modalTiempos" class="modal">
     <div class="modal-content">
         <h2 id="tiempo-cliente" style="margin-top:0; color:white"></h2>
-        <p id="info-maquina" style="color:var(--orange); font-size:12px; font-weight:bold; text-transform:uppercase"></p>
+        <p id="info-detalles" style="color:var(--orange); font-size:12px; font-weight:bold;"></p>
 
         <div class="timer-box">
             <small style="color:#666">1. PREPARACIÓN</small>
             <div class="timer-row">
                 <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('prep','inicio')">INI</button>
                 <div class="t-display" id="display-prep">--:--</div>
-                <button class="t-btn" style="background:#dc3545; color:white" onclick="registrarTiempo('prep','fin')">FIN</button>
+                <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('prep','fin')">FIN</button>
             </div>
         </div>
 
@@ -142,27 +178,28 @@
             <div class="timer-row">
                 <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('tiraje','inicio')">INI</button>
                 <div class="t-display" id="display-tiraje">--:--</div>
-                <button class="t-btn" style="background:#dc3545; color:white" onclick="registrarTiempo('tiraje','fin')">FIN</button>
+                <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('tiraje','fin')">FIN</button>
             </div>
         </div>
 
         <div id="seccion-repaso" class="timer-box" style="display:none; border-color:var(--green)">
-            <small style="color:var(--green)">3. REPASO / ACABADO FINAL</small>
+            <small style="color:var(--green)">3. REPASO / ACABADO</small>
             <div class="timer-row">
                 <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('repaso','inicio')">INI</button>
                 <div class="t-display" id="display-repaso">--:--</div>
-                <button class="t-btn" style="background:#dc3545; color:white" onclick="registrarTiempo('repaso','fin')">FIN</button>
+                <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('repaso','fin')">FIN</button>
             </div>
         </div>
 
-        <button id="btn-completar" class="btn-main" style="display:none; background:var(--green); color:black; margin-top:20px;" onclick="completarPedido()">ENVIAR A EXPEDIDOS</button>
-        <button class="btn-main" style="background:none; color:#666; margin-top:10px" onclick="closeModal('modalTiempos')">Cerrar sin cambios</button>
+        <button id="btn-completar" class="btn-main" style="display:none; background:var(--green); color:black" onclick="completarPedido()">ENVIAR A EXPEDIDOS</button>
+        <button class="btn-main" style="background:none; color:#666; margin-top:10px" onclick="closeModal('modalTiempos')">Cerrar</button>
     </div>
 </div>
 
 <script>
 const MASTER_KEY = "TrackLabel#";
 const USERS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
+const ESTANTERIAS = { "Couché": "EST. A1", "PP Mate": "EST. B2", "PP Brillo": "EST. B3", "PE": "EST. C1" };
 
 let db = JSON.parse(localStorage.getItem('trackLabel_db')) || {};
 let currentUser = null;
@@ -192,7 +229,12 @@ function login() {
     } else { alert("PIN Incorrecto"); }
 }
 
-// --- CORE ---
+function actualizarEstanteria() {
+    const mat = document.getElementById("inputMaterial").value;
+    document.getElementById("inputEstanteria").value = ESTANTERIAS[mat] || "---";
+}
+
+// --- CORE PRODUCCIÓN ---
 function renderCards() {
     document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
     Object.keys(db).forEach(id => {
@@ -200,40 +242,50 @@ function renderCards() {
         const card = document.createElement("div");
         card.className = "job-card";
         card.id = id;
+        card.style.borderLeftColor = item.color;
         card.onclick = () => abrirTiempos(id);
-        card.innerHTML = `<strong>${item.cliente.toUpperCase()}</strong><small>${item.metros} metros</small>`;
+        card.innerHTML = `<strong>${item.cliente.toUpperCase()}</strong>
+            <small>📏 ${item.metros}m | T: ${item.troquel}</small>
+            <small>📍 ${item.estanteria}</small>`;
         document.getElementById(item.maquina).appendChild(card);
     });
     document.getElementById("stat-pend").innerText = Object.keys(db).length;
 }
 
 function guardarPedido() {
-    const cli = document.getElementById("inputCliente").value;
+    const cliente = document.getElementById("inputCliente").value;
     const metros = document.getElementById("inputMetros").value;
-    if(!cli || !metros) { alert("Completa los datos"); return; }
+    if(!cliente || !metros) { alert("Cliente y Metros son obligatorios"); return; }
     
     const id = "ID-" + Date.now();
     db[id] = {
-        cliente: cli,
+        cliente: cliente,
+        color: document.getElementById("inputColor").value,
         maquina: document.getElementById("inputMaquina").value,
         metros: metros,
+        troquel: document.getElementById("inputTroquel").value,
+        grabado: document.getElementById("inputGrabado").value,
+        material: document.getElementById("inputMaterial").value,
+        estanteria: document.getElementById("inputEstanteria").value,
         tiempos: { prep: {}, tiraje: {}, repaso: {} }
     };
     
     save();
-    closeModal('modalPedido'); // Cierra automáticamente
     renderCards();
+    closeModal('modalPedido');
     
-    // Limpiar inputs para la próxima vez
+    // Resetear formulario
     document.getElementById("inputCliente").value = "";
     document.getElementById("inputMetros").value = "";
+    document.getElementById("inputTroquel").value = "";
+    document.getElementById("inputGrabado").value = "";
 }
 
 function abrirTiempos(id) {
     pedidoActualId = id;
     const item = db[id];
-    document.getElementById("tiempo-cliente").innerText = item.cliente;
-    document.getElementById("info-maquina").innerText = "UBICACIÓN: " + item.maquina.replace('list-','');
+    document.getElementById("tiempo-cliente").innerText = item.cliente.toUpperCase();
+    document.getElementById("info-detalles").innerText = `FICHA: ${item.metros}m | TROQUEL: ${item.troquel} | GRABADO: ${item.grabado}`;
     
     ['prep', 'tiraje', 'repaso'].forEach(f => {
         const t = item.tiempos[f];
@@ -251,7 +303,6 @@ function registrarTiempo(fase, hito) {
     const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     db[pedidoActualId].tiempos[fase][hito] = hora;
     
-    // Si termina tiraje, mover a acabado automáticamente
     if(fase === 'tiraje' && hito === 'fin') {
         db[pedidoActualId].maquina = 'list-acabados';
         renderCards();
@@ -262,11 +313,11 @@ function registrarTiempo(fase, hito) {
 }
 
 function completarPedido() {
-    if(confirm("¿Confirmas que el trabajo está terminado y sale de planta?")) {
+    if(confirm("¿Enviar el trabajo a Expediciones y sacarlo del tablero?")) {
         delete db[pedidoActualId];
         save();
-        closeModal('modalTiempos'); // Cierra automáticamente
         renderCards();
+        closeModal('modalTiempos');
     }
 }
 
@@ -282,10 +333,8 @@ function initSortable() {
     });
 }
 
-// --- PERSISTENCIA Y MODALES ---
-function save() {
-    localStorage.setItem('trackLabel_db', JSON.stringify(db));
-}
+// --- UTILS ---
+function save() { localStorage.setItem('trackLabel_db', JSON.stringify(db)); }
 
 function openModal(id) {
     document.getElementById(id).style.display = "block";
