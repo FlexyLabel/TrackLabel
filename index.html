@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Cloud Sync</title>
+    <title>Track Label Pro - Sincronizado</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -14,177 +14,266 @@
         * { box-sizing: border-box; outline: none; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
 
-        /* PANTALLA DE SEGURIDAD (PASSWORD MAESTRA) */
-        .security-overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        
-        /* LOGIN DE USUARIOS */
-        .login-overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+        /* SEGURIDAD Y LOGIN */
+        .overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
         .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; }
-        
-        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
-        .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
+        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
+        .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.2s; font-size: 13px; }
         .user-item.selected { border-color: var(--orange); background: #2a3139; }
-        .user-initial { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
+        .user-initial { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
 
         /* APP LAYOUT */
         .app-container { display: flex; height: 100vh; }
-        .sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; flex-shrink: 0; }
-        .content-area { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg); }
+        .sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 25px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .content-area { flex: 1; padding: 25px; overflow-y: auto; }
 
         /* KANBAN */
         .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid var(--border); min-height: 500px; }
-        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid; cursor: pointer; }
+        .machine-col { background: #15191d; padding: 15px; border-radius: 25px; border: 1px solid var(--border); min-height: 60vh; }
+        .col-header { color: #666; font-size: 12px; letter-spacing: 2px; margin-bottom: 15px; text-align: center; font-weight: bold; }
+        
+        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid var(--orange); cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .job-card:hover { transform: translateY(-3px); background: #252b32; }
+        .job-card strong { font-size: 16px; display: block; margin-bottom: 5px; }
+        .job-card small { color: #888; font-size: 12px; }
 
         /* MODALES */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; backdrop-filter: blur(8px); overflow-y: auto; padding: 20px; }
-        .modal-content { background: var(--surface); margin: 2% auto; padding: 35px; border-radius: 35px; width: 100%; max-width: 550px; border: 1px solid #333; }
-
-        /* BOTONES */
-        .btn-main { width: 100%; padding: 18px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .sync-indicator { font-size: 10px; color: var(--green); text-align: center; margin-top: 10px; opacity: 0.7; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9000; backdrop-filter: blur(10px); padding: 20px; overflow-y: auto; }
+        .modal-content { background: var(--surface); margin: 2% auto; padding: 30px; border-radius: 30px; width: 100%; max-width: 500px; border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        
+        /* BOTONES Y INPUTS */
+        input, select { width: 100%; padding: 15px; border-radius: 12px; background: #000; border: 1px solid #333; color: white; margin-bottom: 15px; }
+        .btn-main { width: 100%; padding: 18px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.98); }
+        
+        /* TIEMPOS */
+        .timer-box { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #222; }
+        .timer-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .t-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .t-display { flex: 1.5; background: #000; text-align: center; padding: 10px; font-family: monospace; color: var(--orange); border-radius: 8px; font-size: 16px; }
 
         @media (max-width: 1024px) {
             .app-container { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; }
+            .sidebar { width: 100%; height: auto; border-bottom: 1px solid var(--border); }
             .kanban-board { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<div id="master-lock" class="security-overlay">
+<div id="master-lock" class="overlay">
     <div class="login-box">
-        <div style="background:var(--orange); width:50px; height:50px; margin:0 auto 20px; border-radius:10px;"></div>
-        <h3>ACCESO RESTRINGIDO</h3>
-        <input type="password" id="master-pass" placeholder="Contraseña de la web" style="width:100%; padding:15px; border-radius:12px; background:#111; border:1px solid #333; color:white; text-align:center;">
-        <button class="btn-main" style="margin-top:20px" onclick="checkMasterPass()">DESBLOQUEAR</button>
+        <h2 style="color:var(--orange)">TRACK LABEL</h2>
+        <p>Introduce la clave maestra de acceso</p>
+        <input type="password" id="master-pass" placeholder="Contraseña">
+        <button class="btn-main" onclick="checkMasterPass()">DESBLOQUEAR SISTEMA</button>
     </div>
 </div>
 
-<div id="login-screen" class="login-overlay" style="display:none">
+<div id="login-screen" class="overlay" style="display:none">
     <div class="login-box">
-        <h2>TRACK LABEL PRO</h2>
+        <h3>OPERARIO EN PLANTA</h3>
         <div class="user-grid">
             <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
             <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
-            <div class="user-item" onclick="selectUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange)">I</div><span>Ivan</span></div>
+            <div class="user-item" onclick="selectUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange); color:var(--orange)">I</div><span>Ivan</span></div>
             <div class="user-item" onclick="selectUser('Anna', this)"><div class="user-initial">A</div><span>Anna</span></div>
             <div class="user-item" onclick="selectUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
         </div>
-        <input type="password" id="user-pin" placeholder="PIN" style="width:100%; padding:15px; border-radius:12px; background:#000; border:1px solid #333; color:white; text-align:center; margin-bottom:20px;">
+        <input type="password" id="user-pin" placeholder="PIN Personal">
         <button class="btn-main" onclick="login()">ENTRAR</button>
     </div>
 </div>
 
 <div id="main-app" class="app-container" style="display: none;">
     <aside class="sidebar">
-        <h3>PLANTA</h3>
-        <div id="sync-status" class="sync-indicator">● Nube Sincronizada</div>
-        <hr style="border:0; border-top:1px solid #222; margin:20px 0">
-        <div id="stats">
-            <p>Activos: <strong id="stat-pend">0</strong></p>
-            <p>Hechos: <strong id="stat-done" style="color:var(--green)">0</strong></p>
+        <h2 style="color:var(--orange); margin-bottom:0">PLANTA</h2>
+        <small id="sync-status" style="color:var(--green)">● Conectado local</small>
+        <div style="margin-top:30px">
+            <p style="font-size: 14px; color: #888;">Ordenes activas: <strong id="stat-pend" style="color:white">0</strong></p>
         </div>
-        <button onclick="syncCloud()" style="width:100%; padding:10px; background:#222; color:white; border-radius:10px; border:none; margin-top:20px; cursor:pointer; font-size:11px;">🔄 FORZAR SINCRONIZACIÓN</button>
+        <button onclick="logout()" style="margin-top:auto; background:none; border:none; color:#555; cursor:pointer; font-size: 12px;">Cerrar Sesión / Salir</button>
     </aside>
 
     <section class="content-area">
-        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-            <h2 id="welcome-text">Panel</h2>
-            <button class="btn-main" style="width:auto; padding:12px 30px" onclick="openModal()">+ NUEVO PEDIDO</button>
-        </header>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
+            <h1 id="welcome-text" style="margin:0; font-size: 24px;">Panel Control</h1>
+            <button class="btn-main" style="width:auto; padding:12px 25px" onclick="openModal('modalPedido')">+ NUEVA ORDEN</button>
+        </div>
 
-        <main class="kanban-board">
-            <div class="machine-col"><h4>FLEXO</h4><div class="drag-zone" id="list-flexo"></div></div>
-            <div class="machine-col"><h4>DIGITAL</h4><div class="drag-zone" id="list-digital"></div></div>
-            <div class="machine-col"><h4>REPASO</h4><div class="drag-zone" id="list-acabados"></div></div>
-        </main>
+        <div class="kanban-board">
+            <div class="machine-col"><div class="col-header">FLEXO / OFFSET</div><div id="list-flexo" class="drag-zone"></div></div>
+            <div class="machine-col"><div class="col-header">DIGITAL</div><div id="list-digital" class="drag-zone"></div></div>
+            <div class="machine-col"><div class="col-header">REPASO / ACABADO</div><div id="list-acabados" class="drag-zone"></div></div>
+        </div>
     </section>
 </div>
 
 <div id="modalPedido" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0">NUEVA ORDEN</h3>
-        <input type="text" id="inputCliente" placeholder="Cliente" style="width:100%; padding:15px; margin-bottom:15px; background:#000; border:1px solid #333; color:white;">
-        <select id="inputMaquina" style="width:100%; padding:15px; margin-bottom:15px; background:#000; color:white;">
-            <option value="list-flexo">Flexo</option>
+        <h3>CREAR NUEVA ORDEN</h3>
+        <input type="text" id="inputCliente" placeholder="Nombre del Cliente">
+        <select id="inputMaquina">
+            <option value="list-flexo">Flexo / Offset</option>
             <option value="list-digital">Digital</option>
         </select>
-        <input type="number" id="inputMetros" placeholder="Metros" style="width:100%; padding:15px; margin-bottom:15px; background:#000; border:1px solid #333; color:white;">
+        <input type="number" id="inputMetros" placeholder="Cantidad Metros">
         <button class="btn-main" onclick="guardarPedido()">LANZAR A PLANTA</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Cancelar</button>
+        <button class="btn-main" style="background:none; color:#666; margin-top:10px" onclick="closeModal('modalPedido')">Cancelar</button>
+    </div>
+</div>
+
+<div id="modalTiempos" class="modal">
+    <div class="modal-content">
+        <h2 id="tiempo-cliente" style="margin-top:0; color:white"></h2>
+        <p id="info-maquina" style="color:var(--orange); font-size:12px; font-weight:bold; text-transform:uppercase"></p>
+
+        <div class="timer-box">
+            <small style="color:#666">1. PREPARACIÓN</small>
+            <div class="timer-row">
+                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('prep','inicio')">INI</button>
+                <div class="t-display" id="display-prep">--:--</div>
+                <button class="t-btn" style="background:#dc3545; color:white" onclick="registrarTiempo('prep','fin')">FIN</button>
+            </div>
+        </div>
+
+        <div class="timer-box">
+            <small style="color:#666">2. TIRAJE</small>
+            <div class="timer-row">
+                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('tiraje','inicio')">INI</button>
+                <div class="t-display" id="display-tiraje">--:--</div>
+                <button class="t-btn" style="background:#dc3545; color:white" onclick="registrarTiempo('tiraje','fin')">FIN</button>
+            </div>
+        </div>
+
+        <div id="seccion-repaso" class="timer-box" style="display:none; border-color:var(--green)">
+            <small style="color:var(--green)">3. REPASO / ACABADO FINAL</small>
+            <div class="timer-row">
+                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('repaso','inicio')">INI</button>
+                <div class="t-display" id="display-repaso">--:--</div>
+                <button class="t-btn" style="background:#dc3545; color:white" onclick="registrarTiempo('repaso','fin')">FIN</button>
+            </div>
+        </div>
+
+        <button id="btn-completar" class="btn-main" style="display:none; background:var(--green); color:black; margin-top:20px;" onclick="completarPedido()">ENVIAR A EXPEDIDOS</button>
+        <button class="btn-main" style="background:none; color:#666; margin-top:10px" onclick="closeModal('modalTiempos')">Cerrar sin cambios</button>
     </div>
 </div>
 
 <script>
-const PASS_MAESTRA = "TrackLabel#";
-const USUARIOS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
+const MASTER_KEY = "TrackLabel#";
+const USERS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
 
 let db = JSON.parse(localStorage.getItem('trackLabel_db')) || {};
-let userSeleccionado = null;
+let currentUser = null;
+let pedidoActualId = null;
 
-// --- SEGURIDAD ---
+// --- ACCESO ---
 function checkMasterPass() {
-    const p = document.getElementById("master-pass").value;
-    if(p === PASS_MAESTRA) {
+    if(document.getElementById("master-pass").value === MASTER_KEY) {
         document.getElementById("master-lock").style.display = "none";
         document.getElementById("login-screen").style.display = "flex";
     } else { alert("Contraseña incorrecta"); }
 }
 
-function selectUser(n, el) {
-    userSeleccionado = n;
+function selectUser(name, el) {
+    currentUser = name;
     document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
 }
 
 function login() {
-    const pin = document.getElementById("user-pin").value;
-    if(USUARIOS[userSeleccionado] === pin) {
+    if(USERS[currentUser] === document.getElementById("user-pin").value) {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("main-app").style.display = "flex";
-        document.getElementById("welcome-text").innerText = "Operario: " + userSeleccionado;
-        renderAll();
+        document.getElementById("welcome-text").innerText = "Hola, " + currentUser;
+        renderCards();
         initSortable();
-    }
+    } else { alert("PIN Incorrecto"); }
 }
 
-// --- LÓGICA DE DATOS ---
-function renderAll() {
+// --- CORE ---
+function renderCards() {
     document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
     Object.keys(db).forEach(id => {
-        const data = db[id];
+        const item = db[id];
         const card = document.createElement("div");
         card.className = "job-card";
         card.id = id;
-        card.style.borderLeftColor = data.color || "var(--orange)";
-        card.innerHTML = `<strong>${data.cliente}</strong><br><small>${data.metros}m</small>`;
-        document.getElementById(data.maquina).appendChild(card);
+        card.onclick = () => abrirTiempos(id);
+        card.innerHTML = `<strong>${item.cliente.toUpperCase()}</strong><small>${item.metros} metros</small>`;
+        document.getElementById(item.maquina).appendChild(card);
     });
-    actualizarStats();
+    document.getElementById("stat-pend").innerText = Object.keys(db).length;
 }
 
 function guardarPedido() {
     const cli = document.getElementById("inputCliente").value;
-    if(!cli) return;
+    const metros = document.getElementById("inputMetros").value;
+    if(!cli || !metros) { alert("Completa los datos"); return; }
+    
     const id = "ID-" + Date.now();
     db[id] = {
         cliente: cli,
         maquina: document.getElementById("inputMaquina").value,
-        metros: document.getElementById("inputMetros").value,
-        color: "var(--orange)"
+        metros: metros,
+        tiempos: { prep: {}, tiraje: {}, repaso: {} }
     };
+    
     save();
-    closeModal();
-    renderAll();
+    closeModal('modalPedido'); // Cierra automáticamente
+    renderCards();
+    
+    // Limpiar inputs para la próxima vez
+    document.getElementById("inputCliente").value = "";
+    document.getElementById("inputMetros").value = "";
+}
+
+function abrirTiempos(id) {
+    pedidoActualId = id;
+    const item = db[id];
+    document.getElementById("tiempo-cliente").innerText = item.cliente;
+    document.getElementById("info-maquina").innerText = "UBICACIÓN: " + item.maquina.replace('list-','');
+    
+    ['prep', 'tiraje', 'repaso'].forEach(f => {
+        const t = item.tiempos[f];
+        document.getElementById(`display-${f}`).innerText = (t.inicio || "--") + " > " + (t.fin || "--");
+    });
+
+    const esAcabado = (item.maquina === 'list-acabados');
+    document.getElementById("seccion-repaso").style.display = esAcabado ? "block" : "none";
+    document.getElementById("btn-completar").style.display = esAcabado ? "block" : "none";
+    
+    openModal('modalTiempos');
+}
+
+function registrarTiempo(fase, hito) {
+    const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    db[pedidoActualId].tiempos[fase][hito] = hora;
+    
+    // Si termina tiraje, mover a acabado automáticamente
+    if(fase === 'tiraje' && hito === 'fin') {
+        db[pedidoActualId].maquina = 'list-acabados';
+        renderCards();
+    }
+    
+    save();
+    abrirTiempos(pedidoActualId);
+}
+
+function completarPedido() {
+    if(confirm("¿Confirmas que el trabajo está terminado y sale de planta?")) {
+        delete db[pedidoActualId];
+        save();
+        closeModal('modalTiempos'); // Cierra automáticamente
+        renderCards();
+    }
 }
 
 function initSortable() {
     document.querySelectorAll('.drag-zone').forEach(zona => {
         new Sortable(zona, { 
-            group: 'planta',
-            animation: 150,
+            group: 'planta', animation: 150,
             onEnd: (evt) => {
                 db[evt.item.id].maquina = evt.to.id;
                 save();
@@ -193,34 +282,22 @@ function initSortable() {
     });
 }
 
+// --- PERSISTENCIA Y MODALES ---
 function save() {
     localStorage.setItem('trackLabel_db', JSON.stringify(db));
-    // Aquí podrías añadir un fetch() a una API para sincronizar dispositivos
-    actualizarStats();
 }
 
-function actualizarStats() {
-    document.getElementById("stat-pend").innerText = Object.keys(db).length;
+function openModal(id) {
+    document.getElementById(id).style.display = "block";
+    document.body.style.overflow = "hidden";
 }
 
-// --- GESTIÓN DE MODALES (CORRECCIÓN DE BLOQUEO) ---
-function openModal() {
-    document.getElementById("modalPedido").style.display = "block";
-    document.body.style.overflow = "hidden"; // Bloquea scroll fondo
+function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+    document.body.style.overflow = "auto";
 }
 
-function closeModal() {
-    document.getElementById("modalPedido").style.display = "none";
-    document.body.style.overflow = "auto"; // Libera la pantalla principal
-}
-
-// Función para sincronización manual (Simulación nube)
-function syncCloud() {
-    document.getElementById("sync-status").innerText = "⌛ Sincronizando...";
-    setTimeout(() => {
-        document.getElementById("sync-status").innerText = "● Nube Actualizada";
-    }, 1500);
-}
+function logout() { location.reload(); }
 </script>
 </body>
 </html>
