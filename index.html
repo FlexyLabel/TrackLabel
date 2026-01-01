@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - FINAL</title>
+    <title>Track Label Pro - Fix Tiempos</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -14,19 +14,18 @@
         * { box-sizing: border-box; outline: none; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
 
-        /* SEGURIDAD Y ACCESO */
+        /* ACCESO */
         .overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
         .login-box { background: var(--surface); padding: 40px; border-radius: 30px; text-align: center; width: 100%; max-width: 400px; border: 1px solid #333; }
-        
         .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
-        .user-item { background: #15191d; padding: 12px; border-radius: 15px; border: 1px solid #222; cursor: pointer; transition: 0.2s; font-size: 12px; }
+        .user-item { background: #15191d; padding: 12px; border-radius: 15px; border: 1px solid #222; cursor: pointer; transition: 0.2s; font-size: 11px; }
         .user-item.selected { border-color: var(--orange); background: #2a3139; }
         .user-initial { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #444; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: bold; }
 
-        /* LAYOUT PRINCIPAL */
+        /* APP */
         .app-container { display: flex; height: 100vh; width: 100vw; }
         .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
-        .content-area { flex: 1; padding: 25px; overflow-y: auto; height: 100vh; }
+        .content-area { flex: 1; padding: 25px; overflow-y: auto; }
 
         /* KANBAN */
         .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; min-height: 80vh; }
@@ -34,34 +33,33 @@
         .col-header { color: #666; font-size: 11px; letter-spacing: 2px; margin-bottom: 15px; text-align: center; font-weight: bold; text-transform: uppercase; }
         .drag-zone { flex: 1; min-height: 100px; }
         
-        .job-card { background: var(--surface); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 6px solid; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); position: relative; }
-        .job-card strong { font-size: 15px; display: block; color: #fff; margin-bottom: 4px; }
+        .job-card { background: var(--surface); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 6px solid; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        .job-card strong { font-size: 15px; display: block; color: #fff; }
         .job-card small { color: #aaa; font-size: 11px; display: block; margin-top: 2px; }
 
-        /* MODALES (ELIMINADO DISPLAY NONE PARA CONTROL POR JS) */
+        /* MODALES */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9000; backdrop-filter: blur(8px); overflow-y: auto; padding: 15px; }
-        .modal-content { background: var(--surface); margin: 20px auto; padding: 25px; border-radius: 25px; width: 100%; max-width: 550px; border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .modal-content { background: var(--surface); margin: 20px auto; padding: 25px; border-radius: 25px; width: 100%; max-width: 550px; border: 1px solid #444; }
         
-        /* FORMULARIOS */
         .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .input-group { flex: 1; display: flex; flex-direction: column; }
-        label { font-size: 10px; color: #888; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; }
+        label { font-size: 10px; color: #888; margin-bottom: 6px; font-weight: bold; }
         input, select { background: #000; border: 1px solid #333; padding: 12px; color: white; border-radius: 10px; font-size: 14px; width: 100%; }
 
         .btn-main { width: 100%; padding: 16px; background: var(--orange); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
-        .btn-cancel { background: none; color: #666; padding: 12px; border: none; cursor: pointer; width: 100%; margin-top: 5px; }
+        .btn-cancel { background: none; color: #666; padding: 12px; border: none; cursor: pointer; width: 100%; }
 
-        /* TIEMPOS */
+        /* BOTONES TIEMPOS */
         .timer-box { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #222; }
         .timer-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-        .t-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; color: white; }
-        .t-display { flex: 1.5; background: #000; text-align: center; padding: 10px; font-family: monospace; color: var(--orange); border-radius: 8px; font-size: 17px; border: 1px solid #222; }
+        .t-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 11px; color: white; }
+        .t-btn:active { opacity: 0.7; }
+        .t-display { flex: 1.5; background: #000; text-align: center; padding: 10px; font-family: monospace; color: var(--orange); border-radius: 8px; font-size: 16px; border: 1px solid #333; }
 
         @media (max-width: 1024px) {
             .app-container { flex-direction: column; overflow-y: auto; }
-            .sidebar { width: 100%; height: auto; border-bottom: 1px solid var(--border); }
+            .sidebar { width: 100%; height: auto; }
             .kanban-board { grid-template-columns: 1fr; }
-            body { overflow: auto; }
         }
     </style>
 </head>
@@ -71,13 +69,13 @@
     <div class="login-box">
         <h2 style="color:var(--orange)">TRACK LABEL PRO</h2>
         <input type="password" id="master-pass" placeholder="Password: TrackLabel#" style="text-align:center; margin:20px 0;">
-        <button class="btn-main" onclick="checkMasterPass()">ENTRAR AL SISTEMA</button>
+        <button class="btn-main" onclick="checkMasterPass()">DESBLOQUEAR</button>
     </div>
 </div>
 
 <div id="login-screen" class="overlay" style="display:none">
     <div class="login-box">
-        <h3>SELECCIÓN OPERARIO</h3>
+        <h3>USUARIO</h3>
         <div class="user-grid">
             <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
             <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
@@ -86,23 +84,23 @@
             <div class="user-item" onclick="selectUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
         </div>
         <input type="password" id="user-pin" placeholder="PIN (1234)" style="text-align:center;">
-        <button class="btn-main" onclick="login()">ACCEDER</button>
+        <button class="btn-main" onclick="login()">ENTRAR</button>
     </div>
 </div>
 
 <div id="main-app" class="app-container" style="display: none;">
     <aside class="sidebar">
         <h2 style="color:var(--orange)">PLANTA</h2>
-        <div style="margin: 20px 0;">
-            <p style="font-size:14px; color:#888">Activos: <strong id="stat-pend" style="color:white">0</strong></p>
+        <div style="margin-top:20px">
+            <p style="font-size:13px; color:#888">Pedidos en cola: <strong id="stat-pend" style="color:white">0</strong></p>
         </div>
         <button onclick="logout()" style="margin-top:auto; background:none; border:none; color:#555; cursor:pointer;">Cerrar Sesión</button>
     </aside>
 
     <section class="content-area">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px">
-            <h1 id="welcome-text" style="margin:0; font-size:24px;">Panel de Control</h1>
-            <button class="btn-main" style="width:auto; padding:12px 25px; margin:0;" onclick="openModal('modalPedido')">+ NUEVO PEDIDO</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+            <h1 id="welcome-text" style="margin:0; font-size:22px;">Panel</h1>
+            <button class="btn-main" style="width:auto; padding:12px 20px; margin:0;" onclick="openModal('modalPedido')">+ NUEVO TRABAJO</button>
         </div>
 
         <div class="kanban-board">
@@ -116,12 +114,10 @@
 <div id="modalPedido" class="modal">
     <div class="modal-content">
         <h2 style="color:var(--orange); margin-top:0">NUEVA ORDEN</h2>
-        
         <div class="input-row">
             <div class="input-group" style="flex:2"><label>CLIENTE</label><input type="text" id="inputCliente"></div>
             <div class="input-group"><label>COLOR</label><input type="color" id="inputColor" value="#ff7a00"></div>
         </div>
-
         <div class="input-row">
             <div class="input-group"><label>MÁQUINA</label>
                 <select id="inputMaquina">
@@ -131,12 +127,10 @@
             </div>
             <div class="input-group"><label>METROS</label><input type="number" id="inputMetros"></div>
         </div>
-
         <div class="input-row">
             <div class="input-group"><label>Nº TROQUEL</label><input type="text" id="inputTroquel"></div>
             <div class="input-group"><label>Nº GRABADO</label><input type="text" id="inputGrabado"></div>
         </div>
-
         <div class="input-row">
             <div class="input-group"><label>MATERIAL</label>
                 <select id="inputMaterial" onchange="autoEstanteria()">
@@ -149,7 +143,6 @@
             </div>
             <div class="input-group"><label>ESTANTERÍA</label><input type="text" id="inputEstanteria" readonly></div>
         </div>
-
         <button class="btn-main" onclick="guardarPedido()">LANZAR A PLANTA</button>
         <button class="btn-cancel" onclick="closeModal('modalPedido')">Cancelar</button>
     </div>
@@ -157,56 +150,56 @@
 
 <div id="modalTiempos" class="modal">
     <div class="modal-content">
-        <h2 id="tiempo-cliente" style="margin-top:0; color:white"></h2>
-        <p id="info-tecnica" style="color:var(--orange); font-size:12px; font-weight:bold; margin-bottom:20px;"></p>
+        <h2 id="t-cliente-titulo" style="margin-top:0; color:white"></h2>
+        <p id="t-ficha-tecnica" style="color:var(--orange); font-size:12px; font-weight:bold; margin-bottom:20px;"></p>
 
         <div class="timer-box">
             <small style="color:#666">1. PREPARACIÓN</small>
             <div class="timer-row">
-                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('prep','inicio')">INICIO</button>
-                <div class="t-display" id="display-prep">--:--</div>
-                <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('prep','fin')">FIN</button>
+                <button class="t-btn" style="background:var(--green)" onclick="marcar('prep','inicio')">INICIO</button>
+                <div class="t-display" id="disp-prep">--:--</div>
+                <button class="t-btn" style="background:#dc3545" onclick="marcar('prep','fin')">FIN</button>
             </div>
         </div>
 
         <div class="timer-box">
             <small style="color:#666">2. TIRAJE</small>
             <div class="timer-row">
-                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('tiraje','inicio')">INICIO</button>
-                <div class="t-display" id="display-tiraje">--:--</div>
-                <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('tiraje','fin')">FIN</button>
+                <button class="t-btn" style="background:var(--green)" onclick="marcar('tiraje','inicio')">INICIO</button>
+                <div class="t-display" id="disp-tiraje">--:--</div>
+                <button class="t-btn" style="background:#dc3545" onclick="marcar('tiraje','fin')">FIN</button>
             </div>
         </div>
 
-        <div id="seccion-repaso" class="timer-box" style="display:none; border-color:var(--green)">
+        <div id="box-repaso" class="timer-box" style="display:none; border-color:var(--green)">
             <small style="color:var(--green)">3. REPASO / ACABADO</small>
             <div class="timer-row">
-                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('repaso','inicio')">INICIO</button>
-                <div class="t-display" id="display-repaso">--:--</div>
-                <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('repaso','fin')">FIN</button>
+                <button class="t-btn" style="background:var(--green)" onclick="marcar('repaso','inicio')">INICIO</button>
+                <div class="t-display" id="disp-repaso">--:--</div>
+                <button class="t-btn" style="background:#dc3545" onclick="marcar('repaso','fin')">FIN</button>
             </div>
         </div>
 
-        <button id="btn-completar" class="btn-main" style="display:none; background:var(--green); color:black" onclick="completarPedido()">ENVIAR A EXPEDIDOS</button>
-        <button class="btn-cancel" onclick="closeModal('modalTiempos')">Cerrar Ventana</button>
+        <button id="btn-finalizar" class="btn-main" style="display:none; background:var(--green); color:black" onclick="expedir()">ENVIAR A EXPEDIDOS</button>
+        <button class="btn-cancel" onclick="closeModal('modalTiempos')">Cerrar</button>
     </div>
 </div>
 
 <script>
 const MASTER_KEY = "TrackLabel#";
 const USERS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
-const MATERIALES = { "Couché": "EST. A1", "PP Mate": "EST. B2", "PP Brillo": "EST. B3", "PE": "EST. C1" };
+const MAT_MAP = { "Couché": "EST. A1", "PP Mate": "EST. B2", "PP Brillo": "EST. B3", "PE": "EST. C1" };
 
 let db = JSON.parse(localStorage.getItem('trackLabel_db')) || {};
 let currentUser = null;
-let pedidoActualId = null;
+let pedidoIdActivo = null;
 
-// ACCESO SEGURIDAD
+// SISTEMA ACCESO
 function checkMasterPass() {
     if(document.getElementById("master-pass").value === MASTER_KEY) {
         document.getElementById("master-lock").style.display = "none";
         document.getElementById("login-screen").style.display = "flex";
-    } else { alert("Error: Clave incorrecta"); }
+    } else { alert("Clave incorrecta"); }
 }
 
 function selectUser(name, el) {
@@ -220,18 +213,20 @@ function login() {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("main-app").style.display = "flex";
         document.getElementById("welcome-text").innerText = "Operario: " + currentUser;
-        renderCards();
-        initSortable();
-    } else { alert("PIN Incorrecto"); }
+        renderTablero();
+        initDrag();
+    } else { alert("PIN incorrecto"); }
 }
 
 function autoEstanteria() {
     const mat = document.getElementById("inputMaterial").value;
-    document.getElementById("inputEstanteria").value = MATERIALES[mat] || "";
+    document.getElementById("inputEstanteria").value = MAT_MAP[mat] || "";
 }
 
-// PRODUCCIÓN
-function renderCards() {
+// LOGICA DE DATOS
+function save() { localStorage.setItem('trackLabel_db', JSON.stringify(db)); }
+
+function renderTablero() {
     document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
     Object.keys(db).forEach(id => {
         const item = db[id];
@@ -239,82 +234,88 @@ function renderCards() {
         card.className = "job-card";
         card.id = id;
         card.style.borderLeftColor = item.color;
-        // IMPORTANTE: Aseguramos el click para abrir tiempos
-        card.onclick = () => abrirTiempos(id);
-        
+        card.onclick = () => abrirModalTiempos(id);
         card.innerHTML = `<strong>${item.cliente.toUpperCase()}</strong>
             <small>📏 ${item.metros}m | T: ${item.troquel}</small>
-            <small>📦 Material: ${item.material} | ${item.estanteria}</small>`;
+            <small>📦 ${item.material} - ${item.estanteria}</small>`;
         document.getElementById(item.maquina).appendChild(card);
     });
     document.getElementById("stat-pend").innerText = Object.keys(db).length;
 }
 
 function guardarPedido() {
-    const cli = document.getElementById("inputCliente").value;
-    const met = document.getElementById("inputMetros").value;
-    if(!cli || !met) { alert("Cliente y Metros son obligatorios"); return; }
+    const c = document.getElementById("inputCliente").value;
+    const m = document.getElementById("inputMetros").value;
+    if(!c || !m) return alert("Faltan datos");
     
-    const id = "ID-" + Date.now();
+    const id = "JOB-" + Date.now();
     db[id] = {
-        cliente: cli,
-        color: document.getElementById("inputColor").value,
-        maquina: document.getElementById("inputMaquina").value,
-        metros: met,
-        troquel: document.getElementById("inputTroquel").value,
-        grabado: document.getElementById("inputGrabado").value,
-        material: document.getElementById("inputMaterial").value,
-        estanteria: document.getElementById("inputEstanteria").value,
+        cliente: c, color: document.getElementById("inputColor").value,
+        maquina: document.getElementById("inputMaquina").value, metros: m,
+        troquel: document.getElementById("inputTroquel").value, grabado: document.getElementById("inputGrabado").value,
+        material: document.getElementById("inputMaterial").value, estanteria: document.getElementById("inputEstanteria").value,
         tiempos: { prep: {}, tiraje: {}, repaso: {} }
     };
-    
-    save();
-    renderCards();
-    closeModal('modalPedido');
+    save(); renderTablero(); closeModal('modalPedido');
 }
 
-function abrirTiempos(id) {
-    pedidoActualId = id;
-    const item = db[id];
+// GESTIÓN DE TIEMPOS (FIX)
+function abrirModalTiempos(id) {
+    pedidoIdActivo = id; // IMPORTANTE: Bloqueamos el ID aquí
+    const p = db[id];
     
-    document.getElementById("tiempo-cliente").innerText = item.cliente.toUpperCase();
-    document.getElementById("info-tecnica").innerText = `MÉTRICA: ${item.metros}m | TROQUEL: ${item.troquel} | GRABADO: ${item.grabado}`;
+    document.getElementById("t-cliente-titulo").innerText = p.cliente.toUpperCase();
+    document.getElementById("t-ficha-tecnica").innerText = `FICHA: ${p.metros}m | TROQUEL: ${p.troquel} | GRABADO: ${p.grabado}`;
     
-    // Rellenar visualmente los tiempos
-    ['prep', 'tiraje', 'repaso'].forEach(f => {
-        const t = item.tiempos[f];
-        document.getElementById(`display-${f}`).innerText = (t.inicio || "--") + " > " + (t.fin || "--");
-    });
+    actualizarDisplaysTiempos(p);
 
-    const esAcabado = (item.maquina === 'list-acabados');
-    document.getElementById("seccion-repaso").style.display = esAcabado ? "block" : "none";
-    document.getElementById("btn-completar").style.display = esAcabado ? "block" : "none";
+    const esAcabado = (p.maquina === 'list-acabados');
+    document.getElementById("box-repaso").style.display = esAcabado ? "block" : "none";
+    document.getElementById("btn-finalizar").style.display = esAcabado ? "block" : "none";
     
     openModal('modalTiempos');
 }
 
-function registrarTiempo(fase, hito) {
+function marcar(fase, hito) {
+    if(!pedidoIdActivo) return;
     const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    db[pedidoActualId].tiempos[fase][hito] = hora;
     
+    // Registrar en la DB
+    db[pedidoIdActivo].tiempos[fase][hito] = hora;
+    
+    // Si termina tiraje, mover a acabados
     if(fase === 'tiraje' && hito === 'fin') {
-        db[pedidoActualId].maquina = 'list-acabados';
-        renderCards();
-    }
-    save();
-    abrirTiempos(pedidoActualId); // Refresca el modal con la nueva hora
-}
-
-function completarPedido() {
-    if(confirm("¿Finalizar orden y enviar a expedición?")) {
-        delete db[pedidoActualId];
-        save();
-        renderCards();
+        db[pedidoIdActivo].maquina = 'list-acabados';
+        renderTablero();
+        // Cerramos y reabrimos para actualizar la vista de "Repaso"
         closeModal('modalTiempos');
+        abrirModalTiempos(pedidoIdActivo);
+    }
+    
+    save();
+    actualizarDisplaysTiempos(db[pedidoIdActivo]);
+}
+
+function actualizarDisplaysTiempos(p) {
+    ['prep', 'tiraje', 'repaso'].forEach(f => {
+        const ini = p.tiempos[f].inicio || "--:--";
+        const fin = p.tiempos[f].fin || "--:--";
+        document.getElementById(`disp-${f}`).innerText = `${ini} > ${fin}`;
+    });
+}
+
+function expedir() {
+    if(confirm("¿Enviar a expedición?")) {
+        delete db[pedidoIdActivo];
+        save(); renderTablero(); closeModal('modalTiempos');
     }
 }
 
-function initSortable() {
+// UTILIDADES MODAL Y DRAG
+function openModal(id) { document.getElementById(id).style.display = "block"; }
+function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+function initDrag() {
     document.querySelectorAll('.drag-zone').forEach(zona => {
         new Sortable(zona, { group: 'planta', animation: 150, onEnd: () => {
             document.querySelectorAll('.drag-zone').forEach(col => {
@@ -325,10 +326,6 @@ function initSortable() {
     });
 }
 
-// UTILIDADES
-function save() { localStorage.setItem('trackLabel_db', JSON.stringify(db)); }
-function openModal(id) { document.getElementById(id).style.display = "block"; document.body.style.overflow = "hidden"; }
-function closeModal(id) { document.getElementById(id).style.display = "none"; document.body.style.overflow = "auto"; }
 function logout() { location.reload(); }
 </script>
 </body>
