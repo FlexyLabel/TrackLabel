@@ -1,7 +1,246 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Track Label Pro - Sistema Integral</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --bg: #0b0e11; --sidebar: #15191d; --surface: #1e2329;
+            --orange: #ff7a00; --green: #00ff88; --text: #f0f0f0; --border: #282e35;
+        }
+        
+        * { box-sizing: border-box; outline: none; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+
+        /* PANTALLA DE CONTRASEÑA MAESTRA */
+        .master-overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 20000; }
+        
+        /* LOGIN DE USUARIOS */
+        .login-overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
+        .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
+        .user-item.selected { border-color: var(--orange); background: #2a3139; }
+        .user-initial { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
+
+        /* LAYOUT PRINCIPAL */
+        .app-container { display: flex; height: 100vh; flex-direction: row; }
+        
+        .sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; flex-shrink: 0; display: flex; flex-direction: column; }
+        .info-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .info-card h4 { margin: 0 0 12px; font-size: 10px; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; }
+        
+        .progress-bar { background: #000; height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { background: var(--green); height: 100%; width: 0%; transition: 1s; }
+
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; }
+        
+        /* HEADER */
+        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .btn-add { background: var(--orange); color: white; padding: 12px 25px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
+
+        /* KANBAN */
+        .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid var(--border); min-height: 500px; }
+        .col-header { border-bottom: 1px solid #222; margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        .drag-zone { min-height: 400px; }
+        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid var(--orange); cursor: pointer; transition: 0.3s; }
+        .job-card:hover { transform: translateY(-3px); }
+
+        /* MODALES */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; backdrop-filter: blur(10px); padding: 20px; overflow-y: auto; }
+        .modal-content { background: var(--surface); margin: 2% auto; padding: 35px; border-radius: 35px; width: 100%; max-width: 550px; border: 1px solid #333; position: relative; }
+        
+        input, select { width: 100%; background: #000; border: 1px solid #333; padding: 15px; color: white; border-radius: 12px; margin-bottom: 15px; }
+        .btn-save { width: 100%; padding: 20px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+
+        /* RESPONSIVE MÓVIL (CORRECCIÓN DE TU CAPTURA) */
+        @media (max-width: 1024px) {
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; }
+            .sidebar h4, .sidebar #activity-log, .sidebar hr { display: none; }
+            .kanban-board { grid-template-columns: 1fr; }
+            .main-header { flex-direction: column; gap: 15px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="master-lock" class="master-overlay">
+    <div class="login-box">
+        <h2 style="color:var(--orange)">ACCESO WEB</h2>
+        <input type="password" id="pass-web" placeholder="Contraseña: TrackLabel#" style="text-align:center;">
+        <button class="btn-save" onclick="unlockWeb()">DESBLOQUEAR</button>
+    </div>
+</div>
+
+<div id="login-screen" class="login-overlay" style="display:none">
+    <div class="login-box">
+        <h2>TRACK LABEL PRO</h2>
+        <div class="user-grid">
+            <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
+            <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
+            <div class="user-item" onclick="selectUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange)">I</div><span>Ivan</span></div>
+            <div class="user-item" onclick="selectUser('Anna', this)"><div class="user-initial">A</div><span>Anna</span></div>
+            <div class="user-item" onclick="selectUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
+        </div>
+        <input type="password" id="user-pin" placeholder="PIN Operario" style="text-align:center;">
+        <button class="btn-save" onclick="loginApp()">ENTRAR</button>
+    </div>
+</div>
+
+<div id="main-app" class="app-container" style="display:none">
+    <aside class="sidebar">
+        <div class="info-card">
+            <h4>PROGRESO HOY</h4>
+            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+            <small id="progress-text">0%</small>
+        </div>
+        <div class="info-card">
+            <h4>ESTADÍSTICAS</h4>
+            <div style="display:flex; justify-content:space-between"><span>Activos:</span> <strong id="stat-pend">0</strong></div>
+            <div style="display:flex; justify-content:space-between"><span>Hechos:</span> <strong id="stat-done" style="color:var(--green)">0</strong></div>
+        </div>
+        <button onclick="location.reload()" style="background:none; border:none; color:#444; font-size:10px; cursor:pointer; margin-top:auto;">CERRAR SESIÓN</button>
+    </aside>
+
+    <section class="content-area">
+        <header class="main-header">
+            <h2 id="welcome-text">Panel de Control</h2>
+            <button class="btn-add" onclick="openModal()">+ NUEVO PEDIDO</button>
+        </header>
+
+        <main class="kanban-board">
+            <div class="machine-col">
+                <div class="col-header"><h3>FLEXO</h3> <span id="badge-flexo" class="badge">0</span></div>
+                <div id="list-flexo" class="drag-zone"></div>
+            </div>
+            <div class="machine-col">
+                <div class="col-header"><h3>DIGITAL</h3> <span id="badge-digital" class="badge">0</span></div>
+                <div id="list-digital" class="drag-zone"></div>
+            </div>
+            <div class="machine-col">
+                <div class="col-header"><h3>REPASO</h3> <span id="badge-acabados" class="badge">0</span></div>
+                <div id="list-acabados" class="drag-zone"></div>
+            </div>
+        </main>
+    </section>
+</div>
+
+<div id="modalPedido" class="modal">
+    <div class="modal-content">
+        <h3>NUEVA ORDEN DE PRODUCCIÓN</h3>
+        <label>CLIENTE</label>
+        <input type="text" id="inCli" placeholder="Nombre del cliente">
+        <label>MÁQUINA DESTINO</label>
+        <select id="inMaq">
+            <option value="list-flexo">Flexo</option>
+            <option value="list-digital">Digital</option>
+        </select>
+        <label>METROS</label>
+        <input type="number" id="inMet" placeholder="0">
+        <button class="btn-save" onclick="addPedido()">LANZAR A PLANTA</button>
+        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Cancelar y Volver</button>
+    </div>
+</div>
+
+<script>
+// VARIABLES
+const PASS_MAESTRA = "TrackLabel#";
+const USUARIOS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
+let db = JSON.parse(localStorage.getItem('track_db')) || {};
+let userActivo = null;
+
+// SEGURIDAD
+function unlockWeb() {
+    if(document.getElementById('pass-web').value === PASS_MAESTRA) {
+        document.getElementById('master-lock').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+    } else { alert("Contraseña Web Incorrecta"); }
+}
+
+function selectUser(name, el) {
+    userActivo = name;
+    document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+function loginApp() {
+    const pin = document.getElementById('user-pin').value;
+    if(userActivo && USUARIOS[userActivo] === pin) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+        document.getElementById('welcome-text').innerText = "Hola, " + userActivo;
+        render();
+        initSortable();
+    } else { alert("PIN Incorrecto"); }
+}
+
+// LOGICA
+function addPedido() {
+    const cli = document.getElementById('inCli').value;
+    if(!cli) return;
+    const id = "ID-" + Date.now();
+    db[id] = { cli: cli, maq: document.getElementById('inMaq').value, met: document.getElementById('inMet').value };
+    save();
+    closeModal();
+    render();
+}
+
+function render() {
+    document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
+    Object.keys(db).forEach(id => {
+        const item = db[id];
+        const card = document.createElement('div');
+        card.className = "job-card";
+        card.id = id;
+        card.innerHTML = `<strong>${item.cli.toUpperCase()}</strong><br><small>${item.met} metros</small>`;
+        card.onclick = () => { if(confirm("¿Finalizar pedido?")) { delete db[id]; save(); render(); } };
+        document.getElementById(item.maq).appendChild(card);
+    });
+    actualizarStats();
+}
+
+function initSortable() {
+    document.querySelectorAll('.drag-zone').forEach(z => {
+        new Sortable(z, { group: 'planta', animation: 150, onEnd: (e) => {
+            db[e.item.id].maq = e.to.id;
+            save();
+        }});
+    });
+}
+
+function save() {
+    localStorage.setItem('track_db', JSON.stringify(db));
+    actualizarStats();
+}
+
+function actualizarStats() {
+    const total = Object.keys(db).length;
+    document.getElementById('stat-pend').innerText = total;
+    document.getElementById('badge-flexo').innerText = document.getElementById('list-flexo').children.length;
+    document.getElementById('badge-digital').innerText = document.getElementById('list-digital').children.length;
+    document.getElementById('badge-acabados').innerText = document.getElementById('list-acabados').children.length;
+}
+
+// MODALES (Solución al bloqueo)
+function openModal() {
+    document.getElementById('modalPedido').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+    document.getElementById('modalPedido').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+</script>
+</body>
+</html>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Track Label Pro v5 - FULL</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
