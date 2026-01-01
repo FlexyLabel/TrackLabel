@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Sistema Completo</title>
+    <title>Track Label Pro - FINAL</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -23,7 +23,7 @@
         .user-item.selected { border-color: var(--orange); background: #2a3139; }
         .user-initial { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #444; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: bold; }
 
-        /* LAYOUT */
+        /* LAYOUT PRINCIPAL */
         .app-container { display: flex; height: 100vh; width: 100vw; }
         .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
         .content-area { flex: 1; padding: 25px; overflow-y: auto; height: 100vh; }
@@ -34,31 +34,28 @@
         .col-header { color: #666; font-size: 11px; letter-spacing: 2px; margin-bottom: 15px; text-align: center; font-weight: bold; text-transform: uppercase; }
         .drag-zone { flex: 1; min-height: 100px; }
         
-        .job-card { background: var(--surface); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .job-card { background: var(--surface); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 6px solid; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); position: relative; }
         .job-card strong { font-size: 15px; display: block; color: #fff; margin-bottom: 4px; }
-        .job-card small { color: #aaa; font-size: 11px; display: block; }
+        .job-card small { color: #aaa; font-size: 11px; display: block; margin-top: 2px; }
 
-        /* MODALES */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9000; backdrop-filter: blur(8px); overflow-y: auto; padding: 10px; }
-        .modal-content { background: var(--surface); margin: 20px auto; padding: 25px; border-radius: 25px; width: 100%; max-width: 550px; border: 1px solid #444; }
+        /* MODALES (ELIMINADO DISPLAY NONE PARA CONTROL POR JS) */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9000; backdrop-filter: blur(8px); overflow-y: auto; padding: 15px; }
+        .modal-content { background: var(--surface); margin: 20px auto; padding: 25px; border-radius: 25px; width: 100%; max-width: 550px; border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         
-        /* FORMULARIO DE PEDIDO (ESTILO TABLA) */
-        .form-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: var(--orange); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        /* FORMULARIOS */
         .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .input-group { flex: 1; display: flex; flex-direction: column; }
-        label { font-size: 10px; color: #888; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; padding-left: 5px; }
-        
+        label { font-size: 10px; color: #888; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; }
         input, select { background: #000; border: 1px solid #333; padding: 12px; color: white; border-radius: 10px; font-size: 14px; width: 100%; }
-        input:focus { border-color: var(--orange); }
 
         .btn-main { width: 100%; padding: 16px; background: var(--orange); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
-        .btn-cancel { background: none; color: #666; padding: 10px; border: none; cursor: pointer; width: 100%; margin-top: 5px; }
+        .btn-cancel { background: none; color: #666; padding: 12px; border: none; cursor: pointer; width: 100%; margin-top: 5px; }
 
         /* TIEMPOS */
-        .timer-box { background: #111; padding: 12px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #222; }
-        .timer-row { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
-        .t-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; color: white; }
-        .t-display { flex: 1.5; background: #000; text-align: center; padding: 8px; font-family: monospace; color: var(--orange); border-radius: 6px; font-size: 15px; }
+        .timer-box { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #222; }
+        .timer-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .t-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; color: white; }
+        .t-display { flex: 1.5; background: #000; text-align: center; padding: 10px; font-family: monospace; color: var(--orange); border-radius: 8px; font-size: 17px; border: 1px solid #222; }
 
         @media (max-width: 1024px) {
             .app-container { flex-direction: column; overflow-y: auto; }
@@ -73,15 +70,14 @@
 <div id="master-lock" class="overlay">
     <div class="login-box">
         <h2 style="color:var(--orange)">TRACK LABEL PRO</h2>
-        <p style="font-size:12px; color:#666">Introduce Clave Maestra</p>
-        <input type="password" id="master-pass" placeholder="Contraseña" style="text-align:center; margin:15px 0;">
+        <input type="password" id="master-pass" placeholder="Password: TrackLabel#" style="text-align:center; margin:20px 0;">
         <button class="btn-main" onclick="checkMasterPass()">ENTRAR AL SISTEMA</button>
     </div>
 </div>
 
 <div id="login-screen" class="overlay" style="display:none">
     <div class="login-box">
-        <h3>SELECCIÓN DE USUARIO</h3>
+        <h3>SELECCIÓN OPERARIO</h3>
         <div class="user-grid">
             <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
             <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
@@ -96,17 +92,17 @@
 
 <div id="main-app" class="app-container" style="display: none;">
     <aside class="sidebar">
-        <h2 style="color:var(--orange); margin-bottom:5px">PLANTA</h2>
+        <h2 style="color:var(--orange)">PLANTA</h2>
         <div style="margin: 20px 0;">
-            <p style="font-size:13px; color:#888">Pedidos Activos: <strong id="stat-pend" style="color:white">0</strong></p>
+            <p style="font-size:14px; color:#888">Activos: <strong id="stat-pend" style="color:white">0</strong></p>
         </div>
-        <button onclick="logout()" style="margin-top:auto; background:none; border:none; color:#444; cursor:pointer; font-size:11px;">Cerrar Sesión</button>
+        <button onclick="logout()" style="margin-top:auto; background:none; border:none; color:#555; cursor:pointer;">Cerrar Sesión</button>
     </aside>
 
     <section class="content-area">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px">
-            <h1 id="welcome-text" style="margin:0; font-size:22px;">Panel Control</h1>
-            <button class="btn-main" style="width:auto; padding:10px 20px; margin:0;" onclick="openModal('modalPedido')">+ NUEVO PEDIDO</button>
+            <h1 id="welcome-text" style="margin:0; font-size:24px;">Panel de Control</h1>
+            <button class="btn-main" style="width:auto; padding:12px 25px; margin:0;" onclick="openModal('modalPedido')">+ NUEVO PEDIDO</button>
         </div>
 
         <div class="kanban-board">
@@ -119,48 +115,31 @@
 
 <div id="modalPedido" class="modal">
     <div class="modal-content">
-        <div class="form-title">NUEVA ORDEN DE PRODUCCIÓN</div>
+        <h2 style="color:var(--orange); margin-top:0">NUEVA ORDEN</h2>
         
         <div class="input-row">
-            <div class="input-group" style="flex:2">
-                <label>Nombre del Cliente</label>
-                <input type="text" id="inputCliente" placeholder="Ej: Cliente S.A.">
-            </div>
-            <div class="input-group">
-                <label>Color Ficha</label>
-                <input type="color" id="inputColor" value="#ff7a00" style="height:45px; padding:2px;">
-            </div>
+            <div class="input-group" style="flex:2"><label>CLIENTE</label><input type="text" id="inputCliente"></div>
+            <div class="input-group"><label>COLOR</label><input type="color" id="inputColor" value="#ff7a00"></div>
         </div>
 
         <div class="input-row">
-            <div class="input-group">
-                <label>Máquina Destino</label>
+            <div class="input-group"><label>MÁQUINA</label>
                 <select id="inputMaquina">
-                    <option value="list-flexo">FLEXO / OFFSET</option>
+                    <option value="list-flexo">FLEXO</option>
                     <option value="list-digital">DIGITAL</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>Metros Totales</label>
-                <input type="number" id="inputMetros" placeholder="0">
-            </div>
+            <div class="input-group"><label>METROS</label><input type="number" id="inputMetros"></div>
         </div>
 
         <div class="input-row">
-            <div class="input-group">
-                <label>Nº de Troquel</label>
-                <input type="text" id="inputTroquel" placeholder="Referencia">
-            </div>
-            <div class="input-group">
-                <label>Nº de Grabado</label>
-                <input type="text" id="inputGrabado" placeholder="Referencia">
-            </div>
+            <div class="input-group"><label>Nº TROQUEL</label><input type="text" id="inputTroquel"></div>
+            <div class="input-group"><label>Nº GRABADO</label><input type="text" id="inputGrabado"></div>
         </div>
 
         <div class="input-row">
-            <div class="input-group">
-                <label>Tipo de Material</label>
-                <select id="inputMaterial" onchange="calcEstanteria()">
+            <div class="input-group"><label>MATERIAL</label>
+                <select id="inputMaterial" onchange="autoEstanteria()">
                     <option value="">Seleccionar...</option>
                     <option value="Couché">Couché</option>
                     <option value="PP Mate">PP Mate</option>
@@ -168,26 +147,23 @@
                     <option value="PE">PE</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>Ubicación Estantería</label>
-                <input type="text" id="inputEstanteria" readonly placeholder="Automático">
-            </div>
+            <div class="input-group"><label>ESTANTERÍA</label><input type="text" id="inputEstanteria" readonly></div>
         </div>
 
         <button class="btn-main" onclick="guardarPedido()">LANZAR A PLANTA</button>
-        <button class="btn-cancel" onclick="closeModal('modalPedido')">Cancelar y Salir</button>
+        <button class="btn-cancel" onclick="closeModal('modalPedido')">Cancelar</button>
     </div>
 </div>
 
 <div id="modalTiempos" class="modal">
     <div class="modal-content">
         <h2 id="tiempo-cliente" style="margin-top:0; color:white"></h2>
-        <p id="info-tecnica" style="color:var(--orange); font-size:11px; font-weight:bold;"></p>
+        <p id="info-tecnica" style="color:var(--orange); font-size:12px; font-weight:bold; margin-bottom:20px;"></p>
 
         <div class="timer-box">
             <small style="color:#666">1. PREPARACIÓN</small>
             <div class="timer-row">
-                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('prep','inicio')">INI</button>
+                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('prep','inicio')">INICIO</button>
                 <div class="t-display" id="display-prep">--:--</div>
                 <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('prep','fin')">FIN</button>
             </div>
@@ -196,7 +172,7 @@
         <div class="timer-box">
             <small style="color:#666">2. TIRAJE</small>
             <div class="timer-row">
-                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('tiraje','inicio')">INI</button>
+                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('tiraje','inicio')">INICIO</button>
                 <div class="t-display" id="display-tiraje">--:--</div>
                 <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('tiraje','fin')">FIN</button>
             </div>
@@ -205,7 +181,7 @@
         <div id="seccion-repaso" class="timer-box" style="display:none; border-color:var(--green)">
             <small style="color:var(--green)">3. REPASO / ACABADO</small>
             <div class="timer-row">
-                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('repaso','inicio')">INI</button>
+                <button class="t-btn" style="background:var(--green)" onclick="registrarTiempo('repaso','inicio')">INICIO</button>
                 <div class="t-display" id="display-repaso">--:--</div>
                 <button class="t-btn" style="background:#dc3545" onclick="registrarTiempo('repaso','fin')">FIN</button>
             </div>
@@ -225,12 +201,12 @@ let db = JSON.parse(localStorage.getItem('trackLabel_db')) || {};
 let currentUser = null;
 let pedidoActualId = null;
 
-// ACCESO
+// ACCESO SEGURIDAD
 function checkMasterPass() {
     if(document.getElementById("master-pass").value === MASTER_KEY) {
         document.getElementById("master-lock").style.display = "none";
         document.getElementById("login-screen").style.display = "flex";
-    } else { alert("Clave Incorrecta"); }
+    } else { alert("Error: Clave incorrecta"); }
 }
 
 function selectUser(name, el) {
@@ -243,18 +219,18 @@ function login() {
     if(USERS[currentUser] === document.getElementById("user-pin").value) {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("main-app").style.display = "flex";
-        document.getElementById("welcome-text").innerText = "Hola, " + currentUser;
+        document.getElementById("welcome-text").innerText = "Operario: " + currentUser;
         renderCards();
         initSortable();
     } else { alert("PIN Incorrecto"); }
 }
 
-function calcEstanteria() {
+function autoEstanteria() {
     const mat = document.getElementById("inputMaterial").value;
     document.getElementById("inputEstanteria").value = MATERIALES[mat] || "";
 }
 
-// LOGICA PRODUCCION
+// PRODUCCIÓN
 function renderCards() {
     document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
     Object.keys(db).forEach(id => {
@@ -263,10 +239,12 @@ function renderCards() {
         card.className = "job-card";
         card.id = id;
         card.style.borderLeftColor = item.color;
+        // IMPORTANTE: Aseguramos el click para abrir tiempos
         card.onclick = () => abrirTiempos(id);
+        
         card.innerHTML = `<strong>${item.cliente.toUpperCase()}</strong>
             <small>📏 ${item.metros}m | T: ${item.troquel}</small>
-            <small>📦 ${item.estanteria || 'N/A'}</small>`;
+            <small>📦 Material: ${item.material} | ${item.estanteria}</small>`;
         document.getElementById(item.maquina).appendChild(card);
     });
     document.getElementById("stat-pend").innerText = Object.keys(db).length;
@@ -293,20 +271,16 @@ function guardarPedido() {
     save();
     renderCards();
     closeModal('modalPedido');
-    
-    // Limpiar campos
-    document.getElementById("inputCliente").value = "";
-    document.getElementById("inputMetros").value = "";
-    document.getElementById("inputTroquel").value = "";
-    document.getElementById("inputGrabado").value = "";
 }
 
 function abrirTiempos(id) {
     pedidoActualId = id;
     const item = db[id];
-    document.getElementById("tiempo-cliente").innerText = item.cliente.toUpperCase();
-    document.getElementById("info-tecnica").innerText = `MÉTROS: ${item.metros} | TROQUEL: ${item.troquel} | GRABADO: ${item.grabado}`;
     
+    document.getElementById("tiempo-cliente").innerText = item.cliente.toUpperCase();
+    document.getElementById("info-tecnica").innerText = `MÉTRICA: ${item.metros}m | TROQUEL: ${item.troquel} | GRABADO: ${item.grabado}`;
+    
+    // Rellenar visualmente los tiempos
     ['prep', 'tiraje', 'repaso'].forEach(f => {
         const t = item.tiempos[f];
         document.getElementById(`display-${f}`).innerText = (t.inicio || "--") + " > " + (t.fin || "--");
@@ -328,11 +302,11 @@ function registrarTiempo(fase, hito) {
         renderCards();
     }
     save();
-    abrirTiempos(pedidoActualId);
+    abrirTiempos(pedidoActualId); // Refresca el modal con la nueva hora
 }
 
 function completarPedido() {
-    if(confirm("¿Mandar a expedición?")) {
+    if(confirm("¿Finalizar orden y enviar a expedición?")) {
         delete db[pedidoActualId];
         save();
         renderCards();
@@ -351,9 +325,10 @@ function initSortable() {
     });
 }
 
+// UTILIDADES
 function save() { localStorage.setItem('trackLabel_db', JSON.stringify(db)); }
-function openModal(id) { document.getElementById(id).style.display = "block"; }
-function closeModal(id) { document.getElementById(id).style.display = "none"; }
+function openModal(id) { document.getElementById(id).style.display = "block"; document.body.style.overflow = "hidden"; }
+function closeModal(id) { document.getElementById(id).style.display = "none"; document.body.style.overflow = "auto"; }
 function logout() { location.reload(); }
 </script>
 </body>
