@@ -3,226 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Control de Planta</title>
+    <title>Track Label Pro Mobile</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
-            --bg: #0b0e11; --sidebar: #15191d; --surface: #1e2329;
-            --orange: #ff7a00; --green: #00ff88; --text: #f0f0f0;
+            --bg: #0b0e11; --surface: #1e2329; --sidebar: #15191d;
+            --orange: #ff7a00; --green: #00ff88; --text: #f0f0f0; --border: #2b3139;
         }
-        * { box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; padding: 0; overflow-x: hidden;
+        }
 
-        /* BLOQUEO INICIAL */
-        .master-lock { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; }
-
-        /* LOGIN */
-        .login-overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-box { background: var(--surface); padding: 30px; border-radius: 30px; text-align: center; width: 90%; max-width: 440px; border: 1px solid #333; }
-        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .user-item { background: #15191d; padding: 12px; border-radius: 15px; border: 1px solid #222; cursor: pointer; transition: 0.3s; font-size: 13px; }
+        /* LOGIN REDISEÑADO PARA MOVIL */
+        .login-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        .login-box { width: 100%; max-width: 400px; text-align: center; }
+        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 30px 0; }
+        .user-item { background: var(--surface); padding: 15px 5px; border-radius: 15px; border: 1px solid var(--border); font-size: 12px; }
         .user-item.selected { border-color: var(--orange); background: #2a3139; }
 
-        /* LAYOUT PRINCIPAL */
-        .app-container { display: flex; height: 100vh; flex-direction: row; }
-        
-        /* SIDEBAR (PC) / TOPBAR (MÓVIL) */
-        .sidebar { 
-            width: 260px; background: var(--sidebar); border-right: 1px solid #222; 
-            padding: 25px 15px; display: flex; flex-direction: column; flex-shrink: 0; 
+        /* BARRA SUPERIOR FIJA (MÓVIL) */
+        .mobile-header {
+            position: sticky; top: 0; background: var(--sidebar); z-index: 1000;
+            padding: 15px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .stats-summary { display: flex; gap: 15px; font-size: 12px; font-weight: bold; }
+        .stat-badge { background: #000; padding: 5px 10px; border-radius: 8px; border: 1px solid #333; }
+
+        /* TABLERO VERTICAL */
+        .content { padding: 15px; padding-bottom: 100px; }
+        .machine-section { margin-bottom: 25px; }
+        .machine-title { 
+            font-size: 11px; color: var(--orange); letter-spacing: 2px; 
+            margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+            text-transform: uppercase; border-left: 3px solid var(--orange); padding-left: 10px;
         }
 
-        .info-card { background: var(--surface); padding: 15px; border-radius: 18px; margin-bottom: 15px; border: 1px solid #282e35; }
-        .info-card h4 { margin: 0 0 8px; font-size: 10px; color: var(--orange); letter-spacing: 1.5px; text-transform: uppercase; }
-        .progress-bar { background: #000; height: 6px; border-radius: 3px; overflow: hidden; margin: 8px 0; }
-        .progress-fill { background: var(--green); height: 100%; width: 0%; transition: 0.8s; }
-        
-        .activity { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-        .activity ul { list-style: none; padding: 0; font-size: 10px; color: #888; overflow-y: auto; margin: 0; }
+        /* TARJETAS OPTIMIZADAS */
+        .drag-zone { min-height: 50px; }
+        .job-card { 
+            background: var(--surface); margin-bottom: 12px; padding: 16px; 
+            border-radius: 16px; border: 1px solid var(--border); border-left: 6px solid;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .job-card strong { font-size: 17px; display: block; margin-bottom: 5px; color: #fff; }
+        .job-card .details { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 12px; color: #888; }
+        .job-card .full-width { grid-column: span 2; border-top: 1px solid #2b3139; margin-top: 8px; padding-top: 8px; color: #bbb; }
 
-        /* AREA DE CONTENIDO */
-        .content-area { flex: 1; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 10px; }
-        
-        /* KANBAN VERTICAL */
-        .kanban-board { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 800px; margin: 0 auto; }
-        .machine-col { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; }
-        .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #222; }
-        .col-header h3 { font-size: 13px; color: #aaa; margin: 0; letter-spacing: 1px; }
-        .badge { background: #000; color: var(--orange); padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-
-        /* TARJETAS */
-        .job-card { background: var(--surface); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid; cursor: pointer; transition: 0.2s; }
-        .job-card strong { font-size: 16px; display: block; margin-bottom: 4px; color: #fff; }
-        .job-card small { font-size: 12px; color: #aaa; display: block; line-height: 1.4; }
-
-        /* DISEÑO ESPECÍFICO PARA MÓVIL */
-        @media (max-width: 850px) {
-            .app-container { flex-direction: column; }
-            .sidebar { 
-                width: 100%; height: auto; flex-direction: row; border-right: none; 
-                border-bottom: 1px solid #222; padding: 10px; gap: 10px; align-items: center;
-                position: sticky; top: 0; z-index: 100;
-            }
-            .sidebar .activity, .sidebar h4, .sidebar .progress-bar, .sidebar small { display: none; }
-            .sidebar .info-card { margin-bottom: 0; padding: 8px 12px; flex: 1; }
-            .sidebar-header { display: none !important; }
-            .sidebar .stat-row { font-size: 11px; gap: 5px; }
-            .content-area { padding: 15px; }
-            .main-header h2 { font-size: 18px; }
+        /* BOTÓN FLOTANTE (FAB) */
+        .fab {
+            position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px;
+            background: var(--orange); border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 30px; color: white; border: none;
+            box-shadow: 0 10px 25px rgba(255, 122, 0, 0.4); z-index: 2000; cursor: pointer;
         }
 
-        /* MODALES */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; padding: 15px; overflow-y: auto; }
-        .modal-content { background: var(--surface); margin: 10px auto; padding: 25px; border-radius: 25px; width: 100%; max-width: 500px; border: 1px solid #333; }
-        .input-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-        .input-group { flex: 1; min-width: 120px; display: flex; flex-direction: column; }
-        input, select { background: #000; border: 1px solid #333; padding: 12px; color: white; border-radius: 10px; font-size: 14px; margin-top: 5px; }
-        .btn-main { width: 100%; padding: 15px; background: var(--orange); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 15px; }
+        /* MODALES TIPO IPHONE */
+        .modal { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+            z-index: 5000; padding: 10px; backdrop-filter: blur(5px);
+        }
+        .modal-content { 
+            background: var(--surface); border-radius: 30px; padding: 25px; 
+            margin-top: 50px; border: 1px solid var(--border);
+        }
+        .input-group { margin-bottom: 15px; }
+        label { font-size: 11px; color: var(--orange); text-transform: uppercase; margin-bottom: 5px; display: block; }
+        input, select { 
+            width: 100%; background: #000; border: 1px solid #333; color: white; 
+            padding: 15px; border-radius: 12px; font-size: 16px;
+        }
+        .btn-confirm { 
+            width: 100%; padding: 18px; background: var(--orange); border: none; 
+            border-radius: 15px; color: white; font-weight: bold; font-size: 16px; margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
-<div id="master-lock" class="master-lock">
+<div id="login-screen" class="login-overlay">
     <div class="login-box">
-        <h2 style="color:var(--orange)">SISTEMA WEB</h2>
-        <input type="password" id="master-pass" placeholder="Password: TrackLabel#" style="text-align:center; width:80%;">
-        <button class="btn-main" onclick="unlock()">ENTRAR</button>
-    </div>
-</div>
-
-<div id="login-screen" class="login-overlay" style="display:none">
-    <div class="login-box">
-        <h2>TRACK LABEL PRO</h2>
+        <h1 style="margin:0; font-size:28px;">TRACK LABEL <span style="color:var(--orange)">PRO</span></h1>
+        <p style="font-size:10px; color:#555; letter-spacing:2px;">CONTROL DE ACCESO</p>
         <div class="user-grid">
-            <div class="user-item" onclick="selectUser('Isa', this)">Isa</div>
-            <div class="user-item" onclick="selectUser('Jaume', this)">Jaume</div>
-            <div class="user-item" onclick="selectUser('Ivan', this)">Ivan</div>
-            <div class="user-item" onclick="selectUser('Anna', this)">Anna</div>
-            <div class="user-item" onclick="selectUser('Toni', this)">Toni</div>
+            <div class="user-item" onclick="selectUser('Isa', this)">ISA</div>
+            <div class="user-item" onclick="selectUser('Jaume', this)">JAUME</div>
+            <div class="user-item" onclick="selectUser('Ivan', this)">IVAN</div>
+            <div class="user-item" onclick="selectUser('Anna', this)">ANNA</div>
+            <div class="user-item" onclick="selectUser('Toni', this)">TONI</div>
         </div>
-        <input type="password" id="user-pin" placeholder="PIN" maxlength="4" style="width:80%; text-align:center;">
-        <button class="btn-main" onclick="login()">ACCEDER</button>
+        <input type="password" id="user-pin" placeholder="Introduce tu PIN" style="text-align:center;">
+        <button class="btn-confirm" onclick="login()">ENTRAR</button>
     </div>
 </div>
 
-<div id="main-app" class="app-container" style="display: none;">
-    <aside class="sidebar">
-        <div class="sidebar-header" style="display: flex; align-items:center; gap:10px; margin-bottom:20px;">
-            <div style="background:var(--orange); color:black; padding:5px 10px; border-radius:8px; font-weight:900;">TL</div>
-            <span style="font-weight:bold">PLANTA</span>
+<div id="main-app" style="display:none">
+    <header class="mobile-header">
+        <div id="user-info" style="font-weight:bold; font-size:14px; color:var(--orange)">Usuario</div>
+        <div class="stats-summary">
+            <div class="stat-badge">📦 <span id="stat-pend">0</span></div>
+            <div class="stat-badge" onclick="location.reload()" style="color:#666">SALIR</div>
         </div>
-        <div class="info-card">
-            <h4>PROGRESO</h4>
-            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-            <div class="stat-row"><span>Finalizados:</span> <strong id="stat-done" style="color:var(--green)">0</strong></div>
-        </div>
-        <div class="info-card">
-            <h4>ESTADO</h4>
-            <div class="stat-row"><span>Activos:</span> <strong id="stat-pend">0</strong></div>
-        </div>
-        <div class="info-card activity">
-            <h4>HISTORIAL</h4>
-            <ul id="activity-log"></ul>
-        </div>
-    </aside>
+    </header>
 
-    <section class="content-area">
-        <header class="main-header">
-            <h2 id="welcome-text" style="margin:0">Panel</h2>
-            <div style="display:flex; gap:10px">
-                <button id="btn-nuevo-pedido" class="btn-main" style="margin:0; padding:10px 15px; font-size:12px;" onclick="openModal()">+ NUEVO</button>
-                <button onclick="location.reload()" style="background:#222; border:none; color:#666; padding:10px; border-radius:10px; cursor:pointer;">X</button>
-            </div>
-        </header>
+    <main class="content">
+        <div class="machine-section">
+            <div class="machine-title">FLEXO / OFFSET <span class="badge" id="badge-flexo">0</span></div>
+            <div id="list-flexo" class="drag-zone"></div>
+        </div>
 
-        <main class="kanban-board">
-            <div class="machine-col">
-                <div class="col-header"><h3>FLEXO / OFFSET</h3> <span class="badge" id="badge-list-flexo">0</span></div>
-                <div class="drag-zone" id="list-flexo" style="min-height:50px;"></div>
-            </div>
-            <div class="machine-col">
-                <div class="col-header"><h3>DIGITAL</h3> <span class="badge" id="badge-list-digital">0</span></div>
-                <div class="drag-zone" id="list-digital" style="min-height:50px;"></div>
-            </div>
-            <div class="machine-col">
-                <div class="col-header"><h3>REPASO</h3> <span class="badge" id="badge-list-acabados">0</span></div>
-                <div class="drag-zone" id="list-acabados" style="min-height:50px;"></div>
-            </div>
-        </main>
-    </section>
+        <div class="machine-section">
+            <div class="machine-title">SALA DIGITAL <span class="badge" id="badge-digital">0</span></div>
+            <div id="list-digital" class="drag-zone"></div>
+        </div>
+
+        <div class="machine-section">
+            <div class="machine-title">ACABADOS / REPASO <span class="badge" id="badge-repaso">0</span></div>
+            <div id="list-repaso" class="drag-zone"></div>
+        </div>
+    </main>
+
+    <button class="fab" onclick="openModal()">+</button>
 </div>
 
 <div id="modalPedido" class="modal">
     <div class="modal-content">
-        <h2 style="margin:0 0 20px 0">NUEVA ORDEN</h2>
-        <div class="input-row">
-            <div class="input-group" style="flex:2"><label>CLIENTE</label><input type="text" id="inputCliente"></div>
-            <div class="input-group"><label>COLOR</label><input type="color" id="inputColor" value="#ff7a00"></div>
+        <h3 style="margin-top:0">NUEVO PEDIDO</h3>
+        <div class="input-group">
+            <label>Cliente</label>
+            <input type="text" id="inCli" placeholder="Nombre cliente">
         </div>
-        <div class="input-row">
-            <div class="input-group"><label>MÁQUINA</label><select id="inputMaquina"><option value="list-flexo">Flexo</option><option value="list-digital">Digital</option></select></div>
-            <div class="input-group"><label>METROS</label><input type="number" id="inputMetros"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="input-group">
+                <label>Máquina</label>
+                <select id="inMaq">
+                    <option value="list-flexo">Flexo</option>
+                    <option value="list-digital">Digital</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Color Tag</label>
+                <input type="color" id="inCol" value="#ff7a00" style="padding:2px; height:50px;">
+            </div>
         </div>
-        <div class="input-row">
-            <div class="input-group"><label>TROQUEL</label><input type="text" id="inputTroquel"></div>
-            <div class="input-group"><label>GRABADO</label><input type="text" id="inputGrabado"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="input-group">
+                <label>Metros</label>
+                <input type="number" id="inMet" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label>Troquel</label>
+                <input type="text" id="inTro" placeholder="-">
+            </div>
         </div>
-        <div class="input-row">
-            <div class="input-group"><label>MATERIAL</label><input type="text" id="inputMaterial"></div>
-            <div class="input-group"><label>ESTANTERÍA</label><input type="text" id="inputEstanteria"></div>
+        <div class="input-group">
+            <label>Material y Ubicación</label>
+            <input type="text" id="inMat" placeholder="Papel / Estantería">
         </div>
-        <button class="btn-main" onclick="guardarPedido()">LANZAR A PLANTA</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:15px;">Cerrar</button>
+        <button class="btn-confirm" onclick="guardarPedido()">LANZAR A PLANTA</button>
+        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:15px; font-weight:bold;">CANCELAR</button>
     </div>
 </div>
 
 <script>
-const MASTER_KEY = "TrackLabel#";
-const USUARIOS = {"Isa":"1234","Jaume":"1234","Ivan":"1234","Anna":"1234","Toni":"1234"};
-let db = JSON.parse(localStorage.getItem('track_db_v3')) || {};
-let userLogueado = null;
-let userSeleccionadoId = null;
+let db = JSON.parse(localStorage.getItem('track_db_mobile')) || {};
+let userActivo = null;
 
-function unlock() {
-    if(document.getElementById('master-pass').value === MASTER_KEY) {
-        document.getElementById('master-lock').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'flex';
-    } else { alert("Error"); }
-}
-
-function selectUser(nombre, el) {
-    userSeleccionadoId = nombre;
+function selectUser(name, el) {
+    userActivo = name;
     document.querySelectorAll('.user-item').forEach(x => x.classList.remove('selected'));
     el.classList.add('selected');
 }
 
 function login() {
-    const pin = document.getElementById("user-pin").value;
-    if (userSeleccionadoId && USUARIOS[userSeleccionadoId] === pin) {
-        userLogueado = userSeleccionadoId;
-        document.getElementById("login-screen").style.display = "none";
-        document.getElementById("main-app").style.display = "flex";
-        document.getElementById("welcome-text").innerText = "Hola, " + userLogueado;
+    const pin = document.getElementById('user-pin').value;
+    if(userActivo && pin === "1234") { // Cambia el PIN si es necesario
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('user-info').innerText = "OPERARIO: " + userActivo;
         render();
         initSortable();
-    } else { alert("PIN Incorrecto"); }
+    } else { alert("Error de acceso"); }
 }
 
 function guardarPedido() {
-    const cli = document.getElementById("inputCliente").value;
+    const cli = document.getElementById('inCli').value;
     if(!cli) return;
     const id = "ID-" + Date.now();
     db[id] = {
-        cli, maq: document.getElementById("inputMaquina").value,
-        col: document.getElementById("inputColor").value,
-        met: document.getElementById("inputMetros").value,
-        tro: document.getElementById("inputTroquel").value,
-        gra: document.getElementById("inputGrabado").value,
-        mat: document.getElementById("inputMaterial").value,
-        est: document.getElementById("inputEstanteria").value
+        cli: cli,
+        maq: document.getElementById('inMaq').value,
+        col: document.getElementById('inCol').value,
+        met: document.getElementById('inMet').value,
+        tro: document.getElementById('inTro').value,
+        mat: document.getElementById('inMat').value
     };
-    logActividad(`Nuevo: ${cli}`);
     save(); closeModal(); render();
 }
 
@@ -230,12 +207,19 @@ function render() {
     document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
     Object.keys(db).forEach(id => {
         const item = db[id];
-        const card = document.createElement("div");
+        const card = document.createElement('div');
         card.className = "job-card";
         card.id = id;
         card.style.borderLeftColor = item.col;
-        card.innerHTML = `<strong>${item.cli.toUpperCase()}</strong><small>📏 ${item.met}m | T: ${item.tro} | G: ${item.gra}</small><small>📦 ${item.mat} | Ubic: ${item.est}</small>`;
-        card.onclick = () => { if(confirm("¿Finalizar?")) { delete db[id]; logActividad(`Hecho: ${item.cli}`); save(); render(); } };
+        card.innerHTML = `
+            <strong>${item.cli.toUpperCase()}</strong>
+            <div class="details">
+                <span>📏 ${item.met}m</span>
+                <span>⚙️ T: ${item.tro}</span>
+                <div class="full-width">📍 ${item.mat}</div>
+            </div>
+        `;
+        card.onclick = () => { if(confirm("¿Finalizar pedido?")) { delete db[id]; save(); render(); } };
         document.getElementById(item.maq).appendChild(card);
     });
     actualizarStats();
@@ -251,25 +235,18 @@ function initSortable() {
     });
 }
 
-function save() { localStorage.setItem('track_db_v3', JSON.stringify(db)); }
-
-function logActividad(msg) {
-    const log = document.getElementById("activity-log");
-    const li = document.createElement("li");
-    li.innerHTML = `<span style="color:var(--orange)">[${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}]</span> ${msg}`;
-    log.prepend(li);
-}
+function save() { localStorage.setItem('track_db_mobile', JSON.stringify(db)); }
 
 function actualizarStats() {
-    const total = Object.keys(db).length;
-    document.getElementById('stat-pend').innerText = total;
-    ['list-flexo', 'list-digital', 'list-acabados'].forEach(id => {
-        document.getElementById('badge-' + id).innerText = document.getElementById(id).children.length;
-    });
+    document.getElementById('stat-pend').innerText = Object.keys(db).length;
+    document.getElementById('badge-flexo').innerText = document.getElementById('list-flexo').children.length;
+    document.getElementById('badge-digital').innerText = document.getElementById('list-digital').children.length;
+    document.getElementById('badge-repaso').innerText = document.getElementById('list-repaso').children.length;
 }
 
-function openModal() { document.getElementById("modalPedido").style.display = "block"; }
-function closeModal() { document.getElementById("modalPedido").style.display = "none"; }
+function openModal() { document.getElementById('modalPedido').style.display = 'block'; }
+function closeModal() { document.getElementById('modalPedido').style.display = 'none'; }
 </script>
+
 </body>
 </html>
