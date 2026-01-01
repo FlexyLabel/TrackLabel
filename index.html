@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Sistema Integral</title>
+    <title>Track Label Pro - Cloud Sync</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -12,414 +12,215 @@
         }
         
         * { box-sizing: border-box; outline: none; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
 
-        /* LOGIN SCREEN */
+        /* PANTALLA DE SEGURIDAD (PASSWORD MAESTRA) */
+        .security-overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        
+        /* LOGIN DE USUARIOS */
         .login-overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
-        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .logo-icon-big { background: var(--orange); color: black; width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 30px; margin: 0 auto 20px; }
+        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; }
+        
         .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
         .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
-        .user-item.selected { border-color: var(--orange); background: #2a3139; transform: translateY(-5px); }
+        .user-item.selected { border-color: var(--orange); background: #2a3139; }
         .user-initial { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
-        .user-item.selected .user-initial { border-color: var(--orange); color: var(--orange); }
 
-        /* LAYOUT PRINCIPAL */
-        .app-container { display: flex; height: 100vh; flex-direction: row; }
-        
-        .sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; flex-shrink: 0; }
-        .info-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .info-card h4 { margin: 0 0 12px; font-size: 10px; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; }
-        
-        .progress-bar { background: #000; height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0; }
-        .progress-fill { background: var(--green); height: 100%; width: 0%; transition: 1s; box-shadow: 0 0 15px var(--green); }
-        .stat-row { display: flex; justify-content: space-between; font-size: 13px; margin: 8px 0; }
-        
-        #activity-log { list-style: none; padding: 0; font-size: 11px; color: #888; max-height: 200px; overflow-y: auto; }
-        #activity-log li { margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 4px; }
-
-        .content-area { flex: 1; padding: 30px; display: flex; flex-direction: column; overflow-y: auto; }
-        
-        /* HEADER */
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; }
-        .user-profile { display: flex; align-items: center; gap: 15px; }
-        .user-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--orange); display: flex; align-items: center; justify-content: center; color: var(--orange); font-weight: bold; font-size: 20px; background: #000; }
-        
-        .header-actions { display: flex; gap: 12px; }
-        .btn-header { padding: 12px 25px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-        .btn-add { background: var(--orange); color: white; box-shadow: 0 4px 15px rgba(255,122,0,0.3); }
-        .btn-logout { background: #2a3139; color: #999; border: 1px solid #333; }
+        /* APP LAYOUT */
+        .app-container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; flex-shrink: 0; }
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; background: var(--bg); }
 
         /* KANBAN */
-        .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; min-height: 400px; }
-        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222; }
-        .col-header h3 { font-size: 14px; color: #666; margin: 0; letter-spacing: 1px; }
-        .badge { background: #000; color: var(--orange); padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; }
-
-        .drag-zone { flex: 1; min-height: 150px; }
-        
-        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .job-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
-        .job-card strong { font-size: 16px; display: block; margin-bottom: 8px; color: #fff; }
-        .job-card small { font-size: 12px; color: #aaa; display: block; line-height: 1.6; }
-
-        /* FOOTER */
-        .finished-area { margin-top: 30px; background: #15191d; padding: 25px; border-radius: 25px; border: 1px solid var(--border); }
-        .finished-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
-        .finished-card { min-width: 220px; background: #000; padding: 15px; border-radius: 15px; border-bottom: 3px solid var(--green); }
+        .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid var(--border); min-height: 500px; }
+        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid; cursor: pointer; }
 
         /* MODALES */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; backdrop-filter: blur(8px); padding: 20px; }
-        .modal-content { background: var(--surface); margin: 2% auto; padding: 35px; border-radius: 35px; width: 100%; max-width: 550px; border: 1px solid #333; position: relative; max-height: 90vh; overflow-y: auto; }
-        .close { float: right; cursor: pointer; color: #666; font-size: 28px; }
-        
-        .section-tag { font-size: 10px; font-weight: bold; color: var(--orange); margin: 20px 0 12px; letter-spacing: 2px; text-transform: uppercase; }
-        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
-        .input-group { flex: 1; display: flex; flex-direction: column; }
-        label { font-size: 11px; color: #666; margin-bottom: 8px; font-weight: bold; }
-        input, select { background: #000; border: 1px solid #333; padding: 15px; color: white; border-radius: 12px; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: var(--orange); }
-        .btn-save-order { width: 100%; padding: 20px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; margin-top: 30px; font-size: 16px; box-shadow: 0 10px 20px rgba(255,122,0,0.2); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; backdrop-filter: blur(8px); overflow-y: auto; padding: 20px; }
+        .modal-content { background: var(--surface); margin: 2% auto; padding: 35px; border-radius: 35px; width: 100%; max-width: 550px; border: 1px solid #333; }
 
-        /* TIEMPOS */
-        .timer-box { background: #111; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #222; }
-        .timer-controls { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
-        .t-btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .t-btn.start { background: #28a745; color: white; }
-        .t-btn.end { background: #dc3545; color: white; }
-        .t-display { font-family: 'Courier New', monospace; font-size: 18px; flex: 1.5; text-align: center; color: var(--orange); background: #000; padding: 10px; border-radius: 10px; }
+        /* BOTONES */
+        .btn-main { width: 100%; padding: 18px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .sync-indicator { font-size: 10px; color: var(--green); text-align: center; margin-top: 10px; opacity: 0.7; }
 
-        /* RESPONSIVE */
         @media (max-width: 1024px) {
             .app-container { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+            .sidebar { width: 100%; height: auto; }
             .kanban-board { grid-template-columns: 1fr; }
-            .sidebar .activity { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div id="login-screen" class="login-overlay">
+<div id="master-lock" class="security-overlay">
     <div class="login-box">
-        <div class="logo-icon-big">TL</div>
-        <h2>TRACK LABEL <span style="color:var(--orange)">PRO</span></h2>
-        <p style="color:#666; font-size:12px; letter-spacing:2px;">SISTEMA DE PLANTA</p>
+        <div style="background:var(--orange); width:50px; height:50px; margin:0 auto 20px; border-radius:10px;"></div>
+        <h3>ACCESO RESTRINGIDO</h3>
+        <input type="password" id="master-pass" placeholder="Contraseña de la web" style="width:100%; padding:15px; border-radius:12px; background:#111; border:1px solid #333; color:white; text-align:center;">
+        <button class="btn-main" style="margin-top:20px" onclick="checkMasterPass()">DESBLOQUEAR</button>
+    </div>
+</div>
+
+<div id="login-screen" class="login-overlay" style="display:none">
+    <div class="login-box">
+        <h2>TRACK LABEL PRO</h2>
         <div class="user-grid">
             <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
             <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
-            <div class="user-item" onclick="selectUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange); color:var(--orange)">I</div><span>Ivan</span></div>
+            <div class="user-item" onclick="selectUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange)">I</div><span>Ivan</span></div>
             <div class="user-item" onclick="selectUser('Anna', this)"><div class="user-initial">A</div><span>Anna</span></div>
             <div class="user-item" onclick="selectUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
         </div>
         <input type="password" id="user-pin" placeholder="PIN" style="width:100%; padding:15px; border-radius:12px; background:#000; border:1px solid #333; color:white; text-align:center; margin-bottom:20px;">
-        <button class="btn-save-order" style="margin-top:0" onclick="login()">ENTRAR AL SISTEMA</button>
+        <button class="btn-main" onclick="login()">ENTRAR</button>
     </div>
 </div>
 
 <div id="main-app" class="app-container" style="display: none;">
     <aside class="sidebar">
-        <div class="info-card">
-            <h4>RENDIMIENTO</h4>
-            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-            <small id="progress-text" style="color:#aaa">0% completado</small>
+        <h3>PLANTA</h3>
+        <div id="sync-status" class="sync-indicator">● Nube Sincronizada</div>
+        <hr style="border:0; border-top:1px solid #222; margin:20px 0">
+        <div id="stats">
+            <p>Activos: <strong id="stat-pend">0</strong></p>
+            <p>Hechos: <strong id="stat-done" style="color:var(--green)">0</strong></p>
         </div>
-        <div class="info-card">
-            <h4>SITUACIÓN</h4>
-            <div class="stat-row"><span>En Planta:</span> <strong id="stat-pend">0</strong></div>
-            <div class="stat-row"><span>Finalizados:</span> <strong id="stat-done" style="color:var(--green)">0</strong></div>
-        </div>
-        <div class="info-card activity">
-            <h4>HISTORIAL</h4>
-            <ul id="activity-log"></ul>
-        </div>
-        <button onclick="resetSistema()" style="background:none; border:none; color:#444; font-size:10px; cursor:pointer; margin-top:auto;">BORRAR MEMORIA LOCAL</button>
+        <button onclick="syncCloud()" style="width:100%; padding:10px; background:#222; color:white; border-radius:10px; border:none; margin-top:20px; cursor:pointer; font-size:11px;">🔄 FORZAR SINCRONIZACIÓN</button>
     </aside>
 
     <section class="content-area">
-        <header class="main-header">
-            <div class="user-profile">
-                <div class="user-avatar" id="avatar-char">U</div>
-                <div><h2 id="welcome-text" style="margin:0">Usuario</h2><small id="user-role-text">ACCESO: ---</small></div>
-            </div>
-            <div class="header-actions">
-                <button id="btn-nuevo-pedido" class="btn-header btn-add" onclick="openModal()">+ NUEVO PEDIDO</button>
-                <button class="btn-header btn-logout" onclick="logout()">CAMBIAR USUARIO</button>
-            </div>
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h2 id="welcome-text">Panel</h2>
+            <button class="btn-main" style="width:auto; padding:12px 30px" onclick="openModal()">+ NUEVO PEDIDO</button>
         </header>
 
         <main class="kanban-board">
-            <div class="machine-col">
-                <div class="col-header"><h3>FLEXO / OFFSET</h3> <span class="badge" id="badge-list-flexo">0</span></div>
-                <div class="drag-zone" id="list-flexo"></div>
-            </div>
-            <div class="machine-col">
-                <div class="col-header"><h3>DIGITAL</h3> <span class="badge" id="badge-list-digital">0</span></div>
-                <div class="drag-zone" id="list-digital"></div>
-            </div>
-            <div class="machine-col">
-                <div class="col-header"><h3>REPASO / ACABADO</h3> <span class="badge" id="badge-list-acabados">0</span></div>
-                <div class="drag-zone" id="list-acabados"></div>
-            </div>
+            <div class="machine-col"><h4>FLEXO</h4><div class="drag-zone" id="list-flexo"></div></div>
+            <div class="machine-col"><h4>DIGITAL</h4><div class="drag-zone" id="list-digital"></div></div>
+            <div class="machine-col"><h4>REPASO</h4><div class="drag-zone" id="list-acabados"></div></div>
         </main>
-
-        <footer class="finished-area">
-            <h3 style="font-size:12px; color:#555; margin-top:0; margin-bottom:15px; text-transform:uppercase;">Expediciones de hoy</h3>
-            <div class="finished-scroll" id="list-finished"></div>
-        </footer>
     </section>
 </div>
 
 <div id="modalPedido" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2>ORDEN DE PRODUCCIÓN</h2>
-        <div class="section-tag">Datos Cliente</div>
-        <div class="input-row">
-            <div class="input-group" style="flex:2"><label>CLIENTE</label><input type="text" id="inputCliente" placeholder="Nombre completo"></div>
-            <div class="input-group"><label>COLOR</label><input type="color" id="inputColor" value="#ff7a00" style="padding:2px; height:50px"></div>
-        </div>
-        <div class="section-tag">Ficha Técnica</div>
-        <div class="input-row">
-            <div class="input-group"><label>MÁQUINA</label>
-                <select id="inputMaquina">
-                    <option value="list-flexo">Flexo / Offset</option>
-                    <option value="list-digital">Digital</option>
-                </select>
-            </div>
-            <div class="input-group"><label>METROS TOTALES</label><input type="number" id="inputMetros" placeholder="0"></div>
-        </div>
-        <div class="input-row">
-            <div class="input-group"><label>Nº TROQUEL</label><input type="text" id="inputTroquel" placeholder="Ref. Troquel"></div>
-            <div class="input-group"><label>Nº GRABADO</label><input type="text" id="inputGrabado" placeholder="Ref. Grabado"></div>
-        </div>
-        <div class="section-tag">Material</div>
-        <div class="input-row">
-            <div class="input-group">
-                <select id="inputMaterial" onchange="updateEstanteria()">
-                    <option value="">Seleccionar material...</option>
-                    <option value="Couché">Couché</option>
-                    <option value="PP Mate">PP Mate</option>
-                    <option value="PP Brillo">PP Brillo</option>
-                    <option value="PE">PE</option>
-                </select>
-            </div>
-            <div class="input-group"><input type="text" id="inputEstanteria" readonly placeholder="Estantería"></div>
-        </div>
-        <button class="btn-save-order" onclick="guardarPedido()">LANZAR A PRODUCCIÓN</button>
-    </div>
-</div>
-
-<div id="modalTiempos" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModalTiempos()">&times;</span>
-        <h2 id="tiempo-cliente" style="margin-bottom:5px">CLIENTE</h2>
-        <small id="info-maquina" style="color:var(--orange); display:block; margin-bottom:20px; font-weight:bold;"></small>
-        
-        <div class="timer-box">
-            <div class="fase-title" style="font-size:11px; font-weight:bold; color:#555;">1. PREPARACIÓN</div>
-            <div class="timer-controls">
-                <button class="t-btn start" onclick="registrarTiempo('prep','inicio')">INICIAR</button>
-                <div class="t-display" id="display-prep">--:--</div>
-                <button class="t-btn end" onclick="registrarTiempo('prep','fin')">FIN</button>
-            </div>
-        </div>
-        <div class="timer-box">
-            <div class="fase-title" style="font-size:11px; font-weight:bold; color:#555;">2. TIRAJE</div>
-            <div class="timer-controls">
-                <button class="t-btn start" onclick="registrarTiempo('tiraje','inicio')">INICIAR</button>
-                <div class="t-display" id="display-tiraje">--:--</div>
-                <button class="t-btn end" onclick="registrarTiempo('tiraje','fin')">FIN TIRAJE</button>
-            </div>
-        </div>
-        <div id="seccion-repaso" class="timer-box" style="display:none; border-color:var(--green)">
-            <div class="fase-title" style="font-size:11px; font-weight:bold; color:var(--green)">3. REPASO / ACABADO</div>
-            <div class="timer-controls">
-                <button class="t-btn start" onclick="registrarTiempo('repaso','inicio')">INICIAR</button>
-                <div class="t-display" id="display-repaso">--:--</div>
-                <button class="t-btn end" onclick="registrarTiempo('repaso','fin')">FIN TOTAL</button>
-            </div>
-        </div>
-        <button id="btn-completar-final" class="btn-complete-all" style="display:none; width:100%; padding:20px; background:var(--green); border:none; border-radius:15px; font-weight:bold; margin-top:20px; cursor:pointer;" onclick="completarTrabajo()">MARCAR COMO EXPEDIDO</button>
+        <h3 style="margin-top:0">NUEVA ORDEN</h3>
+        <input type="text" id="inputCliente" placeholder="Cliente" style="width:100%; padding:15px; margin-bottom:15px; background:#000; border:1px solid #333; color:white;">
+        <select id="inputMaquina" style="width:100%; padding:15px; margin-bottom:15px; background:#000; color:white;">
+            <option value="list-flexo">Flexo</option>
+            <option value="list-digital">Digital</option>
+        </select>
+        <input type="number" id="inputMetros" placeholder="Metros" style="width:100%; padding:15px; margin-bottom:15px; background:#000; border:1px solid #333; color:white;">
+        <button class="btn-main" onclick="guardarPedido()">LANZAR A PLANTA</button>
+        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Cancelar</button>
     </div>
 </div>
 
 <script>
-// CONFIGURACIÓN Y ESTADO
-const USUARIOS = {
-    "Isa":   { pin: "1234", rol: "operario" },
-    "Jaume": { pin: "1234", rol: "operario" },
-    "Ivan":  { pin: "1234", rol: "admin" },
-    "Anna":  { pin: "1234", rol: "admin" },
-    "Toni":  { pin: "1234", rol: "admin" }
-};
-const ESTANTERIAS = { "Couché": "EST. A1", "PP Mate": "EST. B2", "PP Brillo": "EST. B3", "PE": "EST. C1" };
+const PASS_MAESTRA = "TrackLabel#";
+const USUARIOS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
 
-let userSeleccionadoId = null;
 let db = JSON.parse(localStorage.getItem('trackLabel_db')) || {};
-let finalizadosDb = JSON.parse(localStorage.getItem('trackLabel_finalizados')) || [];
-let pedidoActualId = null;
-let totalFinalizados = parseInt(localStorage.getItem('trackLabel_total')) || 0;
+let userSeleccionado = null;
 
-window.onload = () => {
-    Object.keys(db).forEach(id => crearTarjetaDOM(id, db[id]));
-    finalizadosDb.forEach(item => crearTarjetaFinalizadaDOM(item));
-    actualizarDashboard();
-};
+// --- SEGURIDAD ---
+function checkMasterPass() {
+    const p = document.getElementById("master-pass").value;
+    if(p === PASS_MAESTRA) {
+        document.getElementById("master-lock").style.display = "none";
+        document.getElementById("login-screen").style.display = "flex";
+    } else { alert("Contraseña incorrecta"); }
+}
 
-// LOGIN
-function selectUser(nombre, element) {
-    userSeleccionadoId = nombre;
-    document.querySelectorAll('.user-item').forEach(el => el.classList.remove('selected'));
-    element.classList.add('selected');
+function selectUser(n, el) {
+    userSeleccionado = n;
+    document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
 }
 
 function login() {
     const pin = document.getElementById("user-pin").value;
-    const u = USUARIOS[userSeleccionadoId];
-    if (u && u.pin === pin) {
+    if(USUARIOS[userSeleccionado] === pin) {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("main-app").style.display = "flex";
-        document.getElementById("welcome-text").innerText = "Hola, " + userSeleccionadoId;
-        document.getElementById("avatar-char").innerText = userSeleccionadoId.charAt(0);
-        document.getElementById("user-role-text").innerText = "ACCESO: " + u.rol.toUpperCase();
-        document.getElementById("btn-nuevo-pedido").style.visibility = (u.rol === "admin") ? "visible" : "hidden";
-        initSortable(u.rol === "admin");
-        logActividad("Sesión iniciada: " + userSeleccionadoId);
-    } else { alert("PIN Incorrecto"); }
+        document.getElementById("welcome-text").innerText = "Operario: " + userSeleccionado;
+        renderAll();
+        initSortable();
+    }
 }
 
-function logout() { location.reload(); }
+// --- LÓGICA DE DATOS ---
+function renderAll() {
+    document.querySelectorAll('.drag-zone').forEach(z => z.innerHTML = "");
+    Object.keys(db).forEach(id => {
+        const data = db[id];
+        const card = document.createElement("div");
+        card.className = "job-card";
+        card.id = id;
+        card.style.borderLeftColor = data.color || "var(--orange)";
+        card.innerHTML = `<strong>${data.cliente}</strong><br><small>${data.metros}m</small>`;
+        document.getElementById(data.maquina).appendChild(card);
+    });
+    actualizarStats();
+}
 
-function initSortable(canDrag) {
+function guardarPedido() {
+    const cli = document.getElementById("inputCliente").value;
+    if(!cli) return;
+    const id = "ID-" + Date.now();
+    db[id] = {
+        cliente: cli,
+        maquina: document.getElementById("inputMaquina").value,
+        metros: document.getElementById("inputMetros").value,
+        color: "var(--orange)"
+    };
+    save();
+    closeModal();
+    renderAll();
+}
+
+function initSortable() {
     document.querySelectorAll('.drag-zone').forEach(zona => {
         new Sortable(zona, { 
-            animation: 150, disabled: !canDrag,
-            onEnd: () => {
-                document.querySelectorAll('.drag-zone').forEach(col => {
-                    col.querySelectorAll('.job-card').forEach(card => db[card.id].maquina = col.id);
-                });
+            group: 'planta',
+            animation: 150,
+            onEnd: (evt) => {
+                db[evt.item.id].maquina = evt.to.id;
                 save();
             }
         });
     });
 }
 
-// PRODUCCIÓN
-function updateEstanteria() {
-    const m = document.getElementById("inputMaterial").value;
-    document.getElementById("inputEstanteria").value = ESTANTERIAS[m] || "TBD";
-}
-
-function guardarPedido() {
-    const cliente = document.getElementById("inputCliente").value;
-    if(!cliente) return;
-    const id = "ID-" + Date.now();
-    db[id] = { 
-        cliente, maquina: document.getElementById("inputMaquina").value,
-        color: document.getElementById("inputColor").value,
-        tiempos: { prep: {}, tiraje: {}, repaso: {} },
-        metros: document.getElementById("inputMetros").value,
-        troquel: document.getElementById("inputTroquel").value,
-        grabado: document.getElementById("inputGrabado").value
-    };
-    crearTarjetaDOM(id, db[id]);
-    save();
-    closeModal();
-    logActividad("Nuevo pedido: " + cliente);
-}
-
-function crearTarjetaDOM(id, data) {
-    const card = document.createElement("div");
-    card.className = "job-card";
-    card.id = id;
-    card.style.borderLeftColor = data.color;
-    card.onclick = () => abrirTiempos(id);
-    card.innerHTML = `<strong>${data.cliente.toUpperCase()}</strong>
-        <small>📏 ${data.metros}m | T: ${data.troquel}</small>
-        <small>G: ${data.grabado}</small>`;
-    document.getElementById(data.maquina).appendChild(card);
-    actualizarDashboard();
-}
-
-function abrirTiempos(id) {
-    pedidoActualId = id;
-    const data = db[id];
-    document.getElementById("tiempo-cliente").innerText = data.cliente.toUpperCase();
-    document.getElementById("info-maquina").innerText = "UBICACIÓN ACTUAL: " + data.maquina.replace('list-','').toUpperCase();
-    ['prep', 'tiraje', 'repaso'].forEach(f => {
-        const h = data.tiempos[f];
-        document.getElementById(`display-${f}`).innerText = (h.inicio || "--") + " > " + (h.fin || "--");
-    });
-    const estaEnRepaso = (data.maquina === 'list-acabados');
-    document.getElementById("seccion-repaso").style.display = estaEnRepaso ? "block" : "none";
-    document.getElementById("btn-completar-final").style.display = estaEnRepaso ? "block" : "none";
-    document.getElementById("modalTiempos").style.display = "block";
-}
-
-function registrarTiempo(fase, hito) {
-    const ahora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    db[pedidoActualId].tiempos[fase][hito] = ahora;
-    if(fase === 'tiraje' && hito === 'fin') {
-        document.getElementById("list-acabados").appendChild(document.getElementById(pedidoActualId));
-        db[pedidoActualId].maquina = 'list-acabados';
-    }
-    save();
-    abrirTiempos(pedidoActualId);
-}
-
-function completarTrabajo() {
-    const item = { cliente: db[pedidoActualId].cliente, hora: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
-    finalizadosDb.unshift(item);
-    crearTarjetaFinalizadaDOM(item);
-    document.getElementById(pedidoActualId).remove();
-    delete db[pedidoActualId];
-    totalFinalizados++;
-    save();
-    closeModalTiempos();
-    logActividad("Expedido: " + item.cliente);
-}
-
-function crearTarjetaFinalizadaDOM(item) {
-    const fCard = document.createElement("div");
-    fCard.className = "finished-card";
-    fCard.innerHTML = `<strong>${item.cliente}</strong><br><small>Finalizado: ${item.hora}</small>`;
-    document.getElementById("list-finished").prepend(fCard);
-}
-
-// UTILIDADES
 function save() {
     localStorage.setItem('trackLabel_db', JSON.stringify(db));
-    localStorage.setItem('trackLabel_finalizados', JSON.stringify(finalizadosDb));
-    localStorage.setItem('trackLabel_total', totalFinalizados);
-    actualizarDashboard();
+    // Aquí podrías añadir un fetch() a una API para sincronizar dispositivos
+    actualizarStats();
 }
 
-function actualizarDashboard() {
-    const activos = Object.keys(db).length;
-    document.getElementById("stat-pend").innerText = activos;
-    document.getElementById("stat-done").innerText = totalFinalizados;
-    document.getElementById("count-finished-footer").innerText = totalFinalizados;
-    const total = activos + totalFinalizados;
-    const porc = total > 0 ? (totalFinalizados / total) * 100 : 0;
-    document.getElementById("progress-fill").style.width = porc + "%";
-    document.getElementById("progress-text").innerText = Math.round(porc) + "% completado";
-    ['list-flexo', 'list-digital', 'list-acabados'].forEach(id => {
-        document.getElementById('badge-' + id).innerText = document.getElementById(id).children.length;
-    });
+function actualizarStats() {
+    document.getElementById("stat-pend").innerText = Object.keys(db).length;
 }
 
-function logActividad(msg) {
-    const item = document.createElement("li");
-    item.innerHTML = `<small style="color:var(--orange)">[${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}]</small> ${msg}`;
-    document.getElementById("activity-log").prepend(item);
+// --- GESTIÓN DE MODALES (CORRECCIÓN DE BLOQUEO) ---
+function openModal() {
+    document.getElementById("modalPedido").style.display = "block";
+    document.body.style.overflow = "hidden"; // Bloquea scroll fondo
 }
 
-function resetSistema() { if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
-function openModal() { document.getElementById("modalPedido").style.display = "block"; }
-function closeModal() { document.getElementById("modalPedido").style.display = "none"; }
-function closeModalTiempos() { document.getElementById("modalTiempos").style.display = "none"; }
+function closeModal() {
+    document.getElementById("modalPedido").style.display = "none";
+    document.body.style.overflow = "auto"; // Libera la pantalla principal
+}
+
+// Función para sincronización manual (Simulación nube)
+function syncCloud() {
+    document.getElementById("sync-status").innerText = "⌛ Sincronizando...";
+    setTimeout(() => {
+        document.getElementById("sync-status").innerText = "● Nube Actualizada";
+    }, 1500);
+}
 </script>
 </body>
 </html>
