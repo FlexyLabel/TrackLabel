@@ -18,6 +18,29 @@
             margin: 0; padding: 0; min-height: 100vh;
         }
 
+        /* --- TÍTULO SUTIL --- */
+        .brand-header {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.8;
+        }
+        .brand-header h1 {
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin: 0;
+            color: #fff;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+        .brand-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--orange);
+            border-radius: 50%;
+        }
+
         /* --- LOGIN & LOCK --- */
         #master-lock, #login-screen {
             position: fixed; inset: 0; background: var(--bg); z-index: 50000;
@@ -62,7 +85,7 @@
 
         /* --- KANBAN VERTICAL --- */
         .kanban-vertical {
-            display: flex; flex-direction: column !important; gap: 30px; width: 100%; max-width: 800px; margin: 20px auto;
+            display: flex; flex-direction: column !important; gap: 30px; width: 100%; max-width: 800px; margin: 0 auto;
         }
         .machine-block { background: var(--sidebar); border-radius: 30px; border: 1px solid var(--border); }
         .machine-header { 
@@ -179,6 +202,11 @@
     </aside>
 
     <main class="main-content">
+        <header class="brand-header">
+            <div class="brand-dot"></div>
+            <h1>TrackLabel</h1>
+        </header>
+
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div>
                 <h2 id="user-display" style="margin:0;">-</h2>
@@ -362,7 +390,7 @@ function fichar(type) {
     
     if(type === 'start') {
         db[selectedJobId].start = horaVisual;
-        db[selectedJobId].startTimeRaw = ahora.getTime(); // Guardamos milisegundos para cálculo exacto
+        db[selectedJobId].startTimeRaw = ahora.getTime(); 
         db[selectedJobId].stops = 0;
         addLog(currentOp + " inició " + db[selectedJobId].cli);
     } else {
@@ -372,7 +400,6 @@ function fichar(type) {
             return;
         }
 
-        // --- CÁLCULO DE MÉTRICAS ---
         const inicio = db[selectedJobId].startTimeRaw;
         const fin = ahora.getTime();
         const minutos = (fin - inicio) / 60000;
@@ -405,7 +432,6 @@ function saveNew() {
     };
     save();
     closeNew();
-    // Limpiar campos
     document.getElementById('f-cli').value = "";
     document.getElementById('f-msg').value = "";
     document.getElementById('f-met').value = "";
