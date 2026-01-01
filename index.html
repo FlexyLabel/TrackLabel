@@ -3,292 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro | Móvil & PC</title>
+    <title>Track Label Pro v5 - FULL</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
-            --bg: #0b0e14; --card: #1a1d26; --sidebar: #11141d;
-            --orange: #ff7a00; --green: #00e676; --red: #ff5252;
-            --text: #ffffff; --text-dim: #8a8f9d; --border: #2d313d;
+            --bg: #0b0e14; --card: #1c1f26; --header: #11141d;
+            --orange: #ff7a00; --orange-hover: #ff9533;
+            --green: #00e676; --red: #ff5252;
+            --text: #ffffff; --text-dim: #94a3b8; --border: #2d313d;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            background: var(--bg); color: var(--text); font-family: -apple-system, Segoe UI, Roboto, sans-serif; 
-            margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden;
-        }
-
-        /* --- LOGIN & BLOQUEO --- */
-        .overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-box { background: var(--card); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
-        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .user-item { background: var(--bg); padding: 10px; border-radius: 12px; border: 2px solid transparent; font-size: 12px; cursor: pointer; }
-        .user-item.selected { border-color: var(--orange); background: rgba(255,122,0,0.1); }
-
-        /* --- LAYOUT RESPONSIVE --- */
-        .header { background: var(--sidebar); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-        .container { display: flex; flex: 1; overflow: hidden; flex-direction: row; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
-        /* Sidebar en PC, oculta en móvil o adaptada */
-        .sidebar { width: 250px; background: var(--sidebar); padding: 20px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-        .main-content { flex: 1; overflow-y: auto; padding: 15px; }
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+        }
 
-        /* --- KANBAN ADAPTADO --- */
-        .kanban { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
-        .column { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 15px; min-height: 200px; border: 1px solid var(--border); }
-        .col-title { font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 15px; display: flex; justify-content: space-between; }
+        /* --- BLOQUEOS DE ACCESO --- */
+        .full-overlay { 
+            position: fixed; inset: 0; background: var(--bg); z-index: 10000; 
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .access-card { 
+            background: var(--card); padding: 40px; border-radius: 28px; width: 100%; 
+            max-width: 420px; text-align: center; border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 25px 0; }
+        .u-btn { 
+            background: #11141d; padding: 15px 5px; border-radius: 16px; border: 2px solid transparent;
+            color: var(--text-dim); cursor: pointer; transition: 0.2s; font-size: 13px;
+        }
+        .u-btn.active { border-color: var(--orange); color: white; background: rgba(255,122,0,0.1); }
+        .u-avatar { width: 35px; height: 35px; background: var(--border); border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--orange); }
+
+        /* --- HEADER --- */
+        header { 
+            background: var(--header); padding: 15px 25px; display: flex; 
+            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);
+        }
+        header h1 { font-size: 18px; margin: 0; letter-spacing: -1px; color: var(--orange); }
+        .op-tag { font-size: 12px; background: var(--border); padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+
+        /* --- CONTENEDOR DE TABLERO --- */
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar ocultable en móvil */
+        .sidebar { 
+            width: 260px; background: var(--header); border-right: 1px solid var(--border);
+            padding: 25px; display: flex; flex-direction: column;
+        }
+
+        .board { 
+            flex: 1; display: flex; gap: 20px; padding: 20px; overflow-x: auto; 
+            align-items: flex-start; background: radial-gradient(circle at top right, #161922, #0b0e14);
+        }
+
+        /* --- COLUMNAS --- */
+        .lane { 
+            min-width: 320px; width: 320px; background: rgba(255,255,255,0.02); 
+            border-radius: 20px; border: 1px solid var(--border); max-height: 100%; display: flex; flex-direction: column;
+        }
+        .lane-head { 
+            padding: 18px; font-size: 11px; font-weight: 800; color: var(--text-dim);
+            letter-spacing: 1.5px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .lane-count { background: var(--border); padding: 2px 8px; border-radius: 6px; color: #fff; }
+        .drop-zone { padding: 12px; flex: 1; overflow-y: auto; min-height: 150px; }
 
         /* --- TARJETAS --- */
         .job-card { 
-            background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; 
-            border-left: 5px solid var(--orange); box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            cursor: pointer; position: relative;
+            background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 15px;
+            border-left: 6px solid var(--orange); cursor: pointer; transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05);
         }
-        .job-card h4 { margin: 0; font-size: 16px; }
-        .job-card p { margin: 5px 0 0; font-size: 13px; color: var(--text-dim); }
+        .job-card:hover { transform: translateY(-2px); background: #252a36; }
+        .job-card h4 { margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: #fff; }
+        .job-card p { margin: 3px 0; font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
 
-        /* --- MODALES OPTIMIZADOS MÓVIL --- */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9000; padding: 10px; overflow-y: auto; }
-        .modal-content { 
-            background: var(--card); border-radius: 20px; padding: 25px; 
-            width: 100%; max-width: 500px; margin: 10px auto; border: 1px solid var(--border);
+        /* --- MODALES --- */
+        .modal-wrap { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
+            z-index: 9000; padding: 15px; overflow-y: auto; backdrop-filter: blur(8px);
+        }
+        .modal-box { 
+            background: var(--card); border-radius: 24px; padding: 30px; 
+            width: 100%; max-width: 500px; margin: 20px auto; border: 1px solid var(--border);
         }
 
         /* --- FORMULARIOS --- */
-        .f-group { margin-bottom: 15px; }
-        label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 5px; font-weight: bold; }
+        .field { margin-bottom: 18px; }
+        .field label { display: block; font-size: 11px; color: var(--text-dim); font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
         input, select { 
-            width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); 
-            border-radius: 10px; color: #fff; font-size: 16px; /* 16px evita zoom automático en iPhone */
+            width: 100%; padding: 14px; background: #000; border: 1px solid var(--border); 
+            border-radius: 12px; color: #fff; font-size: 16px; transition: 0.3s;
         }
+        input:focus { border-color: var(--orange); }
+
         .btn { 
-            width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; 
-            font-size: 15px; cursor: pointer; transition: 0.2s;
+            width: 100%; padding: 16px; border-radius: 14px; border: none; 
+            font-weight: 700; cursor: pointer; font-size: 15px; transition: 0.2s;
         }
-        .btn-orange { background: var(--orange); color: #fff; }
-        .btn-green { background: var(--green); color: #000; }
-        .btn-ghost { background: transparent; color: var(--text-dim); }
+        .btn-main { background: var(--orange); color: #fff; }
+        .btn-main:hover { background: var(--orange-hover); }
+        .btn-ghost { background: transparent; color: var(--text-dim); margin-top: 10px; }
 
-        /* --- TIEMPOS --- */
-        .t-row { 
-            background: var(--bg); padding: 15px; border-radius: 15px; margin-bottom: 10px;
-            display: grid; grid-template-columns: 80px 1fr 80px; gap: 10px; align-items: center;
+        /* --- CRONÓMETROS --- */
+        .timer-unit { 
+            background: #11141d; padding: 15px; border-radius: 18px; margin-bottom: 15px;
+            border: 1px solid var(--border);
         }
-        .t-val { font-family: monospace; font-size: 14px; text-align: center; color: var(--orange); }
-        .btn-s { padding: 10px; border-radius: 8px; border: none; font-size: 10px; font-weight: bold; }
+        .timer-ctrl { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .time-val { font-family: monospace; font-size: 18px; color: var(--orange); font-weight: bold; }
+        .btn-s { padding: 10px 18px; border-radius: 10px; border: none; font-weight: 800; font-size: 11px; cursor: pointer; }
 
-        /* AJUSTES MÓVIL */
-        @media (max-width: 768px) {
+        /* --- RESPONSIVE --- */
+        @media (max-width: 800px) {
             .sidebar { display: none; }
-            .kanban { grid-template-columns: 1fr; }
-            .header h2 { font-size: 16px; }
+            .lane { min-width: 88vw; }
+            .board { padding: 10px; gap: 10px; }
+            #btn-mobile-add { display: block !important; }
         }
     </style>
 </head>
 <body>
 
-<div id="master-lock" class="overlay">
-    <div class="login-box">
-        <h2 style="color:var(--orange)">TRACK LABEL PRO</h2>
-        <input type="password" id="m-pass" placeholder="Contraseña Maestra" style="text-align:center;">
-        <button class="btn btn-orange" style="margin-top:20px" onclick="checkM()">ENTRAR</button>
-    </div>
-</div>
-
-<div id="login-screen" class="overlay" style="display:none">
-    <div class="login-box">
-        <h3>OPERARIO</h3>
-        <div class="user-grid">
-            <div class="user-item" onclick="selU('Isa', this)">Isa</div>
-            <div class="user-item" onclick="selU('Jaume', this)">Jaume</div>
-            <div class="user-item" onclick="selU('Ivan', this)">Ivan</div>
-            <div class="user-item" onclick="selU('Anna', this)">Anna</div>
-            <div class="user-item" onclick="selU('Toni', this)">Toni</div>
+<div id="step-master" class="full-overlay">
+    <div class="access-card">
+        <h2 style="color:var(--orange); margin-bottom:30px">TRACK LABEL PRO</h2>
+        <div class="field">
+            <label>Contraseña de Sistema</label>
+            <input type="password" id="m-pass" placeholder="••••••••" style="text-align:center">
         </div>
-        <input type="password" id="u-pin" placeholder="PIN" style="text-align:center;">
-        <button class="btn btn-orange" style="margin-top:20px" onclick="login()">ACCEDER</button>
+        <button class="btn btn-main" onclick="unlockMaster()">DESBLOQUEAR</button>
     </div>
 </div>
 
-<header class="header">
-    <h2 style="margin:0; color:var(--orange)">🟠 TRACK LABEL</h2>
-    <div id="user-display" style="font-size:12px; font-weight:bold"></div>
+<div id="step-user" class="full-overlay" style="display:none">
+    <div class="access-card">
+        <h3>Selección de Operario</h3>
+        <div class="user-grid">
+            <div class="u-btn" onclick="selU('Isa', this)"><div class="u-avatar">I</div>Isa</div>
+            <div class="u-btn" onclick="selU('Jaume', this)"><div class="u-avatar">J</div>Jaume</div>
+            <div class="u-btn" onclick="selU('Ivan', this)"><div class="u-avatar">I</div>Ivan</div>
+            <div class="u-btn" onclick="selU('Anna', this)"><div class="u-avatar">A</div>Anna</div>
+            <div class="u-btn" onclick="selU('Toni', this)"><div class="u-avatar">T</div>Toni</div>
+        </div>
+        <div class="field">
+            <input type="password" id="u-pin" placeholder="PIN de acceso" style="text-align:center">
+        </div>
+        <button class="btn btn-main" onclick="unlockUser()">ACCEDER AL PANEL</button>
+    </div>
+</div>
+
+<header>
+    <h1>🟠 TRACK LABEL PRO</h1>
+    <div id="display-user" class="op-tag">Invitado</div>
 </header>
 
-<div class="container">
+<div class="main-layout">
     <aside class="sidebar">
-        <button class="btn btn-orange" onclick="openM('modalPedido')">+ NUEVO PEDIDO</button>
-        <div style="margin-top:20px; font-size:12px; color:var(--text-dim)">
-            Utiliza este panel para gestionar las colas de impresión y acabados.
-        </div>
-        <button class="btn btn-ghost" style="margin-top:auto" onclick="location.reload()">Salir</button>
+        <button class="btn btn-main" onclick="openModal('modalNew')">+ NUEVO PEDIDO</button>
+        <p style="font-size:12px; color:var(--text-dim); margin-top:30px">
+            <b>Gestión de Planta:</b> Arrastra los pedidos para cambiar su estado. Pulsa para marcar tiempos.
+        </p>
+        <button class="btn btn-ghost" style="margin-top:auto" onclick="location.reload()">Cerrar Sesión</button>
     </aside>
 
-    <main class="main-content">
-        <button class="btn btn-orange" id="btn-movil-add" style="margin-bottom:15px; display:none" onclick="openM('modalPedido')">+ NUEVO PEDIDO</button>
-        
-        <div class="kanban">
-            <div class="column">
-                <div class="col-title">FLEXO / OFFSET <span id="c-flexo">0</span></div>
-                <div id="list-flexo" style="min-height:50px"></div>
-            </div>
-            <div class="column">
-                <div class="col-title">DIGITAL <span id="c-digital">0</span></div>
-                <div id="list-digital" style="min-height:50px"></div>
-            </div>
-            <div class="column">
-                <div class="col-title">REPASO / ACABADO <span id="c-acabados">0</span></div>
-                <div id="list-acabados" style="min-height:50px"></div>
-            </div>
+    <main class="board">
+        <button id="btn-mobile-add" onclick="openModal('modalNew')" style="display:none; position:fixed; bottom:25px; right:25px; width:65px; height:65px; border-radius:50%; background:var(--orange); color:white; border:none; font-size:30px; z-index:500; box-shadow:0 10px 25px #000">+</button>
+
+        <div class="lane">
+            <div class="lane-head">FLEXO / OFFSET <span class="lane-count" id="c-flexo">0</span></div>
+            <div id="list-flexo" class="drop-zone"></div>
+        </div>
+        <div class="lane">
+            <div class="lane-head">DIGITAL <span class="lane-count" id="c-digital">0</span></div>
+            <div id="list-digital" class="drop-zone"></div>
+        </div>
+        <div class="lane">
+            <div class="lane-head">REPASO / ACABADO <span class="lane-count" id="c-acabados">0</span></div>
+            <div id="list-acabados" class="drop-zone"></div>
         </div>
     </main>
 </div>
 
-<div id="modalPedido" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-top:0">Nuevo Pedido</h3>
-        <div class="f-group"><label>CLIENTE</label><input type="text" id="in-cli"></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-            <div class="f-group"><label>COLOR</label><input type="color" id="in-col" value="#ff7a00" style="height:45px"></div>
-            <div class="f-group"><label>MÁQUINA</label>
-                <select id="in-maq">
+<div id="modalNew" class="modal-wrap">
+    <div class="modal-box">
+        <h2 style="margin-top:0">Nueva Orden</h2>
+        <div class="field"><label>Cliente</label><input type="text" id="f-cli" placeholder="Nombre empresa"></div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
+            <div class="field"><label>Distintivo</label><input type="color" id="f-col" value="#ff7a00" style="height:50px; padding:2px"></div>
+            <div class="field"><label>Máquina Inicial</label>
+                <select id="f-maq">
                     <option value="list-flexo">Flexo</option>
                     <option value="list-digital">Digital</option>
                 </select>
             </div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-            <div class="f-group"><label>METROS</label><input type="number" id="in-met"></div>
-            <div class="f-group"><label>TROQUEL</label><input type="text" id="in-tro"></div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
+            <div class="field"><label>Metros</label><input type="number" id="f-met"></div>
+            <div class="field"><label>Nº Troquel</label><input type="text" id="f-tro"></div>
         </div>
-        <div class="f-group"><label>MATERIAL</label>
-            <select id="in-mat" onchange="updEst()">
-                <option value="">Seleccionar...</option>
+
+        <div class="field"><label>Material</label>
+            <select id="f-mat" onchange="autoEst()">
+                <option value="">-- Seleccionar --</option>
                 <option value="Couché">Couché</option>
                 <option value="PP Mate">PP Mate</option>
                 <option value="PP Brillo">PP Brillo</option>
                 <option value="PE">PE</option>
             </select>
         </div>
-        <div class="f-group"><label>ESTANTERÍA</label><input type="text" id="in-est" readonly></div>
-        <button class="btn btn-orange" onclick="crearP()">CREAR PEDIDO</button>
-        <button class="btn btn-ghost" onclick="closeM('modalPedido')">Cerrar</button>
+        <div class="field"><label>Ubicación Estantería</label><input type="text" id="f-est" readonly></div>
+
+        <button class="btn btn-main" onclick="saveJob()">CREAR PEDIDO</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalNew')">Cancelar</button>
     </div>
 </div>
 
-<div id="modalTiempos" class="modal">
-    <div class="modal-content">
-        <h3 id="v-cli" style="margin:0"></h3>
-        <p id="v-det" style="font-size:12px; color:var(--orange); margin-bottom:20px"></p>
+<div id="modalTimers" class="modal-wrap">
+    <div class="modal-box">
+        <h2 id="v-title" style="margin:0">---</h2>
+        <p id="v-meta" style="color:var(--orange); font-weight:bold; margin:5px 0 25px 0; font-size:13px"></p>
 
-        <div class="t-row">
-            <button class="btn-s" style="background:var(--green)" onclick="stmp('prep','inicio')">INI</button>
-            <div class="t-val" id="v-prep">--:-- > --:--</div>
-            <button class="btn-s" style="background:var(--red); color:#fff" onclick="stmp('prep','fin')">FIN</button>
-        </div>
-        <div class="t-row">
-            <button class="btn-s" style="background:var(--green)" onclick="stmp('tiraje','inicio')">INI</button>
-            <div class="t-val" id="v-tiraje">--:-- > --:--</div>
-            <button class="btn-s" style="background:var(--red); color:#fff" onclick="stmp('tiraje','fin')">FIN</button>
-        </div>
-        <div id="v-box-rep" class="t-row" style="display:none">
-            <button class="btn-s" style="background:var(--green)" onclick="stmp('repaso','inicio')">INI</button>
-            <div class="t-val" id="v-repaso">--:-- > --:--</div>
-            <button class="btn-s" style="background:var(--red); color:#fff" onclick="stmp('repaso','fin')">FIN</button>
+        <div class="timer-unit">
+            <label>1. Preparación</label>
+            <div class="timer-ctrl">
+                <button class="btn-s" style="background:var(--green)" onclick="stamp('prep','ini')">INICIO</button>
+                <div class="time-val" id="t-prep">--:-- > --:--</div>
+                <button class="btn-s" style="background:var(--red); color:#fff" onclick="stamp('prep','fin')">FIN</button>
+            </div>
         </div>
 
-        <button id="btn-exp" class="btn btn-green" style="display:none; margin-bottom:10px" onclick="exp()">FINALIZAR Y EXPEDIR</button>
-        <button class="btn btn-ghost" onclick="closeM('modalTiempos')">Volver</button>
+        <div class="timer-unit">
+            <label>2. Tiraje</label>
+            <div class="timer-ctrl">
+                <button class="btn-s" style="background:var(--green)" onclick="stamp('tiraje','ini')">INICIO</button>
+                <div class="time-val" id="t-tiraje">--:-- > --:--</div>
+                <button class="btn-s" style="background:var(--red); color:#fff" onclick="stamp('tiraje','fin')">FIN</button>
+            </div>
+        </div>
+
+        <div id="box-rep" class="timer-unit" style="display:none; border-color:var(--green)">
+            <label style="color:var(--green)">3. Repaso Final</label>
+            <div class="timer-ctrl">
+                <button class="btn-s" style="background:var(--green)" onclick="stamp('repaso','ini')">INICIO</button>
+                <div class="time-val" id="t-repaso">--:-- > --:--</div>
+                <button class="btn-s" style="background:var(--red); color:#fff" onclick="stamp('repaso','fin')">FIN</button>
+            </div>
+        </div>
+
+        <button id="btn-done" class="btn btn-main" style="display:none; background:var(--green); color:#000" onclick="finishJob()">ENVIAR A EXPEDICIÓN</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalTimers')">Cerrar</button>
     </div>
 </div>
 
 <script>
-const M_KEY = "TrackLabel#";
-const USR = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
-const MATS = {"Couché":"A1", "PP Mate":"B2", "PP Brillo":"B3", "PE":"C1"};
+// --- CONFIG Y ESTADO ---
+const CONFIG = { master: "TrackLabel#", pin: "1234" };
+const MATS = { "Couché": "EST-A1", "PP Mate": "EST-B2", "PP Brillo": "EST-B3", "PE": "EST-C1" };
+let db = JSON.parse(localStorage.getItem('track_v5_full')) || {};
+let curUser = "";
+let curJob = null;
 
-let db = JSON.parse(localStorage.getItem('track_db_v3')) || {};
-let uAct = "";
-let idAct = null;
+// --- ACCESO ---
+function unlockMaster() {
+    if(document.getElementById('m-pass').value === CONFIG.master) {
+        document.getElementById('step-master').style.display = 'none';
+        document.getElementById('step-user').style.display = 'flex';
+    } else alert("Clave maestra incorrecta");
+}
 
-function checkM(){ if(document.getElementById('m-pass').value===M_KEY){ document.getElementById('master-lock').style.display='none'; document.getElementById('login-screen').style.display='flex'; } }
-function selU(n, el){ uAct=n; document.querySelectorAll('.user-item').forEach(i=>i.classList.remove('selected')); el.classList.add('selected'); }
-function login(){ if(USR[uAct]===document.getElementById('u-pin').value){ document.getElementById('login-screen').style.display='none'; document.getElementById('user-display').innerText=uAct; if(window.innerWidth<768) document.getElementById('btn-movil-add').style.display='block'; render(); initS(); } }
+function selU(n, el) {
+    curUser = n;
+    document.querySelectorAll('.u-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+}
 
-function updEst(){ document.getElementById('in-est').value = MATS[document.getElementById('in-mat').value] || ""; }
-function openM(id){ document.getElementById(id).style.display='block'; }
-function closeM(id){ document.getElementById(id).style.display='none'; }
+function unlockUser() {
+    if(curUser && document.getElementById('u-pin').value === CONFIG.pin) {
+        document.getElementById('step-user').style.display = 'none';
+        document.getElementById('display-user').innerText = "Operario: " + curUser;
+        render(); initDrag();
+    } else alert("Selecciona usuario e introduce PIN correcto");
+}
 
-function crearP(){
-    const cli = document.getElementById('in-cli').value;
-    if(!cli) return;
-    const id = "ID-"+Date.now();
+// --- LÓGICA PEDIDOS ---
+function autoEst() { document.getElementById('f-est').value = MATS[document.getElementById('f-mat').value] || ""; }
+function openModal(id) { document.getElementById(id).style.display = 'block'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+function saveJob() {
+    const cli = document.getElementById('f-cli').value;
+    if(!cli) return alert("El nombre del cliente es obligatorio");
+    const id = "JOB-" + Date.now();
     db[id] = {
-        cliente: cli, color: document.getElementById('in-col').value,
-        maquina: document.getElementById('in-maq').value, metros: document.getElementById('in-met').value,
-        troquel: document.getElementById('in-tro').value, material: document.getElementById('in-mat').value,
-        estanteria: document.getElementById('in-est').value, tiempos: {prep:{}, tiraje:{}, repaso:{}}
+        cli: cli, col: document.getElementById('f-col').value,
+        maq: document.getElementById('f-maq').value, met: document.getElementById('f-met').value,
+        tro: document.getElementById('f-tro').value, mat: document.getElementById('f-mat').value,
+        est: document.getElementById('f-est').value,
+        times: { prep: {}, tiraje: {}, repaso: {} }
     };
-    save(); render(); closeM('modalPedido');
+    save(); render(); closeModal('modalNew');
 }
 
-function render(){
-    ['flexo', 'digital', 'acabados'].forEach(c=>{
-        const box = document.getElementById('list-'+c);
-        box.innerHTML = "";
-        Object.keys(db).filter(k=>db[k].maquina==='list-'+c).forEach(id=>{
-            const p = db[id];
-            const div = document.createElement('div');
-            div.className = 'job-card';
-            div.style.borderLeftColor = p.color;
-            div.onclick = () => abrirT(id); // Evento click directo
-            div.innerHTML = `<h4>${p.cliente}</h4><p>${p.metros}m | Troquel: ${p.troquel}</p>`;
-            box.appendChild(div);
+function render() {
+    ['flexo', 'digital', 'acabados'].forEach(col => {
+        const container = document.getElementById('list-' + col);
+        container.innerHTML = "";
+        const jobs = Object.keys(db).filter(id => db[id].maq === 'list-' + col);
+        jobs.forEach(id => {
+            const j = db[id];
+            const el = document.createElement('div');
+            el.className = 'job-card';
+            el.id = id;
+            el.style.borderLeftColor = j.col;
+            el.onclick = () => openTimers(id);
+            el.innerHTML = `<h4>${j.cli.toUpperCase()}</h4>
+                <p>📏 ${j.met}m | T: ${j.tro}</p>
+                <p>📦 ${j.mat} [${j.est}]</p>`;
+            container.appendChild(el);
         });
-        document.getElementById('c-'+c).innerText = box.children.length;
+        document.getElementById('c-' + col).innerText = jobs.length;
     });
 }
 
-function abrirT(id){
-    idAct = id;
-    const p = db[id];
-    document.getElementById('v-cli').innerText = p.cliente.toUpperCase();
-    document.getElementById('v-det').innerText = `${p.metros}m - T:${p.troquel} - Mat:${p.material}`;
+function openTimers(id) {
+    curJob = id; const j = db[id];
+    document.getElementById('v-title').innerText = j.cli.toUpperCase();
+    document.getElementById('v-meta').innerText = `${j.met}m | Troquel: ${j.tro} | Mat: ${j.mat}`;
     
-    refreshT(p);
-    const esAcab = p.maquina === 'list-acabados';
-    document.getElementById('v-box-rep').style.display = esAcab ? 'grid' : 'none';
-    document.getElementById('btn-exp').style.display = esAcab ? 'block' : 'none';
-    openM('modalTiempos');
+    refreshUI();
+    const isRep = j.maq === 'list-acabados';
+    document.getElementById('box-rep').style.display = isRep ? 'block' : 'none';
+    document.getElementById('btn-done').style.display = isRep ? 'block' : 'none';
+    openModal('modalTimers');
 }
 
-function stmp(f, h){
-    const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    db[idAct].tiempos[f][h] = now;
-    if(f==='tiraje' && h==='fin'){ db[idAct].maquina = 'list-acabados'; render(); closeM('modalTiempos'); abrirT(idAct); }
-    save(); refreshT(db[idAct]);
+function stamp(fase, hito) {
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    db[curJob].times[fase][hito] = time;
+    
+    // Auto-mover a acabados al terminar tiraje
+    if(fase === 'tiraje' && hito === 'fin') {
+        db[curJob].maq = 'list-acabados';
+        render();
+        closeModal('modalTimers');
+        openTimers(curJob);
+    }
+    save(); refreshUI();
 }
 
-function refreshT(p){
-    ['prep', 'tiraje', 'repaso'].forEach(f=>{
-        document.getElementById('v-'+f).innerText = `${p.tiempos[f].inicio || '--'} > ${p.tiempos[f].fin || '--'}`;
+function refreshUI() {
+    const j = db[curJob];
+    ['prep', 'tiraje', 'repaso'].forEach(f => {
+        const t = j.times[f];
+        document.getElementById('t-' + f).innerText = `${t.ini || '--:--'} > ${t.fin || '--:--'}`;
     });
 }
 
-function exp(){ if(confirm("¿Expedir pedido?")){ delete db[idAct]; save(); render(); closeM('modalTiempos'); } }
-function save(){ localStorage.setItem('track_db_v3', JSON.stringify(db)); }
+function finishJob() {
+    if(confirm("¿Enviar pedido a expedición? Se eliminará del tablero.")) {
+        delete db[curJob];
+        save(); render(); closeModal('modalTimers');
+    }
+}
 
-function initS(){
-    ['list-flexo', 'list-digital', 'list-acabados'].forEach(id=>{
+function save() { localStorage.setItem('track_v5_full', JSON.stringify(db)); }
+
+function initDrag() {
+    ['list-flexo', 'list-digital', 'list-acabados'].forEach(id => {
         new Sortable(document.getElementById(id), {
-            group: 'prod', animation: 150,
+            group: 'prod', animation: 200, ghostClass: 'sort-ghost',
             onEnd: (evt) => {
-                const idCard = Object.keys(db).find(k=> {
-                    const card = document.getElementById(evt.item.id); // Este método de búsqueda es para sortable
-                    return k; // Sortable maneja el DOM, actualizamos la lógica:
-                });
-                // Actualización simplificada para el Sortable
-                render(); // Al terminar de mover, re-renderizamos para asegurar consistencia
+                db[evt.item.id].maq = evt.to.id;
+                save(); render();
             }
         });
     });
