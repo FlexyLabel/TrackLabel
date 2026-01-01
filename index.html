@@ -3,156 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Medición de Planta</title>
+    <title>Track Label Pro v2026 - FULL</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
             --bg: #0b0e11; --sidebar: #15191d; --surface: #1e2329;
             --orange: #ff7a00; --green: #00ff88; --red: #ff4444;
-            --text: #f0f0f0; --border: #282e35;
+            --text: #f0f0f0; --border: #282e35; --subtext: #888e96;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { 
-            background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; 
-            margin: 0; padding: 0; min-height: 100vh;
+            background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; 
+            margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden;
         }
 
-        /* --- TÍTULO SUTIL --- */
-        .brand-header {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0.8;
-        }
-        .brand-header h1 {
-            font-size: 14px;
-            letter-spacing: 2px;
-            margin: 0;
-            color: #fff;
-            font-weight: 300;
-            text-transform: uppercase;
-        }
-        .brand-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--orange);
-            border-radius: 50%;
-        }
-
-        /* --- LOGIN & LOCK --- */
+        /* --- ACCESO --- */
         #master-lock, #login-screen {
             position: fixed; inset: 0; background: var(--bg); z-index: 50000;
             display: flex; align-items: center; justify-content: center; padding: 20px;
         }
-        #login-screen { z-index: 40000; background: #000; }
-
+        #login-screen { z-index: 40000; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); }
+        
         .lock-box {
             background: var(--surface); padding: 40px; border-radius: 35px;
             text-align: center; border: 1px solid var(--border); width: 100%; max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
         .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
         .user-item {
             background: var(--sidebar); padding: 15px 5px; border-radius: 20px; border: 1px solid #333;
-            cursor: pointer; text-align: center;
+            cursor: pointer; text-align: center; transition: 0.2s;
         }
-        .user-item.selected { border-color: var(--orange); background: #222; }
+        .user-item.selected { border-color: var(--orange); background: rgba(255,122,0,0.1); transform: scale(1.05); }
         .user-initial { 
             width: 45px; height: 45px; border-radius: 50%; border: 2px solid #444; 
-            display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: bold; font-size: 18px;
         }
-        .user-name { font-size: 12px; color: #aaa; }
 
-        /* --- LAYOUT --- */
+        /* --- ESTRUCTURA --- */
         .app-container { display: flex; min-height: 100vh; }
-        
         .sidebar-planta {
             width: 320px; background: var(--sidebar); border-right: 1px solid var(--border);
             padding: 25px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px;
         }
+        .main-content { flex: 1; padding: 25px; background: var(--bg); }
 
-        .panel-stats {
-            background: var(--surface); padding: 20px; border-radius: 25px; border: 1px solid var(--border);
+        /* --- COMPONENTES --- */
+        .user-pill {
+            display: flex; align-items: center; gap: 12px; background: var(--surface);
+            padding: 12px 15px; border-radius: 100px; border: 1px solid var(--border);
+            cursor: pointer; transition: 0.3s;
         }
-        .panel-stats h4 { margin: 0 0 10px 0; font-size: 11px; color: var(--orange); text-transform: uppercase; }
+        .user-pill:hover { border-color: var(--orange); }
+        .user-pill .avatar { width: 35px; height: 35px; background: var(--orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 900; }
+
+        .panel-stats { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 25px; border: 1px solid var(--border); }
+        .panel-stats h4 { margin: 0 0 10px 0; font-size: 11px; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; }
 
         .bar-bg { background: #000; height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0; }
-        .bar-fill { background: var(--orange); height: 100%; width: 0%; transition: 0.8s; }
+        .bar-fill { background: linear-gradient(90deg, var(--orange), #ffae00); height: 100%; width: 0%; transition: 1s ease-in-out; }
 
-        .main-content { flex: 1; padding: 25px; }
-
-        /* --- KANBAN VERTICAL --- */
-        .kanban-vertical {
-            display: flex; flex-direction: column !important; gap: 30px; width: 100%; max-width: 800px; margin: 0 auto;
-        }
-        .machine-block { background: var(--sidebar); border-radius: 30px; border: 1px solid var(--border); }
+        /* --- KANBAN --- */
+        .machine-block { background: var(--sidebar); border-radius: 30px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 25px; }
         .machine-header { 
-            padding: 20px 25px; border-bottom: 1px solid #222; 
-            display: flex; justify-content: space-between; align-items: center; font-weight: bold;
+            padding: 20px 25px; background: rgba(255,255,255,0.02); border-bottom: 1px solid #222; 
+            display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700;
         }
-        .drop-zone { padding: 20px; min-height: 120px; }
+        .drop-zone { padding: 20px; min-height: 120px; transition: background 0.2s; }
+        .drop-zone.drag-over { background: rgba(255,122,0,0.05); }
 
         /* --- TARJETAS --- */
         .job-card {
-            background: var(--surface); padding: 20px; border-radius: 22px; margin-bottom: 15px;
-            border-left: 8px solid; cursor: pointer !important; position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); touch-action: none;
+            background: var(--surface); padding: 22px; border-radius: 25px; margin-bottom: 15px;
+            border-left: 8px solid; cursor: grab !important; position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.2s;
         }
-        .job-card strong { font-size: 18px; display: block; margin-bottom: 8px; }
-        .card-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: #888; }
-        
-        .msg-badge { 
-            position: absolute; top: 20px; right: 20px; color: var(--orange); font-size: 18px;
-        }
-
-        .status-bar { 
-            margin-top: 12px; padding-top: 10px; border-top: 1px solid #333;
-            display: flex; align-items: center; gap: 8px; font-size: 11px;
-        }
-        .dot { height: 10px; width: 10px; border-radius: 50%; background: #444; }
+        .job-card:active { cursor: grabbing !important; }
+        .job-card strong { font-size: 19px; display: block; margin-bottom: 12px; color: #fff; }
+        .tag { background: #121519; padding: 5px 10px; border-radius: 10px; font-size: 11px; color: var(--subtext); border: 1px solid #282e35; }
+        .card-details { display: flex; flex-wrap: wrap; gap: 8px; }
 
         /* --- MODALES --- */
-        .modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 60000; padding: 20px; overflow-y: auto;
-        }
-        .modal-box {
-            background: var(--surface); border-radius: 35px; padding: 35px;
-            width: 100%; max-width: 600px; margin: 20px auto; border: 1px solid #333;
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 60000; padding: 20px; backdrop-filter: blur(12px); overflow-y: auto; }
+        .modal-box { 
+            background: var(--surface); border-radius: 40px; padding: 40px; width: 100%; 
+            max-width: 650px; margin: 20px auto; border: 1px solid #333; position: relative;
         }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        label { font-size: 10px; font-weight: 900; color: var(--orange); display: block; margin-bottom: 5px; }
+        .info-card { background: #121519; padding: 18px; border-radius: 25px; border: 1px solid #282e35; text-align: center; }
+        .timer-display { font-size: 56px; font-weight: 900; color: var(--green); font-family: monospace; margin: 15px 0; }
 
-        input, select, textarea {
-            width: 100%; padding: 15px; background: #000; border: 1px solid #333;
-            color: white; border-radius: 12px; font-size: 16px; font-family: inherit;
-        }
-        textarea { resize: none; height: 80px; }
-
-        .btn {
-            width: 100%; padding: 18px; border-radius: 18px; border: none;
-            font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px;
-        }
+        /* --- BOTONES --- */
+        .btn { width: 100%; padding: 20px; border-radius: 22px; border: none; font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 12px; }
         .btn-orange { background: var(--orange); color: white; }
         .btn-green { background: var(--green); color: black; }
         .btn-red { background: var(--red); color: white; }
-        .btn-grey { background: #333; color: #ccc; }
+        .btn-dark { background: #000; color: #fff; border: 1px solid #333; }
+        .btn-ghost { background: transparent; color: var(--subtext); text-decoration: underline; font-size: 13px; margin-top: 10px; }
 
-        /* --- MEJORAS PANTALLA MARCADO --- */
-        .time-header { text-align: center; margin-bottom: 25px; }
-        .time-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .info-item { background: #121519; padding: 15px; border-radius: 18px; border: 1px solid #282e35; }
-        .info-item label { font-size: 9px; color: var(--orange); text-transform: uppercase; font-weight: bold; margin-bottom: 4px; display: block; }
-        .info-item span { font-size: 15px; font-weight: 600; }
-        .timer-box { 
-            background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); 
-            padding: 20px; border-radius: 25px; text-align: center; margin-bottom: 20px;
-        }
-        .timer-val { font-size: 32px; font-weight: 800; color: var(--green); font-family: monospace; }
+        input, select, textarea { width: 100%; padding: 16px; background: #000; border: 1px solid #333; color: white; border-radius: 18px; font-size: 16px; margin-top: 6px; }
+        label { font-size: 10px; font-weight: 900; color: var(--orange); text-transform: uppercase; margin-left: 8px; }
+
+        .sortable-ghost { opacity: 0.1; }
+        .sortable-drag { transform: rotate(2deg); }
 
         @media (max-width: 850px) {
             .app-container { flex-direction: column; }
@@ -164,15 +119,15 @@
 
 <div id="master-lock">
     <div class="lock-box">
-        <h2 style="color:var(--orange)">TRACK LABEL PRO</h2>
-        <input type="password" id="m-pass" placeholder="Password Maestro" style="text-align:center;">
-        <button class="btn btn-orange" onclick="checkMaster()">ENTRAR AL SISTEMA</button>
+        <h2 style="color:var(--orange); letter-spacing:4px;">TRACK LABEL PRO</h2>
+        <input type="password" id="m-pass" placeholder="PASSWORD MAESTRO" style="text-align:center; letter-spacing:6px;">
+        <button class="btn btn-orange" onclick="checkMaster()">DESBLOQUEAR SISTEMA</button>
     </div>
 </div>
 
 <div id="login-screen" style="display:none">
     <div class="lock-box">
-        <h3>ACCESO DE OPERARIO</h3>
+        <h3>TURNO DE TRABAJO</h3>
         <div class="user-grid">
             <div class="user-item" onclick="setUser('Isa', this)"><div class="user-initial">I</div><div class="user-name">Isa</div></div>
             <div class="user-item" onclick="setUser('Jaume', this)"><div class="user-initial">J</div><div class="user-name">Jaume</div></div>
@@ -180,94 +135,89 @@
             <div class="user-item" onclick="setUser('Anna', this)"><div class="user-initial">A</div><div class="user-name">Anna</div></div>
             <div class="user-item" onclick="setUser('Toni', this)"><div class="user-initial">T</div><div class="user-name">Toni</div></div>
         </div>
-        <input type="password" id="u-pin" placeholder="PIN de Seguridad" style="text-align:center;">
-        <button class="btn btn-orange" onclick="doLogin()">INICIAR SESIÓN</button>
+        <input type="password" id="u-pin" placeholder="PIN" style="text-align:center;">
+        <button class="btn btn-orange" onclick="doLogin()">INICIAR TURNO</button>
     </div>
 </div>
 
 <div id="app-body" class="app-container" style="display:none">
-    
     <aside class="sidebar-planta">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <div style="background:var(--orange); padding:8px; border-radius:10px; color:black; font-weight:bold;">TL</div>
-            <h2 style="margin:0; font-size:18px;">PLANTA</h2>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="background:var(--orange); padding:10px; border-radius:12px; color:black; font-weight:900;">TL</div>
+            <h2 style="margin:0; font-size:22px;">PLANTA</h2>
+        </div>
+
+        <div class="user-pill" onclick="logout()">
+            <div class="avatar" id="av-init">?</div>
+            <div style="flex:1">
+                <div id="user-display" style="font-size:14px; font-weight:bold;">Operario</div>
+                <div style="font-size:9px; color:var(--orange);">CAMBIAR USUARIO ⇄</div>
+            </div>
         </div>
 
         <div class="panel-stats">
-            <h4>PROGRESO HOY</h4>
+            <h4>PROGRESO</h4>
             <div class="bar-bg"><div id="p-bar" class="bar-fill"></div></div>
-            <small id="p-text">0% completado</small>
-        </div>
-
-        <div class="panel-stats">
-            <h4>TRABAJOS</h4>
-            <p>En cola: <strong id="c-act">0</strong></p>
-            <p>Hechos: <strong id="c-fin" style="color:var(--green)">0</strong></p>
+            <div style="display:flex; justify-content:space-between; font-size:11px;">
+                <span id="p-text">0%</span>
+                <span id="c-fin-label">0 HECHOS</span>
+            </div>
         </div>
 
         <div class="panel-stats" style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
-            <h4>REGISTRO LOG (MÉTRICAS)</h4>
-            <div id="log-box" style="font-size:10px; color:#555; overflow-y:auto;"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4>HISTORIAL</h4>
+                <button onclick="clearLog()" style="background:none; border:none; color:var(--red); font-size:10px; cursor:pointer;">BORRAR</button>
+            </div>
+            <div id="log-box" style="font-size:10px; color:var(--subtext); overflow-y:auto; line-height:1.6;"></div>
         </div>
-        
-        <button onclick="location.reload()" style="background:none; border:none; color:#444; font-size:11px; cursor:pointer; text-decoration:underline;">Bloquear Terminal</button>
     </aside>
 
     <main class="main-content">
-        <header class="brand-header">
-            <div class="brand-dot"></div>
-            <h1>TrackLabel</h1>
-        </header>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div>
-                <h2 id="user-display" style="margin:0;">-</h2>
-                <span style="font-size:11px; color:var(--orange); font-weight:bold;">MODO MEDICIÓN ACTIVO</span>
-            </div>
-            <button class="btn btn-orange" style="width:auto; padding:12px 30px" onclick="openNew()">+ NUEVO TRABAJO</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h2 style="margin:0; font-size:28px;">Panel de Control</h2>
+            <button class="btn btn-orange" style="width:auto; padding:15px 30px;" onclick="openNew()">+ NUEVA ORDEN</button>
         </div>
 
-        <div class="kanban-vertical">
-            <div class="machine-block">
-                <div class="machine-header">FLEXO / OFFSET <span id="n-flexo" style="color:var(--orange)">0</span></div>
-                <div id="list-flexo" class="drop-zone"></div>
-            </div>
-            <div class="machine-block">
-                <div class="machine-header">DIGITAL <span id="n-digital" style="color:var(--orange)">0</span></div>
-                <div id="list-digital" class="drop-zone"></div>
-            </div>
-            <div class="machine-block">
-                <div class="machine-header">REPASO / ACABADOS <span id="n-repaso" style="color:var(--orange)">0</span></div>
-                <div id="list-repaso" class="drop-zone"></div>
-            </div>
+        <div id="list-flexo-box" class="machine-block">
+            <div class="machine-header">FLEXOGRAFÍA <span id="n-flexo" class="tag">0</span></div>
+            <div id="list-flexo" class="drop-zone"></div>
+        </div>
+        <div id="list-digital-box" class="machine-block">
+            <div class="machine-header">IMPRESIÓN DIGITAL <span id="n-digital" class="tag">0</span></div>
+            <div id="list-digital" class="drop-zone"></div>
+        </div>
+        <div id="list-repaso-box" class="machine-block">
+            <div class="machine-header">REPASO / ACABADOS <span id="n-repaso" class="tag">0</span></div>
+            <div id="list-repaso" class="drop-zone"></div>
         </div>
     </main>
 </div>
 
 <div id="modal-new" class="modal">
     <div class="modal-box">
-        <h3 style="margin-top:0">NUEVA ORDEN DE TRABAJO</h3>
-        <div class="input-group"><label>CLIENTE</label><input type="text" id="f-cli" placeholder="Nombre cliente"></div>
-        <div class="grid-2">
-            <div class="input-group"><label>SECCIÓN</label><select id="f-maq"><option value="list-flexo">FLEXO</option><option value="list-digital">DIGITAL</option><option value="list-repaso">REPASO</option></select></div>
-            <div class="input-group"><label>METROS EST.</label><input type="number" id="f-met" placeholder="Cant."></div>
+        <h3 id="modal-title">NUEVA ORDEN</h3>
+        <input type="hidden" id="f-id">
+        <div style="margin-bottom:15px;"><label>Cliente</label><input type="text" id="f-cli"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
+            <div><label>Sección</label><select id="f-maq"><option value="list-flexo">FLEXO</option><option value="list-digital">DIGITAL</option><option value="list-repaso">REPASO</option></select></div>
+            <div><label>Metros Est.</label><input type="number" id="f-met"></div>
         </div>
-        <div class="grid-2">
-            <div class="input-group"><label>TROQUEL</label><input type="text" id="f-tro" placeholder="Ref."></div>
-            <div class="input-group"><label>GRABADO</label><input type="text" id="f-gra" placeholder="Ref."></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
+            <div><label>Troquel</label><input type="text" id="f-tro"></div>
+            <div><label>Grabado</label><input type="text" id="f-gra"></div>
         </div>
-        <div class="grid-2">
-            <div class="input-group"><label>MATERIAL</label><input type="text" id="f-mat" placeholder="Papel/PP"></div>
-            <div class="input-group"><label>ACABADO</label><input type="text" id="f-aca" placeholder="Barniz/Lam."></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
+            <div><label>Material</label><input type="text" id="f-mat"></div>
+            <div><label>Acabado</label><input type="text" id="f-aca"></div>
         </div>
-        <div class="input-group">
-            <label>MENSAJE / OBSERVACIONES ESPECIALES</label>
-            <textarea id="f-msg" placeholder="Instrucciones..."></textarea>
+        <div style="margin-bottom:15px;">
+            <label>Notas / Color Prioridad</label>
+            <div style="display:flex; gap:10px;"><input type="color" id="f-col" value="#ff7a00" style="width:60px; height:60px;"><textarea id="f-msg" style="height:60px;"></textarea></div>
         </div>
-        <div class="input-group"><label>COLOR PRIORIDAD</label><input type="color" id="f-col" value="#ff7a00"></div>
-        
-        <button class="btn btn-orange" onclick="saveNew()">PUBLICAR EN PLANTA</button>
-        <button class="btn" style="background:none;" onclick="closeNew()">Cancelar</button>
+        <button class="btn btn-orange" id="btn-save" onclick="saveJob()">GUARDAR CAMBIOS</button>
+        <button class="btn btn-red" id="btn-del" style="display:none; margin-top:10px;" onclick="deleteJob()">ELIMINAR ORDEN</button>
+        <button class="btn btn-dark" style="margin-top:10px;" onclick="closeNew()">CANCELAR</button>
     </div>
 </div>
 
@@ -276,176 +226,96 @@
 </div>
 
 <script>
-// --- CONFIGURACIÓN ---
-const MASTER_KEY = "TrackLabel#";
 const OPERARIOS = {"Ivan":"1234", "Isa":"1234", "Jaume":"1234", "Anna":"1234", "Toni":"1234"};
-
-let db = JSON.parse(localStorage.getItem('tl_final_v5')) || {};
-let finCount = parseInt(localStorage.getItem('tl_fin_v5')) || 0;
+let db = JSON.parse(localStorage.getItem('tl_full_db')) || {};
+let finCount = parseInt(localStorage.getItem('tl_full_fin')) || 0;
+let logData = localStorage.getItem('tl_full_log') || "";
 let currentOp = "Ivan";
-let selectedJobId = null;
-let timerInterval = null;
+let activeId = null;
+let tInterval = null;
 
-// --- SEGURIDAD ---
+// --- ACCESO ---
 function checkMaster() {
-    if(document.getElementById('m-pass').value === MASTER_KEY) {
+    if(document.getElementById('m-pass').value === "TrackLabel#") {
         document.getElementById('master-lock').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
-    } else { alert("Acceso denegado"); }
+    } else alert("Error");
 }
-
 function setUser(n, el) {
     currentOp = n;
     document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
 }
-
 function doLogin() {
     if(OPERARIOS[currentOp] === document.getElementById('u-pin').value) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-body').style.display = 'flex';
-        document.getElementById('user-display').innerText = "Bienvenido, " + currentOp;
-        render();
-        initSort();
-    } else { alert("PIN incorrecto"); }
+        document.getElementById('user-display').innerText = currentOp;
+        document.getElementById('av-init').innerText = currentOp.charAt(0);
+        render(); initSort();
+    } else alert("PIN incorrecto");
+}
+function logout() {
+    document.getElementById('app-body').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
 }
 
-// --- RENDERIZADO ---
+// --- LOGICA TRABAJOS ---
 function render() {
     ['list-flexo', 'list-digital', 'list-repaso'].forEach(z => document.getElementById(z).innerHTML = "");
-
     Object.keys(db).forEach(id => {
-        const job = db[id];
+        const j = db[id];
         const card = document.createElement('div');
-        card.className = "job-card";
-        card.id = id;
-        card.style.borderLeftColor = job.col;
-        
-        card.onclick = function() {
-            if (!card.classList.contains('sortable-chosen')) openTime(id);
+        card.className = "job-card"; card.id = id; card.style.borderLeftColor = j.col;
+        card.onclick = (e) => { 
+            if(e.target.closest('.job-card')) {
+                if(j.start) openTime(id); else editJob(id);
+            }
         };
-
-        const hasMsg = job.msg && job.msg.trim() !== "";
-        const stopsCount = job.stops || 0;
-
         card.innerHTML = `
-            ${hasMsg ? '<span class="msg-badge">📝</span>' : ''}
-            ${stopsCount > 0 ? `<div style="position:absolute; bottom:45px; right:20px; background:var(--red); border-radius:10px; padding:2px 8px; font-size:10px; font-weight:bold;">${stopsCount} PARADAS</div>` : ''}
-            <strong>${job.cli.toUpperCase()}</strong>
+            ${j.msg ? '<span style="position:absolute; top:20px; right:20px;">📝</span>' : ''}
+            <strong>${j.cli}</strong>
             <div class="card-details">
-                <span>📏 Est: ${job.met}m</span>
-                <span>✂️ T: ${job.tro}</span>
-                <span>🎨 G: ${job.gra}</span>
-                <span>📄 ${job.mat}</span>
+                <span class="tag">📏 ${j.met}m</span><span class="tag">✂️ ${j.tro}</span>
+                <span class="tag">🎨 ${j.gra}</span><span class="tag">📄 ${j.mat}</span>
             </div>
-            <div class="status-bar">
-                <div class="dot" style="background:${job.start ? 'var(--green)' : '#444'}"></div>
-                <span>${job.start ? 'Fichado: ' + job.start : 'Sin iniciar'}</span>
+            <div style="margin-top:15px; font-size:11px; display:flex; align-items:center; gap:8px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:${j.start ? 'var(--green)' : '#444'}"></div>
+                ${j.start ? 'PRODUCIENDO: ' + j.start : 'EN COLA'}
+                ${j.stops > 0 ? `<span style="color:var(--red); margin-left:auto;">${j.stops} PARADAS</span>` : ''}
             </div>
         `;
-        
-        document.getElementById(job.maq).appendChild(card);
+        document.getElementById(j.maq).appendChild(card);
     });
+    document.getElementById('log-box').innerHTML = logData;
     updateStats();
 }
 
-function openTime(id) {
-    selectedJobId = id;
-    const job = db[id];
-    const ui = document.getElementById('time-ui');
-    
-    ui.innerHTML = `
-        <div class="time-header">
-            <h2 style="margin:0; font-size:28px; color:${job.col}">${job.cli}</h2>
-            <div style="font-size:12px; color:#666; margin-top:5px;">REF: ${job.tro} / ${job.gra}</div>
-        </div>
-
-        <div class="time-info-grid">
-            <div class="info-item"><label>Metros Est.</label><span>${job.met} m</span></div>
-            <div class="info-item"><label>Material</label><span>${job.mat}</span></div>
-            <div class="info-item" style="grid-column: span 2"><label>Acabado</label><span>${job.aca}</span></div>
-        </div>
-
-        ${job.msg ? `<div style="background:rgba(255,122,0,0.1); padding:15px; border-radius:15px; border-left:4px solid var(--orange); margin-bottom:20px; font-size:14px;"><b>NOTA:</b> ${job.msg}</div>` : ''}
-
-        ${!job.start ? 
-            `<button class="btn btn-green" style="height:80px; font-size:20px;" onclick="fichar('start')">INICIAR TIRADA</button>` : 
-            `
-            <div class="timer-box">
-                <label style="color:var(--green); font-size:10px; font-weight:bold;">TIEMPO EN MÁQUINA</label>
-                <div id="live-timer" class="timer-val">00:00:00</div>
-                <div style="font-size:11px; color:#555; margin-top:5px;">Iniciado a las ${job.start}</div>
-            </div>
-            <button class="btn btn-grey" onclick="addIncidencia()">⚠️ REGISTRAR PARADA (${job.stops || 0})</button>
-            <div style="background:#000; padding:20px; border-radius:25px; margin-top:20px;">
-                <label>METROS REALES PRODUCIDOS</label>
-                <input type="number" id="real-met" placeholder="Total metros finales" style="text-align:center; font-size:20px;">
-                <button class="btn btn-red" onclick="fichar('end')">FINALIZAR Y CERRAR MÉTRICAS</button>
-            </div>
-            `
-        }
-
-        <button class="btn" style="background:none; color:#666; margin-top:10px" onclick="closeTime()">Volver</button>
-    `;
-    document.getElementById('modal-time').style.display = 'block';
-    if(job.start) startLiveTimer(job.startTimeRaw);
+function openNew() {
+    activeId = null;
+    document.getElementById('modal-title').innerText = "NUEVA ORDEN";
+    document.getElementById('btn-del').style.display = "none";
+    document.getElementById('modal-new').style.display = 'block';
 }
 
-function startLiveTimer(startTimeRaw) {
-    if(timerInterval) clearInterval(timerInterval);
-    const update = () => {
-        const now = Date.now();
-        const diff = now - startTimeRaw;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        const timerEl = document.getElementById('live-timer');
-        if(timerEl) {
-            timerEl.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        }
-    };
-    update();
-    timerInterval = setInterval(update, 1000);
+function editJob(id) {
+    activeId = id; const j = db[id];
+    document.getElementById('modal-title').innerText = "EDITAR ORDEN";
+    document.getElementById('f-cli').value = j.cli;
+    document.getElementById('f-maq').value = j.maq;
+    document.getElementById('f-met').value = j.met;
+    document.getElementById('f-tro').value = j.tro;
+    document.getElementById('f-gra').value = j.gra;
+    document.getElementById('f-mat').value = j.mat;
+    document.getElementById('f-aca').value = j.aca;
+    document.getElementById('f-msg').value = j.msg;
+    document.getElementById('f-col').value = j.col;
+    document.getElementById('btn-del').style.display = "block";
+    document.getElementById('modal-new').style.display = 'block';
 }
 
-function addIncidencia() {
-    if(!db[selectedJobId].stops) db[selectedJobId].stops = 0;
-    db[selectedJobId].stops++;
-    addLog(`PARADA: ${currentOp} marcó incidencia en ${db[selectedJobId].cli}`);
-    save();
-    openTime(selectedJobId);
-}
-
-function fichar(type) {
-    const ahora = new Date();
-    const horaVisual = ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
-    if(type === 'start') {
-        db[selectedJobId].start = horaVisual;
-        db[selectedJobId].startTimeRaw = ahora.getTime(); 
-        db[selectedJobId].stops = 0;
-        addLog(currentOp + " inició " + db[selectedJobId].cli);
-    } else {
-        const mReal = document.getElementById('real-met').value;
-        if(!mReal || mReal <= 0) {
-            alert("Introduce los metros reales.");
-            return;
-        }
-        const inicio = db[selectedJobId].startTimeRaw;
-        const fin = ahora.getTime();
-        const minutos = (fin - inicio) / 60000;
-        const velocidad = minutos > 0 ? Math.round(mReal / minutos) : 0;
-
-        addLog(`FIN: ${db[selectedJobId].cli} | ${mReal}m | ${Math.round(minutos)}min | Vel: ${velocidad}m/min | Paradas: ${db[selectedJobId].stops}`);
-        delete db[selectedJobId];
-        finCount++;
-    }
-    save();
-    closeTime();
-}
-
-function saveNew() {
-    const id = "ID-" + Date.now();
+function saveJob() {
+    const id = activeId || "ID-" + Date.now();
     db[id] = {
         cli: document.getElementById('f-cli').value || "CLIENTE",
         maq: document.getElementById('f-maq').value,
@@ -456,59 +326,110 @@ function saveNew() {
         aca: document.getElementById('f-aca').value || "-",
         msg: document.getElementById('f-msg').value || "",
         col: document.getElementById('f-col').value,
-        start: null,
-        stops: 0
+        start: db[id]?.start || null,
+        startTimeRaw: db[id]?.startTimeRaw || null,
+        stops: db[id]?.stops || 0
     };
-    save();
-    closeNew();
-    document.getElementById('f-cli').value = "";
-    document.getElementById('f-msg').value = "";
-    document.getElementById('f-met').value = "";
+    save(); closeNew();
 }
 
+function deleteJob() {
+    if(confirm("¿Borrar orden?")) { delete db[activeId]; save(); closeNew(); }
+}
+
+// --- TIEMPOS ---
+function openTime(id) {
+    activeId = id; const j = db[id];
+    const ui = document.getElementById('time-ui');
+    ui.innerHTML = `
+        <h2 style="margin:0; font-size:32px;">${j.cli}</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin:20px 0;">
+            <div class="info-card"><label>Objetivo</label><div>${j.met}m</div></div>
+            <div class="info-card"><label>Material</label><div>${j.mat}</div></div>
+        </div>
+        <div class="info-card"><label>CRONÓMETRO</label><div id="live-timer" class="timer-display">00:00:00</div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin:20px 0;">
+            <button class="btn btn-dark" onclick="addStop()">PARADA (${j.stops})</button>
+            <input type="number" id="m-real" placeholder="Metros reales" style="margin:0; text-align:center; font-size:24px;">
+        </div>
+        <button class="btn btn-red" onclick="ficharFin()">FINALIZAR TRABAJO</button>
+        <button class="btn btn-ghost" onclick="closeTime()">VOLVER</button>
+    `;
+    document.getElementById('modal-time').style.display = 'block';
+    startClock(j.startTimeRaw);
+}
+
+function startClock(start) {
+    if(tInterval) clearInterval(tInterval);
+    const upd = () => {
+        const d = Date.now() - start;
+        const h = Math.floor(d/3600000).toString().padStart(2,'0');
+        const m = Math.floor((d%3600000)/60000).toString().padStart(2,'0');
+        const s = Math.floor((d%60000)/1000).toString().padStart(2,'0');
+        if(document.getElementById('live-timer')) document.getElementById('live-timer').innerText = `${h}:${m}:${s}`;
+    };
+    upd(); tInterval = setInterval(upd, 1000);
+}
+
+function ficharFin() {
+    const mr = document.getElementById('m-real').value;
+    if(!mr) return alert("Introduce metros");
+    const j = db[activeId];
+    const min = (Date.now() - j.startTimeRaw)/60000;
+    addLog(`FIN: ${j.cli} | ${mr}m | ${Math.round(min)}min | Vel: ${Math.round(mr/min)}m/min`);
+    delete db[activeId]; finCount++;
+    save(); closeTime();
+}
+
+function addStop() { db[activeId].stops++; save(); openTime(activeId); }
+
+// --- UTILS ---
 function initSort() {
-    ['list-flexo', 'list-digital', 'list-repaso'].forEach(id => {
-        new Sortable(document.getElementById(id), {
-            group: 'planta', animation: 150, ghostClass: 'sortable-ghost',
-            onEnd: (evt) => {
-                db[evt.item.id].maq = evt.to.id;
-                save();
+    ['list-flexo','list-digital','list-repaso'].forEach(id => {
+        new Sortable(document.getElementById(id), { 
+            group: 'planta', animation: 200, ghostClass: 'sortable-ghost',
+            onEnd: (e) => {
+                if(e.from.id !== e.to.id) {
+                    db[e.item.id].maq = e.to.id;
+                    if(!db[e.item.id].start) {
+                        const h = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+                        db[e.item.id].start = h;
+                        db[e.item.id].startTimeRaw = Date.now();
+                        addLog(`START: ${currentOp} inició ${db[e.item.id].cli}`);
+                    }
+                    save();
+                }
             }
         });
     });
 }
-
 function save() {
-    localStorage.setItem('tl_final_v5', JSON.stringify(db));
-    localStorage.setItem('tl_fin_v5', finCount);
+    localStorage.setItem('tl_full_db', JSON.stringify(db));
+    localStorage.setItem('tl_full_fin', finCount);
+    localStorage.setItem('tl_full_log', logData);
     render();
 }
-
+function addLog(m) {
+    const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    logData = `<div style="padding:5px 0; border-bottom:1px solid #222;">[${t}] ${m}</div>` + logData;
+}
+function clearLog() { if(confirm("¿Borrar historial?")) { logData = ""; save(); } }
 function updateStats() {
     const act = Object.keys(db).length;
-    document.getElementById('c-act').innerText = act;
-    document.getElementById('c-fin').innerText = finCount;
-    const total = act + finCount;
-    const perc = total === 0 ? 0 : Math.round((finCount / total) * 100);
-    document.getElementById('p-bar').style.width = perc + "%";
-    document.getElementById('p-text').innerText = perc + "% completado";
-    document.getElementById('n-flexo').innerText = document.getElementById('list-flexo').children.length;
-    document.getElementById('n-digital').innerText = document.getElementById('list-digital').children.length;
-    document.getElementById('n-repaso').innerText = document.getElementById('list-repaso').children.length;
+    const p = (act+finCount)===0 ? 0 : Math.round((finCount/(act+finCount))*100);
+    document.getElementById('p-bar').style.width = p+"%";
+    document.getElementById('p-text').innerText = p+"%";
+    document.getElementById('c-fin-label').innerText = finCount + " HECHOS";
+    ['flexo','digital','repaso'].forEach(m => {
+        const el = document.getElementById('n-'+m);
+        if(el) el.innerText = document.getElementById('list-'+m).children.length;
+    });
 }
-
-function addLog(msg) {
-    const box = document.getElementById('log-box');
-    const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    box.innerHTML = `<div style="padding:4px 0; border-bottom:1px solid #222;">[${time}] ${msg}</div>` + box.innerHTML;
+function closeNew() { 
+    document.getElementById('modal-new').style.display = 'none'; 
+    ['f-cli','f-met','f-tro','f-gra','f-mat','f-aca','f-msg'].forEach(i => document.getElementById(i).value="");
 }
-
-function openNew() { document.getElementById('modal-new').style.display = 'block'; }
-function closeNew() { document.getElementById('modal-new').style.display = 'none'; }
-function closeTime() { 
-    document.getElementById('modal-time').style.display = 'none'; 
-    if(timerInterval) clearInterval(timerInterval);
-}
+function closeTime() { document.getElementById('modal-time').style.display = 'none'; clearInterval(tInterval); }
 </script>
 </body>
 </html>
