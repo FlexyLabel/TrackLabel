@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!DOCTYPE html>
-<html lang="es">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Sistema Integral</title>
+    <title>Track Label Pro - Vertical</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -17,106 +14,78 @@
         * { box-sizing: border-box; outline: none; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
 
-        /* PANTALLA DE CONTRASEÑA MAESTRA */
+        /* SEGURIDAD INICIAL */
         .master-overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 20000; }
-        
-        /* LOGIN DE USUARIOS */
         .login-overlay { position: fixed; inset: 0; background: radial-gradient(circle, #1e2329 0%, #0b0e11 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
-        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .login-box { background: var(--surface); padding: 40px; border-radius: 35px; text-align: center; width: 100%; max-width: 440px; border: 1px solid #333; }
+        
         .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
-        .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
+        .user-item { background: #15191d; padding: 15px; border-radius: 20px; border: 1px solid #222; cursor: pointer; transition: 0.3s; font-size: 14px; }
         .user-item.selected { border-color: var(--orange); background: #2a3139; }
-        .user-initial { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
 
         /* LAYOUT PRINCIPAL */
-        .app-container { display: flex; height: 100vh; flex-direction: row; }
+        .app-container { display: flex; flex-direction: column; min-height: 100vh; }
         
-        .sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; flex-shrink: 0; display: flex; flex-direction: column; }
-        .info-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .info-card h4 { margin: 0 0 12px; font-size: 10px; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; }
-        
-        .progress-bar { background: #000; height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0; }
-        .progress-fill { background: var(--green); height: 100%; width: 0%; transition: 1s; }
+        .top-bar { background: var(--sidebar); padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; sticky; top: 0; z-index: 100; }
+        .content-area { flex: 1; padding: 15px; max-width: 800px; margin: 0 auto; width: 100%; }
 
-        .content-area { flex: 1; padding: 30px; overflow-y: auto; }
-        
-        /* HEADER */
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .btn-add { background: var(--orange); color: white; padding: 12px 25px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
+        /* KANBAN VERTICAL (UNA ENCIMA DE OTRA) */
+        .kanban-board { display: flex; flex-direction: column; gap: 30px; }
+        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid var(--border); }
+        .col-header { border-bottom: 1px solid #222; margin-bottom: 15px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .col-header h3 { margin: 0; color: var(--orange); font-size: 18px; letter-spacing: 1px; }
+        .badge { background: #000; color: #fff; padding: 5px 12px; border-radius: 10px; font-size: 12px; }
 
-        /* KANBAN */
-        .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
-        .machine-col { background: #15191d; padding: 20px; border-radius: 25px; border: 1px solid var(--border); min-height: 500px; }
-        .col-header { border-bottom: 1px solid #222; margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; }
-        
-        .drag-zone { min-height: 400px; }
-        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 5px solid var(--orange); cursor: pointer; transition: 0.3s; }
-        .job-card:hover { transform: translateY(-3px); }
+        /* TARJETAS */
+        .drag-zone { min-height: 80px; }
+        .job-card { background: var(--surface); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 6px solid var(--orange); cursor: pointer; position: relative; }
+        .job-card strong { font-size: 18px; display: block; margin-bottom: 5px; }
+        .job-card small { color: #888; font-size: 14px; }
 
         /* MODALES */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 15000; backdrop-filter: blur(10px); padding: 20px; overflow-y: auto; }
-        .modal-content { background: var(--surface); margin: 2% auto; padding: 35px; border-radius: 35px; width: 100%; max-width: 550px; border: 1px solid #333; position: relative; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 15000; padding: 20px; overflow-y: auto; }
+        .modal-content { background: var(--surface); margin: 5% auto; padding: 30px; border-radius: 30px; width: 100%; max-width: 500px; border: 1px solid #333; }
         
-        input, select { width: 100%; background: #000; border: 1px solid #333; padding: 15px; color: white; border-radius: 12px; margin-bottom: 15px; }
-        .btn-save { width: 100%; padding: 20px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+        input, select { width: 100%; background: #000; border: 1px solid #333; padding: 15px; color: white; border-radius: 12px; margin-bottom: 20px; font-size: 16px; }
+        .btn-action { width: 100%; padding: 20px; background: var(--orange); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
 
-        /* RESPONSIVE MÓVIL (CORRECCIÓN DE TU CAPTURA) */
-        @media (max-width: 1024px) {
-            .app-container { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; }
-            .sidebar h4, .sidebar #activity-log, .sidebar hr { display: none; }
-            .kanban-board { grid-template-columns: 1fr; }
-            .main-header { flex-direction: column; gap: 15px; text-align: center; }
-        }
     </style>
 </head>
 <body>
 
 <div id="master-lock" class="master-overlay">
     <div class="login-box">
-        <h2 style="color:var(--orange)">ACCESO WEB</h2>
-        <input type="password" id="pass-web" placeholder="Contraseña: TrackLabel#" style="text-align:center;">
-        <button class="btn-save" onclick="unlockWeb()">DESBLOQUEAR</button>
+        <h2 style="color:var(--orange)">TRACK LABEL</h2>
+        <input type="password" id="pass-web" placeholder="Password: TrackLabel#" style="text-align:center;">
+        <button class="btn-action" onclick="unlockWeb()">ENTRAR</button>
     </div>
 </div>
 
 <div id="login-screen" class="login-overlay" style="display:none">
     <div class="login-box">
-        <h2>TRACK LABEL PRO</h2>
+        <h3>SISTEMA DE PLANTA</h3>
         <div class="user-grid">
-            <div class="user-item" onclick="selectUser('Isa', this)"><div class="user-initial">I</div><span>Isa</span></div>
-            <div class="user-item" onclick="selectUser('Jaume', this)"><div class="user-initial">J</div><span>Jaume</span></div>
-            <div class="user-item" onclick="selectUser('Ivan', this)"><div class="user-initial" style="border-color:var(--orange)">I</div><span>Ivan</span></div>
-            <div class="user-item" onclick="selectUser('Anna', this)"><div class="user-initial">A</div><span>Anna</span></div>
-            <div class="user-item" onclick="selectUser('Toni', this)"><div class="user-initial">T</div><span>Toni</span></div>
+            <div class="user-item" onclick="selectUser('Isa', this)">Isa</div>
+            <div class="user-item" onclick="selectUser('Jaume', this)">Jaume</div>
+            <div class="user-item" onclick="selectUser('Ivan', this)">Ivan</div>
+            <div class="user-item" onclick="selectUser('Anna', this)">Anna</div>
+            <div class="user-item" onclick="selectUser('Toni', this)">Toni</div>
         </div>
         <input type="password" id="user-pin" placeholder="PIN Operario" style="text-align:center;">
-        <button class="btn-save" onclick="loginApp()">ENTRAR</button>
+        <button class="btn-action" onclick="loginApp()">ACCEDER</button>
     </div>
 </div>
 
 <div id="main-app" class="app-container" style="display:none">
-    <aside class="sidebar">
-        <div class="info-card">
-            <h4>PROGRESO HOY</h4>
-            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-            <small id="progress-text">0%</small>
+    <header class="top-bar">
+        <div>
+            <span id="welcome-text" style="font-weight:bold; color:var(--orange)">Usuario</span>
         </div>
-        <div class="info-card">
-            <h4>ESTADÍSTICAS</h4>
-            <div style="display:flex; justify-content:space-between"><span>Activos:</span> <strong id="stat-pend">0</strong></div>
-            <div style="display:flex; justify-content:space-between"><span>Hechos:</span> <strong id="stat-done" style="color:var(--green)">0</strong></div>
-        </div>
-        <button onclick="location.reload()" style="background:none; border:none; color:#444; font-size:10px; cursor:pointer; margin-top:auto;">CERRAR SESIÓN</button>
-    </aside>
+        <button onclick="openModal()" style="background:var(--orange); border:none; padding:10px 20px; border-radius:10px; color:white; font-weight:bold; cursor:pointer;">+ NUEVO</button>
+    </header>
 
-    <section class="content-area">
-        <header class="main-header">
-            <h2 id="welcome-text">Panel de Control</h2>
-            <button class="btn-add" onclick="openModal()">+ NUEVO PEDIDO</button>
-        </header>
-
-        <main class="kanban-board">
+    <main class="content-area">
+        <div class="kanban-board">
             <div class="machine-col">
                 <div class="col-header"><h3>FLEXO</h3> <span id="badge-flexo" class="badge">0</span></div>
                 <div id="list-flexo" class="drag-zone"></div>
@@ -129,32 +98,35 @@
                 <div class="col-header"><h3>REPASO</h3> <span id="badge-acabados" class="badge">0</span></div>
                 <div id="list-acabados" class="drag-zone"></div>
             </div>
-        </main>
-    </section>
+        </div>
+        <button onclick="location.reload()" style="width:100%; background:none; border:none; color:#444; margin-top:40px; font-size:12px;">CERRAR SESIÓN</button>
+    </main>
 </div>
 
 <div id="modalPedido" class="modal">
     <div class="modal-content">
-        <h3>NUEVA ORDEN DE PRODUCCIÓN</h3>
-        <label>CLIENTE</label>
-        <input type="text" id="inCli" placeholder="Nombre del cliente">
-        <label>MÁQUINA DESTINO</label>
+        <h3 style="margin-top:0">NUEVA ORDEN</h3>
+        <label style="display:block; margin-bottom:10px; font-size:12px; color:#666;">CLIENTE</label>
+        <input type="text" id="inCli" placeholder="Nombre cliente">
+        
+        <label style="display:block; margin-bottom:10px; font-size:12px; color:#666;">MÁQUINA</label>
         <select id="inMaq">
             <option value="list-flexo">Flexo</option>
             <option value="list-digital">Digital</option>
         </select>
-        <label>METROS</label>
+        
+        <label style="display:block; margin-bottom:10px; font-size:12px; color:#666;">METROS</label>
         <input type="number" id="inMet" placeholder="0">
-        <button class="btn-save" onclick="addPedido()">LANZAR A PLANTA</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Cancelar y Volver</button>
+        
+        <button class="btn-action" onclick="addPedido()">CREAR PEDIDO</button>
+        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#666; margin-top:20px; cursor:pointer;">Cancelar</button>
     </div>
 </div>
 
 <script>
-// VARIABLES
 const PASS_MAESTRA = "TrackLabel#";
 const USUARIOS = {"Isa":"1234", "Jaume":"1234", "Ivan":"1234", "Anna":"1234", "Toni":"1234"};
-let db = JSON.parse(localStorage.getItem('track_db')) || {};
+let db = JSON.parse(localStorage.getItem('track_db_v2')) || {};
 let userActivo = null;
 
 // SEGURIDAD
@@ -162,13 +134,13 @@ function unlockWeb() {
     if(document.getElementById('pass-web').value === PASS_MAESTRA) {
         document.getElementById('master-lock').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
-    } else { alert("Contraseña Web Incorrecta"); }
+    } else { alert("Error contraseña"); }
 }
 
 function selectUser(name, el) {
     userActivo = name;
-    document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
-    el.classList.add('selected');
+    document.querySelectorAll('.user-item').forEach(i => i.style.borderColor = "#222");
+    el.style.borderColor = "var(--orange)";
 }
 
 function loginApp() {
@@ -176,10 +148,10 @@ function loginApp() {
     if(userActivo && USUARIOS[userActivo] === pin) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-app').style.display = 'flex';
-        document.getElementById('welcome-text').innerText = "Hola, " + userActivo;
+        document.getElementById('welcome-text').innerText = "Operario: " + userActivo;
         render();
         initSortable();
-    } else { alert("PIN Incorrecto"); }
+    } else { alert("PIN incorrecto"); }
 }
 
 // LOGICA
@@ -200,11 +172,11 @@ function render() {
         const card = document.createElement('div');
         card.className = "job-card";
         card.id = id;
-        card.innerHTML = `<strong>${item.cli.toUpperCase()}</strong><br><small>${item.met} metros</small>`;
-        card.onclick = () => { if(confirm("¿Finalizar pedido?")) { delete db[id]; save(); render(); } };
+        card.innerHTML = `<strong>${item.cli.toUpperCase()}</strong><small>${item.met} metros</small>`;
+        card.onclick = () => { if(confirm("¿Pedido completado?")) { delete db[id]; save(); render(); } };
         document.getElementById(item.maq).appendChild(card);
     });
-    actualizarStats();
+    actualizarBadges();
 }
 
 function initSortable() {
@@ -212,421 +184,24 @@ function initSortable() {
         new Sortable(z, { group: 'planta', animation: 150, onEnd: (e) => {
             db[e.item.id].maq = e.to.id;
             save();
+            actualizarBadges();
         }});
     });
 }
 
 function save() {
-    localStorage.setItem('track_db', JSON.stringify(db));
-    actualizarStats();
+    localStorage.setItem('track_db_v2', JSON.stringify(db));
 }
 
-function actualizarStats() {
-    const total = Object.keys(db).length;
-    document.getElementById('stat-pend').innerText = total;
+function actualizarBadges() {
     document.getElementById('badge-flexo').innerText = document.getElementById('list-flexo').children.length;
     document.getElementById('badge-digital').innerText = document.getElementById('list-digital').children.length;
     document.getElementById('badge-acabados').innerText = document.getElementById('list-acabados').children.length;
 }
 
-// MODALES (Solución al bloqueo)
-function openModal() {
-    document.getElementById('modalPedido').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-function closeModal() {
-    document.getElementById('modalPedido').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
+function openModal() { document.getElementById('modalPedido').style.display = 'block'; document.body.style.overflow = 'hidden'; }
+function closeModal() { document.getElementById('modalPedido').style.display = 'none'; document.body.style.overflow = 'auto'; }
 </script>
-</body>
-</html>    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro v5 - FULL</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <style>
-        :root {
-            --bg: #0b0e14; --card: #1c1f26; --header: #11141d;
-            --orange: #ff7a00; --orange-hover: #ff9533;
-            --green: #00e676; --red: #ff5252;
-            --text: #ffffff; --text-dim: #94a3b8; --border: #2d313d;
-        }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
-        body { 
-            background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden;
-        }
-
-        /* --- BLOQUEOS DE ACCESO --- */
-        .full-overlay { 
-            position: fixed; inset: 0; background: var(--bg); z-index: 10000; 
-            display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .access-card { 
-            background: var(--card); padding: 40px; border-radius: 28px; width: 100%; 
-            max-width: 420px; text-align: center; border: 1px solid var(--border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 25px 0; }
-        .u-btn { 
-            background: #11141d; padding: 15px 5px; border-radius: 16px; border: 2px solid transparent;
-            color: var(--text-dim); cursor: pointer; transition: 0.2s; font-size: 13px;
-        }
-        .u-btn.active { border-color: var(--orange); color: white; background: rgba(255,122,0,0.1); }
-        .u-avatar { width: 35px; height: 35px; background: var(--border); border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--orange); }
-
-        /* --- HEADER --- */
-        header { 
-            background: var(--header); padding: 15px 25px; display: flex; 
-            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);
-        }
-        header h1 { font-size: 18px; margin: 0; letter-spacing: -1px; color: var(--orange); }
-        .op-tag { font-size: 12px; background: var(--border); padding: 6px 12px; border-radius: 20px; font-weight: 600; }
-
-        /* --- CONTENEDOR DE TABLERO --- */
-        .main-layout { display: flex; flex: 1; overflow: hidden; }
-        
-        /* Sidebar ocultable en móvil */
-        .sidebar { 
-            width: 260px; background: var(--header); border-right: 1px solid var(--border);
-            padding: 25px; display: flex; flex-direction: column;
-        }
-
-        .board { 
-            flex: 1; display: flex; gap: 20px; padding: 20px; overflow-x: auto; 
-            align-items: flex-start; background: radial-gradient(circle at top right, #161922, #0b0e14);
-        }
-
-        /* --- COLUMNAS --- */
-        .lane { 
-            min-width: 320px; width: 320px; background: rgba(255,255,255,0.02); 
-            border-radius: 20px; border: 1px solid var(--border); max-height: 100%; display: flex; flex-direction: column;
-        }
-        .lane-head { 
-            padding: 18px; font-size: 11px; font-weight: 800; color: var(--text-dim);
-            letter-spacing: 1.5px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .lane-count { background: var(--border); padding: 2px 8px; border-radius: 6px; color: #fff; }
-        .drop-zone { padding: 12px; flex: 1; overflow-y: auto; min-height: 150px; }
-
-        /* --- TARJETAS --- */
-        .job-card { 
-            background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 15px;
-            border-left: 6px solid var(--orange); cursor: pointer; transition: 0.2s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .job-card:hover { transform: translateY(-2px); background: #252a36; }
-        .job-card h4 { margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: #fff; }
-        .job-card p { margin: 3px 0; font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
-
-        /* --- MODALES --- */
-        .modal-wrap { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
-            z-index: 9000; padding: 15px; overflow-y: auto; backdrop-filter: blur(8px);
-        }
-        .modal-box { 
-            background: var(--card); border-radius: 24px; padding: 30px; 
-            width: 100%; max-width: 500px; margin: 20px auto; border: 1px solid var(--border);
-        }
-
-        /* --- FORMULARIOS --- */
-        .field { margin-bottom: 18px; }
-        .field label { display: block; font-size: 11px; color: var(--text-dim); font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
-        input, select { 
-            width: 100%; padding: 14px; background: #000; border: 1px solid var(--border); 
-            border-radius: 12px; color: #fff; font-size: 16px; transition: 0.3s;
-        }
-        input:focus { border-color: var(--orange); }
-
-        .btn { 
-            width: 100%; padding: 16px; border-radius: 14px; border: none; 
-            font-weight: 700; cursor: pointer; font-size: 15px; transition: 0.2s;
-        }
-        .btn-main { background: var(--orange); color: #fff; }
-        .btn-main:hover { background: var(--orange-hover); }
-        .btn-ghost { background: transparent; color: var(--text-dim); margin-top: 10px; }
-
-        /* --- CRONÓMETROS --- */
-        .timer-unit { 
-            background: #11141d; padding: 15px; border-radius: 18px; margin-bottom: 15px;
-            border: 1px solid var(--border);
-        }
-        .timer-ctrl { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .time-val { font-family: monospace; font-size: 18px; color: var(--orange); font-weight: bold; }
-        .btn-s { padding: 10px 18px; border-radius: 10px; border: none; font-weight: 800; font-size: 11px; cursor: pointer; }
-
-        /* --- RESPONSIVE --- */
-        @media (max-width: 800px) {
-            .sidebar { display: none; }
-            .lane { min-width: 88vw; }
-            .board { padding: 10px; gap: 10px; }
-            #btn-mobile-add { display: block !important; }
-        }
-    </style>
-</head>
-<body>
-
-<div id="step-master" class="full-overlay">
-    <div class="access-card">
-        <h2 style="color:var(--orange); margin-bottom:30px">TRACK LABEL PRO</h2>
-        <div class="field">
-            <label>Contraseña de Sistema</label>
-            <input type="password" id="m-pass" placeholder="••••••••" style="text-align:center">
-        </div>
-        <button class="btn btn-main" onclick="unlockMaster()">DESBLOQUEAR</button>
-    </div>
-</div>
-
-<div id="step-user" class="full-overlay" style="display:none">
-    <div class="access-card">
-        <h3>Selección de Operario</h3>
-        <div class="user-grid">
-            <div class="u-btn" onclick="selU('Isa', this)"><div class="u-avatar">I</div>Isa</div>
-            <div class="u-btn" onclick="selU('Jaume', this)"><div class="u-avatar">J</div>Jaume</div>
-            <div class="u-btn" onclick="selU('Ivan', this)"><div class="u-avatar">I</div>Ivan</div>
-            <div class="u-btn" onclick="selU('Anna', this)"><div class="u-avatar">A</div>Anna</div>
-            <div class="u-btn" onclick="selU('Toni', this)"><div class="u-avatar">T</div>Toni</div>
-        </div>
-        <div class="field">
-            <input type="password" id="u-pin" placeholder="PIN de acceso" style="text-align:center">
-        </div>
-        <button class="btn btn-main" onclick="unlockUser()">ACCEDER AL PANEL</button>
-    </div>
-</div>
-
-<header>
-    <h1>🟠 TRACK LABEL PRO</h1>
-    <div id="display-user" class="op-tag">Invitado</div>
-</header>
-
-<div class="main-layout">
-    <aside class="sidebar">
-        <button class="btn btn-main" onclick="openModal('modalNew')">+ NUEVO PEDIDO</button>
-        <p style="font-size:12px; color:var(--text-dim); margin-top:30px">
-            <b>Gestión de Planta:</b> Arrastra los pedidos para cambiar su estado. Pulsa para marcar tiempos.
-        </p>
-        <button class="btn btn-ghost" style="margin-top:auto" onclick="location.reload()">Cerrar Sesión</button>
-    </aside>
-
-    <main class="board">
-        <button id="btn-mobile-add" onclick="openModal('modalNew')" style="display:none; position:fixed; bottom:25px; right:25px; width:65px; height:65px; border-radius:50%; background:var(--orange); color:white; border:none; font-size:30px; z-index:500; box-shadow:0 10px 25px #000">+</button>
-
-        <div class="lane">
-            <div class="lane-head">FLEXO / OFFSET <span class="lane-count" id="c-flexo">0</span></div>
-            <div id="list-flexo" class="drop-zone"></div>
-        </div>
-        <div class="lane">
-            <div class="lane-head">DIGITAL <span class="lane-count" id="c-digital">0</span></div>
-            <div id="list-digital" class="drop-zone"></div>
-        </div>
-        <div class="lane">
-            <div class="lane-head">REPASO / ACABADO <span class="lane-count" id="c-acabados">0</span></div>
-            <div id="list-acabados" class="drop-zone"></div>
-        </div>
-    </main>
-</div>
-
-<div id="modalNew" class="modal-wrap">
-    <div class="modal-box">
-        <h2 style="margin-top:0">Nueva Orden</h2>
-        <div class="field"><label>Cliente</label><input type="text" id="f-cli" placeholder="Nombre empresa"></div>
-        
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
-            <div class="field"><label>Distintivo</label><input type="color" id="f-col" value="#ff7a00" style="height:50px; padding:2px"></div>
-            <div class="field"><label>Máquina Inicial</label>
-                <select id="f-maq">
-                    <option value="list-flexo">Flexo</option>
-                    <option value="list-digital">Digital</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
-            <div class="field"><label>Metros</label><input type="number" id="f-met"></div>
-            <div class="field"><label>Nº Troquel</label><input type="text" id="f-tro"></div>
-        </div>
-
-        <div class="field"><label>Material</label>
-            <select id="f-mat" onchange="autoEst()">
-                <option value="">-- Seleccionar --</option>
-                <option value="Couché">Couché</option>
-                <option value="PP Mate">PP Mate</option>
-                <option value="PP Brillo">PP Brillo</option>
-                <option value="PE">PE</option>
-            </select>
-        </div>
-        <div class="field"><label>Ubicación Estantería</label><input type="text" id="f-est" readonly></div>
-
-        <button class="btn btn-main" onclick="saveJob()">CREAR PEDIDO</button>
-        <button class="btn btn-ghost" onclick="closeModal('modalNew')">Cancelar</button>
-    </div>
-</div>
-
-<div id="modalTimers" class="modal-wrap">
-    <div class="modal-box">
-        <h2 id="v-title" style="margin:0">---</h2>
-        <p id="v-meta" style="color:var(--orange); font-weight:bold; margin:5px 0 25px 0; font-size:13px"></p>
-
-        <div class="timer-unit">
-            <label>1. Preparación</label>
-            <div class="timer-ctrl">
-                <button class="btn-s" style="background:var(--green)" onclick="stamp('prep','ini')">INICIO</button>
-                <div class="time-val" id="t-prep">--:-- > --:--</div>
-                <button class="btn-s" style="background:var(--red); color:#fff" onclick="stamp('prep','fin')">FIN</button>
-            </div>
-        </div>
-
-        <div class="timer-unit">
-            <label>2. Tiraje</label>
-            <div class="timer-ctrl">
-                <button class="btn-s" style="background:var(--green)" onclick="stamp('tiraje','ini')">INICIO</button>
-                <div class="time-val" id="t-tiraje">--:-- > --:--</div>
-                <button class="btn-s" style="background:var(--red); color:#fff" onclick="stamp('tiraje','fin')">FIN</button>
-            </div>
-        </div>
-
-        <div id="box-rep" class="timer-unit" style="display:none; border-color:var(--green)">
-            <label style="color:var(--green)">3. Repaso Final</label>
-            <div class="timer-ctrl">
-                <button class="btn-s" style="background:var(--green)" onclick="stamp('repaso','ini')">INICIO</button>
-                <div class="time-val" id="t-repaso">--:-- > --:--</div>
-                <button class="btn-s" style="background:var(--red); color:#fff" onclick="stamp('repaso','fin')">FIN</button>
-            </div>
-        </div>
-
-        <button id="btn-done" class="btn btn-main" style="display:none; background:var(--green); color:#000" onclick="finishJob()">ENVIAR A EXPEDICIÓN</button>
-        <button class="btn btn-ghost" onclick="closeModal('modalTimers')">Cerrar</button>
-    </div>
-</div>
-
-<script>
-// --- CONFIG Y ESTADO ---
-const CONFIG = { master: "TrackLabel#", pin: "1234" };
-const MATS = { "Couché": "EST-A1", "PP Mate": "EST-B2", "PP Brillo": "EST-B3", "PE": "EST-C1" };
-let db = JSON.parse(localStorage.getItem('track_v5_full')) || {};
-let curUser = "";
-let curJob = null;
-
-// --- ACCESO ---
-function unlockMaster() {
-    if(document.getElementById('m-pass').value === CONFIG.master) {
-        document.getElementById('step-master').style.display = 'none';
-        document.getElementById('step-user').style.display = 'flex';
-    } else alert("Clave maestra incorrecta");
-}
-
-function selU(n, el) {
-    curUser = n;
-    document.querySelectorAll('.u-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-}
-
-function unlockUser() {
-    if(curUser && document.getElementById('u-pin').value === CONFIG.pin) {
-        document.getElementById('step-user').style.display = 'none';
-        document.getElementById('display-user').innerText = "Operario: " + curUser;
-        render(); initDrag();
-    } else alert("Selecciona usuario e introduce PIN correcto");
-}
-
-// --- LÓGICA PEDIDOS ---
-function autoEst() { document.getElementById('f-est').value = MATS[document.getElementById('f-mat').value] || ""; }
-function openModal(id) { document.getElementById(id).style.display = 'block'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-function saveJob() {
-    const cli = document.getElementById('f-cli').value;
-    if(!cli) return alert("El nombre del cliente es obligatorio");
-    const id = "JOB-" + Date.now();
-    db[id] = {
-        cli: cli, col: document.getElementById('f-col').value,
-        maq: document.getElementById('f-maq').value, met: document.getElementById('f-met').value,
-        tro: document.getElementById('f-tro').value, mat: document.getElementById('f-mat').value,
-        est: document.getElementById('f-est').value,
-        times: { prep: {}, tiraje: {}, repaso: {} }
-    };
-    save(); render(); closeModal('modalNew');
-}
-
-function render() {
-    ['flexo', 'digital', 'acabados'].forEach(col => {
-        const container = document.getElementById('list-' + col);
-        container.innerHTML = "";
-        const jobs = Object.keys(db).filter(id => db[id].maq === 'list-' + col);
-        jobs.forEach(id => {
-            const j = db[id];
-            const el = document.createElement('div');
-            el.className = 'job-card';
-            el.id = id;
-            el.style.borderLeftColor = j.col;
-            el.onclick = () => openTimers(id);
-            el.innerHTML = `<h4>${j.cli.toUpperCase()}</h4>
-                <p>📏 ${j.met}m | T: ${j.tro}</p>
-                <p>📦 ${j.mat} [${j.est}]</p>`;
-            container.appendChild(el);
-        });
-        document.getElementById('c-' + col).innerText = jobs.length;
-    });
-}
-
-function openTimers(id) {
-    curJob = id; const j = db[id];
-    document.getElementById('v-title').innerText = j.cli.toUpperCase();
-    document.getElementById('v-meta').innerText = `${j.met}m | Troquel: ${j.tro} | Mat: ${j.mat}`;
-    
-    refreshUI();
-    const isRep = j.maq === 'list-acabados';
-    document.getElementById('box-rep').style.display = isRep ? 'block' : 'none';
-    document.getElementById('btn-done').style.display = isRep ? 'block' : 'none';
-    openModal('modalTimers');
-}
-
-function stamp(fase, hito) {
-    const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    db[curJob].times[fase][hito] = time;
-    
-    // Auto-mover a acabados al terminar tiraje
-    if(fase === 'tiraje' && hito === 'fin') {
-        db[curJob].maq = 'list-acabados';
-        render();
-        closeModal('modalTimers');
-        openTimers(curJob);
-    }
-    save(); refreshUI();
-}
-
-function refreshUI() {
-    const j = db[curJob];
-    ['prep', 'tiraje', 'repaso'].forEach(f => {
-        const t = j.times[f];
-        document.getElementById('t-' + f).innerText = `${t.ini || '--:--'} > ${t.fin || '--:--'}`;
-    });
-}
-
-function finishJob() {
-    if(confirm("¿Enviar pedido a expedición? Se eliminará del tablero.")) {
-        delete db[curJob];
-        save(); render(); closeModal('modalTimers');
-    }
-}
-
-function save() { localStorage.setItem('track_v5_full', JSON.stringify(db)); }
-
-function initDrag() {
-    ['list-flexo', 'list-digital', 'list-acabados'].forEach(id => {
-        new Sortable(document.getElementById(id), {
-            group: 'prod', animation: 200, ghostClass: 'sort-ghost',
-            onEnd: (evt) => {
-                db[evt.item.id].maq = evt.to.id;
-                save(); render();
-            }
-        });
-    });
-}
-</script>
 </body>
 </html>
