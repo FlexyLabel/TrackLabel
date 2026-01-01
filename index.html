@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Track Label Pro - Mensajes Directos</title>
+    <title>Track Label Pro - Medición de Planta</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
@@ -117,6 +117,7 @@
         .btn-orange { background: var(--orange); color: white; }
         .btn-green { background: var(--green); color: black; }
         .btn-red { background: var(--red); color: white; }
+        .btn-grey { background: #333; color: #ccc; }
 
         @media (max-width: 850px) {
             .app-container { flex-direction: column; }
@@ -170,7 +171,7 @@
         </div>
 
         <div class="panel-stats" style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
-            <h4>REGISTRO LOG</h4>
+            <h4>REGISTRO LOG (MÉTRICAS)</h4>
             <div id="log-box" style="font-size:10px; color:#555; overflow-y:auto;"></div>
         </div>
         
@@ -181,7 +182,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div>
                 <h2 id="user-display" style="margin:0;">-</h2>
-                <span style="font-size:11px; color:var(--orange); font-weight:bold;">V3.5 | MENSAJES ACTIVOS</span>
+                <span style="font-size:11px; color:var(--orange); font-weight:bold;">MODO MEDICIÓN ACTIVO</span>
             </div>
             <button class="btn btn-orange" style="width:auto; padding:12px 30px" onclick="openNew()">+ NUEVO TRABAJO</button>
         </div>
@@ -208,8 +209,8 @@
         <h3 style="margin-top:0">NUEVA ORDEN DE TRABAJO</h3>
         <div class="input-group"><label>CLIENTE</label><input type="text" id="f-cli" placeholder="Nombre cliente"></div>
         <div class="grid-2">
-            <div class="input-group"><label>SECCIÓN</label><select id="f-maq"><option value="list-flexo">FLEXO</option><option value="list-digital">DIGITAL</option></select></div>
-            <div class="input-group"><label>METROS</label><input type="number" id="f-met" placeholder="Cant."></div>
+            <div class="input-group"><label>SECCIÓN</label><select id="f-maq"><option value="list-flexo">FLEXO</option><option value="list-digital">DIGITAL</option><option value="list-repaso">REPASO</option></select></div>
+            <div class="input-group"><label>METROS EST.</label><input type="number" id="f-met" placeholder="Cant."></div>
         </div>
         <div class="grid-2">
             <div class="input-group"><label>TROQUEL</label><input type="text" id="f-tro" placeholder="Ref."></div>
@@ -221,7 +222,7 @@
         </div>
         <div class="input-group">
             <label>MENSAJE / OBSERVACIONES ESPECIALES</label>
-            <textarea id="f-msg" placeholder="Escribe aquí instrucciones para Ivan, Anna o Toni..."></textarea>
+            <textarea id="f-msg" placeholder="Instrucciones de planificación..."></textarea>
         </div>
         <div class="input-group"><label>COLOR PRIORIDAD</label><input type="color" id="f-col" value="#ff7a00"></div>
         
@@ -268,7 +269,7 @@ function doLogin() {
     } else { alert("PIN incorrecto"); }
 }
 
-// --- RENDERIZADO Y CLIC ---
+// --- RENDERIZADO ---
 function render() {
     ['list-flexo', 'list-digital', 'list-repaso'].forEach(z => document.getElementById(z).innerHTML = "");
 
@@ -279,18 +280,19 @@ function render() {
         card.id = id;
         card.style.borderLeftColor = job.col;
         
-        // El Clic ahora es independiente del arrastre
         card.onclick = function() {
             if (!card.classList.contains('sortable-chosen')) openTime(id);
         };
 
         const hasMsg = job.msg && job.msg.trim() !== "";
+        const stopsCount = job.stops || 0;
 
         card.innerHTML = `
             ${hasMsg ? '<span class="msg-badge">📝</span>' : ''}
+            ${stopsCount > 0 ? `<div style="position:absolute; bottom:45px; right:20px; background:var(--red); border-radius:10px; padding:2px 8px; font-size:10px; font-weight:bold;">${stopsCount} PARADAS</div>` : ''}
             <strong>${job.cli.toUpperCase()}</strong>
             <div class="card-details">
-                <span>📏 ${job.met}m</span>
+                <span>📏 Est: ${job.met}m</span>
                 <span>✂️ T: ${job.tro}</span>
                 <span>🎨 G: ${job.gra}</span>
                 <span>📄 ${job.mat}</span>
@@ -317,38 +319,67 @@ function openTime(id) {
         
         ${job.msg ? `
             <div style="background:rgba(255,122,0,0.1); border:1px dashed var(--orange); padding:15px; border-radius:15px; margin-bottom:20px; color:var(--orange);">
-                <label style="margin-bottom:5px;">INSTRUCCIONES ESPECIALES:</label>
+                <label style="margin-bottom:5px;">INSTRUCCIONES PLANIFICACIÓN:</label>
                 <div style="font-size:16px; font-weight:bold;">"${job.msg}"</div>
             </div>
         ` : ''}
 
         <div style="background:#000; padding:20px; border-radius:20px; margin-bottom:20px; font-size:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <div>Metros: <b>${job.met}</b></div>
+            <div>Metros Est: <b>${job.met}</b> m</div>
             <div>Material: <b>${job.mat}</b></div>
             <div style="grid-column:span 2">Acabado: <b>${job.aca}</b></div>
         </div>
 
         ${!job.start ? 
             `<button class="btn btn-green" onclick="fichar('start')">INICIAR TIRADA</button>` : 
-            `<div style="color:var(--green); text-align:center; margin-bottom:15px; font-weight:bold;">▶ EN PROCESO DESDE: ${job.start}</div>`
+            `
+            <div style="color:var(--green); text-align:center; margin-bottom:15px; font-weight:bold;">▶ EN PROCESO DESDE: ${job.start}</div>
+            <button class="btn btn-grey" onclick="addIncidencia()">⚠️ REGISTRAR PARADA / INCIDENCIA</button>
+            <div style="margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:20px;">
+                <label>METROS REALES PRODUCIDOS:</label>
+                <input type="number" id="real-met" placeholder="Total metros finales">
+                <button class="btn btn-red" style="margin-top:10px" onclick="fichar('end')">FINALIZAR Y CERRAR MÉTRICAS</button>
+            </div>
+            `
         }
 
-        ${job.start ? 
-            `<button class="btn btn-red" onclick="fichar('end')">FINALIZAR TRABAJO</button>` : 
-            ""
-        }
-        <button class="btn" style="background:#222; color:white; margin-top:15px" onclick="closeTime()">CERRAR</button>
+        <button class="btn" style="background:none; color:#666; margin-top:10px" onclick="closeTime()">Volver</button>
     `;
     document.getElementById('modal-time').style.display = 'block';
 }
 
+function addIncidencia() {
+    if(!db[selectedJobId].stops) db[selectedJobId].stops = 0;
+    db[selectedJobId].stops++;
+    addLog(`PARADA: ${currentOp} marcó incidencia en ${db[selectedJobId].cli}`);
+    save();
+    openTime(selectedJobId);
+}
+
 function fichar(type) {
-    const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const ahora = new Date();
+    const horaVisual = ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
     if(type === 'start') {
-        db[selectedJobId].start = hora;
+        db[selectedJobId].start = horaVisual;
+        db[selectedJobId].startTimeRaw = ahora.getTime(); // Guardamos milisegundos para cálculo exacto
+        db[selectedJobId].stops = 0;
         addLog(currentOp + " inició " + db[selectedJobId].cli);
     } else {
-        addLog(currentOp + " completó " + db[selectedJobId].cli);
+        const mReal = document.getElementById('real-met').value;
+        if(!mReal || mReal <= 0) {
+            alert("Introduce los metros reales para poder calcular la velocidad media.");
+            return;
+        }
+
+        // --- CÁLCULO DE MÉTRICAS ---
+        const inicio = db[selectedJobId].startTimeRaw;
+        const fin = ahora.getTime();
+        const minutos = (fin - inicio) / 60000;
+        const velocidad = minutos > 0 ? Math.round(mReal / minutos) : 0;
+
+        addLog(`FIN: ${db[selectedJobId].cli} | ${mReal}m | ${Math.round(minutos)}min | Vel: ${velocidad}m/min | Paradas: ${db[selectedJobId].stops}`);
+        
         delete db[selectedJobId];
         finCount++;
     }
@@ -369,13 +400,15 @@ function saveNew() {
         aca: document.getElementById('f-aca').value || "-",
         msg: document.getElementById('f-msg').value || "",
         col: document.getElementById('f-col').value,
-        start: null
+        start: null,
+        stops: 0
     };
     save();
     closeNew();
     // Limpiar campos
     document.getElementById('f-cli').value = "";
     document.getElementById('f-msg').value = "";
+    document.getElementById('f-met').value = "";
 }
 
 function initSort() {
