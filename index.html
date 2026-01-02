@@ -3,383 +3,958 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TRACKLABEL ERP ENTERPRISE v2026.1 - SISTEMA INTEGRAL DE PLANTA</title>
+    <title>TRACKLABEL ERP ENTERPRISE v2026.ULTIMATE - IVAN CORE</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
+        /* ==========================================================================
+           SISTEMA DE DISEÑO - VARIABLES CORE
+           ========================================================================== */
         :root {
-            --bg-base: #02040a; --bg-surface: #0d1117; --bg-elevated: #161b22;
-            --primary: #00f2ff; --primary-dim: rgba(0, 242, 255, 0.1);
-            --secondary: #21262d; --accent: #79c0ff; --success: #3fb950;
-            --warning: #d29922; --danger: #f85149; --border: #30363d;
-            --text-main: #c9d1d9; --text-bold: #ffffff; --text-muted: #8b949e;
-            --radius-sm: 8px; --radius-md: 15px; --radius-lg: 30px;
-            --shadow-lg: 0 20px 50px rgba(0,0,0,0.6); --font-mono: 'JetBrains Mono', monospace;
+            --bg-ultra: #010204;
+            --bg-base: #0a0c10;
+            --bg-surface: #12151c;
+            --bg-elevated: #1c212c;
+            --primary: #00f2ff;
+            --primary-glow: rgba(0, 242, 255, 0.3);
+            --primary-dim: rgba(0, 242, 255, 0.08);
+            --secondary: #30363d;
+            --accent: #79c0ff;
+            --success: #3fb950;
+            --warning: #d29922;
+            --danger: #f85149;
+            --border: #30363d;
+            --border-hover: #444c56;
+            --text-main: #c9d1d9;
+            --text-bold: #ffffff;
+            --text-muted: #8b949e;
+            --font-main: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* RESET & SCROLL */
-        * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-        body { background: var(--bg-base); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
-        
-        /* LOGIN LAYER */
-        #login-overlay {
-            position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #111b27 0%, #010409 100%);
-            display: flex; align-items: center; justify-content: center; transition: transform 0.8s cubic-bezier(0.8,0,0.2,1);
-        }
-        .login-card {
-            width: 100%; max-width: 800px; padding: 60px; background: var(--bg-surface);
-            border: 1px solid var(--border); border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-lg);
-        }
-        .user-selector { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 40px 0; }
-        .u-btn {
-            padding: 20px 10px; background: var(--bg-elevated); border: 2px solid var(--border);
-            border-radius: var(--radius-md); cursor: pointer; transition: 0.3s;
-        }
-        .u-btn:hover { border-color: var(--primary); transform: translateY(-5px); }
-        .u-btn.active { border-color: var(--primary); background: var(--primary-dim); box-shadow: 0 0 20px var(--primary-dim); }
-        .u-btn i { font-size: 24px; color: var(--primary); display: block; margin-bottom: 10px; }
-        .u-btn b { font-size: 12px; display: block; color: var(--text-bold); }
-        .u-btn span { font-size: 8px; color: var(--warning); font-weight: 800; text-transform: uppercase; }
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        .pin-field {
-            width: 240px; padding: 20px; background: #000; border: 2px solid var(--border);
-            border-radius: var(--radius-md); color: var(--primary); font-family: var(--font-mono);
-            font-size: 32px; text-align: center; letter-spacing: 12px; margin-bottom: 30px;
+        body {
+            background: var(--bg-ultra);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* MAIN STRUCTURE */
-        .main-container { display: grid; grid-template-columns: 280px 1fr; height: 100vh; opacity: 0; transition: 1s; }
-        
-        .sidebar { background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .sidebar-brand { padding: 40px; text-align: center; border-bottom: 1px solid var(--border); }
-        .sidebar-nav { flex: 1; padding: 20px; }
+        /* ==========================================================================
+           GATEKEEPER - SISTEMA DE ACCESO (5 USUARIOS)
+           ========================================================================== */
+        #gatekeeper {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            background: radial-gradient(circle at center, #111b27 0%, #010409 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 900px;
+            padding: 60px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+        }
+
+        .login-header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 11px;
+            letter-spacing: 6px;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .user-card {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 25px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            background: var(--bg-surface);
+        }
+
+        .user-card.active {
+            border-color: var(--primary);
+            background: var(--primary-dim);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .user-card i {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .user-card .u-name {
+            display: block;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text-bold);
+            margin-bottom: 5px;
+        }
+
+        .user-card .u-role {
+            font-size: 9px;
+            color: var(--warning);
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .pin-container {
+            margin: 0 auto 40px;
+            width: 320px;
+        }
+
+        .pin-input {
+            width: 100%;
+            background: #000;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 42px;
+            color: var(--primary);
+            text-align: center;
+            letter-spacing: 20px;
+            transition: var(--transition);
+        }
+
+        .pin-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        /* ==========================================================================
+           LAYOUT PRINCIPAL
+           ========================================================================== */
+        #app-shell {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .sidebar {
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 50px 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo h2 {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 30px 20px;
+        }
+
+        .nav-group-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 25px 0 15px 15px;
+        }
+
         .nav-item {
-            padding: 16px 20px; border-radius: var(--radius-sm); color: var(--text-muted);
-            cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: 600; margin-bottom: 5px;
+            padding: 16px 20px;
+            margin-bottom: 6px;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
         }
-        .nav-item:hover { background: var(--bg-elevated); color: var(--text-bold); }
-        .nav-item.active { background: var(--primary-dim); color: var(--primary); }
-        
-        /* VIEWS */
-        .content-area { padding: 40px 60px; overflow-y: auto; position: relative; }
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: view-in 0.4s ease; }
-        @keyframes view-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* KANBAN DESIGN */
-        .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 30px; }
-        .kanban-col { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--radius-md); min-height: 70vh; display: flex; flex-direction: column; }
-        .col-header { padding: 20px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-        .card-list { padding: 15px; flex: 1; }
+        .nav-item i {
+            width: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-elevated);
+            color: var(--text-bold);
+        }
+
+        .nav-item.active {
+            background: var(--primary-dim);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 30px;
+            border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 900;
+            font-size: 20px;
+        }
+
+        /* ==========================================================================
+           CONTENEDOR DE VISTAS (VIEWPORT)
+           ========================================================================== */
+        .viewport {
+            padding: 50px 60px;
+            overflow-y: auto;
+            background: var(--bg-base);
+            position: relative;
+        }
+
+        .view {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeInSlide 0.4s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .view-header h1 {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-bold);
+        }
+
+        /* ==========================================================================
+           TARJETAS Y WIDGETS
+           ========================================================================== */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            background: var(--bg-elevated);
+        }
+
+        .stat-card label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-bold);
+            font-family: var(--font-mono);
+        }
+
+        /* ==========================================================================
+           KANBAN DE PRODUCCIÓN
+           ========================================================================== */
+        .kanban {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .kanban-col {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kanban-head {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kanban-head h3 {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        .ot-list {
+            padding: 15px;
+            flex: 1;
+        }
+
         .ot-card {
-            background: var(--bg-elevated); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-            margin-bottom: 15px; cursor: pointer; transition: 0.2s; position: relative;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: var(--transition);
         }
-        .ot-card:hover { border-color: var(--primary); transform: translateX(5px); }
-        .ot-card h4 { font-size: 16px; color: var(--text-bold); }
-        .ot-card .meta { font-size: 11px; color: var(--text-muted); margin-top: 8px; display: flex; gap: 10px; }
-        .priority-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
 
-        /* PRODUCTION TERMINAL (MAINFRAME) */
-        #production-terminal {
-            position: fixed; inset: 0; z-index: 9000; background: var(--bg-base); display: none; flex-direction: column;
+        .ot-card:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
-        .term-header { padding: 25px 50px; border-bottom: 1px solid var(--border); background: var(--bg-surface); display: flex; justify-content: space-between; align-items: center; }
-        .term-body { flex: 1; display: grid; grid-template-columns: 1fr 450px; }
-        .term-main { display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, #0d1117 0%, #02040a 100%); }
-        .timer-display { font-size: 14vw; font-family: var(--font-mono); font-weight: 800; color: var(--primary); text-shadow: 0 0 80px rgba(0, 242, 255, 0.2); }
-        .term-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; width: 80%; margin-top: 40px; }
+
+        .ot-card h4 {
+            font-size: 16px;
+            color: var(--text-bold);
+            margin-bottom: 8px;
+        }
+
+        .ot-card .id-tag {
+            font-family: var(--font-mono);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .ot-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        /* ==========================================================================
+           TERMINAL DE PRODUCCIÓN (MAINFRAME)
+           ========================================================================== */
+        #terminal {
+            position: fixed;
+            inset: 0;
+            z-index: 50000;
+            background: var(--bg-ultra);
+            display: none;
+            flex-direction: column;
+        }
+
+        .term-nav {
+            padding: 25px 60px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .term-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 480px;
+        }
+
+        .term-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .timer-main {
+            font-size: 14vw;
+            font-family: var(--font-mono);
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 100px var(--primary-glow);
+            line-height: 1;
+        }
+
+        .term-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, 280px);
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .input-card {
+            background: var(--bg-elevated);
+            padding: 30px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .input-card label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .big-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid var(--border);
+            color: var(--text-bold);
+            font-family: var(--font-mono);
+            font-size: 56px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .big-input:focus {
+            border-color: var(--primary);
+        }
+
+        .term-right {
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border);
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==========================================================================
+           BOTONES INDUSTRIALES
+           ========================================================================== */
+        .btn {
+            padding: 16px 30px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-family: var(--font-main);
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 10px 20px var(--primary-glow); }
         
-        .stat-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 25px; border-radius: var(--radius-md); text-align: center; }
-        .stat-box label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; }
-        .stat-box .val { font-size: 40px; font-weight: 900; color: var(--text-bold); font-family: var(--font-mono); }
-        .stat-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--border); color: var(--primary); font-size: 40px; text-align: center; font-family: var(--font-mono); }
-        .stat-input:focus { border-color: var(--primary); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-ghost { background: var(--bg-elevated); color: var(--text-bold); border: 1px solid var(--border); }
+        .btn-ghost:hover { border-color: var(--primary); background: var(--bg-surface); }
 
-        .term-sidebar { background: var(--bg-surface); border-left: 1px solid var(--border); padding: 40px; overflow-y: auto; }
-        .control-btn { 
-            width: 100%; padding: 20px; border-radius: var(--radius-sm); border: none; font-weight: 800; cursor: pointer;
-            margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;
+        /* ==========================================================================
+           TABLAS DE DATOS - STOCK & HISTORIAL
+           ========================================================================== */
+        .table-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
         }
-        .btn-run { background: var(--success); color: #000; }
-        .btn-stop { background: var(--danger); color: #fff; }
-        .btn-pause { background: var(--warning); color: #000; }
-        .btn-op { background: var(--bg-elevated); color: #fff; border: 1px solid var(--border); }
-        .btn-op:hover { background: var(--secondary); }
 
-        /* TABLES & DATA */
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .data-table th { padding: 15px; text-align: left; color: var(--text-muted); font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--border); }
-        .data-table td { padding: 18px 15px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
 
-        /* MODALS */
-        .modal-wrap { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-box { background: var(--bg-surface); width: 600px; padding: 45px; border-radius: var(--radius-lg); border: 1px solid var(--border); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 8px; }
-        .form-control { width: 100%; padding: 15px; background: #000; border: 1px solid var(--border); border-radius: var(--radius-sm); color: #fff; }
+        th {
+            background: rgba(0,0,0,0.3);
+            padding: 20px 25px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+        }
 
-        /* CHARTS */
-        .chart-container { background: var(--bg-surface); padding: 30px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-top: 30px; }
+        td {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background: rgba(63, 185, 80, 0.15); color: var(--success); }
+        .badge-warning { background: rgba(210, 153, 34, 0.15); color: var(--warning); }
+        .badge-info { background: rgba(0, 242, 255, 0.15); color: var(--primary); }
+
+        /* ==========================================================================
+           MODALES DINÁMICOS
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 60000;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 800px;
+            border-radius: var(--radius-lg);
+            padding: 50px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group { margin-bottom: 25px; }
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 18px;
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .form-input:focus { border-color: var(--primary); }
+
+        /* ==========================================================================
+           ESTADÍSTICAS DE IMPRESIÓN (DESGLOSE)
+           ========================================================================== */
+        .stats-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .detail-box {
+            background: var(--bg-elevated);
+            padding: 20px;
+            border-radius: var(--radius-md);
+        }
+
+        .detail-box h5 {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .detail-box p {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-bold);
+            font-family: var(--font-mono);
+        }
 
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <div class="login-card">
-            <h1 style="font-size: 40px; font-weight: 900; letter-spacing: -2px;">TRACK<span style="color:var(--primary)">LABEL</span></h1>
-            <p style="color: var(--text-muted); letter-spacing: 5px; font-size: 10px; margin-bottom: 40px;">INDUSTRIAL ERP CORE v2026.1</p>
+    <div id="gatekeeper">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>TRACK<span style="color:var(--primary)">LABEL</span></h1>
+                <p>Enterprise Resource Planning - Industrial Core v2026</p>
+            </div>
             
-            <div class="user-selector" id="user-grid">
+            <div class="user-grid" id="login-users">
                 </div>
 
-            <input type="password" id="auth-pin" class="pin-field" maxlength="4" placeholder="••••">
-            
-            <div style="margin-top: 20px;">
-                <button class="control-btn btn-run" style="width: 300px; margin: 0 auto; height: 65px; font-size: 18px;" onclick="Engine.Auth.validate()">
-                    INGRESAR AL SISTEMA
-                </button>
+            <div class="pin-container">
+                <input type="password" id="login-pin" class="pin-input" placeholder="••••" maxlength="4">
             </div>
+
+            <button class="btn btn-primary" style="width: 320px; height: 70px; font-size: 18px;" onclick="Engine.Auth.login()">
+                Sincronizar Terminal
+            </button>
         </div>
     </div>
 
-    <div class="main-container" id="app-shell">
+    <div id="app-shell">
         <aside class="sidebar">
-            <div class="sidebar-brand">
-                <h2 style="font-size: 18px;">PANEL DE <span style="color:var(--primary)">CONTROL</span></h2>
+            <div class="sidebar-logo">
+                <h2>CORE <span style="color:var(--primary)">SYSTEM</span></h2>
             </div>
             
-            <nav class="sidebar-nav">
-                <div class="nav-item active" onclick="Engine.UI.switchView('production', this)"><i class="fas fa-industry"></i> Producción</div>
-                <div class="nav-item" onclick="Engine.UI.switchView('warehouse', this)"><i class="fas fa-boxes-stacked"></i> Almacén / Bobinas</div>
-                <div class="nav-item" onclick="Engine.UI.switchView('analytics', this)"><i class="fas fa-chart-line"></i> Estadísticas OEE</div>
-                <div class="nav-item" onclick="Engine.UI.switchView('history', this)"><i class="fas fa-book"></i> Registro Histórico</div>
-                <div class="nav-item" id="nav-admin" style="display:none;" onclick="Engine.UI.switchView('admin', this)"><i class="fas fa-user-shield"></i> Administración</div>
-            </nav>
+            <nav class="nav-menu">
+                <p class="nav-group-label">Producción Activa</p>
+                <div class="nav-item active" onclick="Engine.UI.view('production', this)">
+                    <i class="fas fa-microchip"></i> Panel de Planta
+                </div>
+                
+                <p class="nav-group-label">Gestión de Stock</p>
+                <div class="nav-item" onclick="Engine.UI.view('stock-finished', this)">
+                    <i class="fas fa-barcode"></i> Etiquetas Hechas
+                </div>
+                <div class="nav-item" onclick="Engine.UI.view('warehouse', this)">
+                    <i class="fas fa-scroll"></i> Almacén Bobinas
+                </div>
 
-            <div style="padding: 30px; border-top: 1px solid var(--border);">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                    <div id="user-avatar" style="width: 45px; height: 45px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 900;">?</div>
-                    <div>
-                        <p id="user-display-name" style="font-weight: 700; color: #fff; font-size: 14px;">Usuario</p>
-                        <p id="user-display-role" style="font-size: 10px; color: var(--warning);">ROL</p>
+                <p class="nav-group-label">Analítica & Datos</p>
+                <div class="nav-item" onclick="Engine.UI.view('analytics', this)">
+                    <i class="fas fa-chart-area"></i> Estadísticas OEE
+                </div>
+                <div class="nav-item" onclick="Engine.UI.view('history', this)">
+                    <i class="fas fa-folder-open"></i> Historial de Turnos
+                </div>
+
+                <div id="admin-section" style="display:none;">
+                    <p class="nav-group-label">Administración</p>
+                    <div class="nav-item" onclick="Engine.UI.view('admin', this)">
+                        <i class="fas fa-shield-halved"></i> Configuración Maestro
                     </div>
                 </div>
-                <button class="control-btn btn-op" style="padding: 10px;" onclick="location.reload()">SALIR</button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-badge">
+                    <div id="u-ava" class="avatar">?</div>
+                    <div>
+                        <p id="u-name" style="font-weight: 800; font-size: 15px; color:#fff;">Ivan</p>
+                        <p id="u-role" style="font-size: 10px; color:var(--warning); font-weight:700;">ADMINISTRADOR</p>
+                    </div>
+                </div>
+                <button class="btn btn-ghost" style="width: 100%;" onclick="location.reload()">Cerrar Sesión</button>
             </div>
         </aside>
 
-        <main class="content-area">
+        <main class="viewport">
             
-            <section id="view-production" class="view-section active">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>Monitor de Órdenes</h1>
-                    <button class="control-btn btn-run" style="width: auto; padding: 12px 25px;" onclick="Engine.UI.toggleModal('modal-new-ot', true)">
-                        <i class="fas fa-plus"></i> NUEVA ORDEN DE TRABAJO
+            <div id="v-production" class="view active">
+                <div class="view-header">
+                    <h1>Monitor de Planta</h1>
+                    <button class="btn btn-primary" onclick="Engine.UI.modal('m-new-ot', true)">
+                        <i class="fas fa-plus"></i> Nueva OT
                     </button>
                 </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <label>Eficiencia Turno</label>
+                        <div class="value" style="color:var(--success)">94.2%</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>Metros Hoy</label>
+                        <div class="value">12.450 m</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>Tiempo en Paro</label>
+                        <div class="value" style="color:var(--danger)">12m</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>Velocidad Med.</label>
+                        <div class="value" style="color:var(--primary)">65 <small>m/min</small></div>
+                    </div>
+                </div>
 
-                <div class="kanban-board">
+                <div class="kanban">
                     <div class="kanban-col">
-                        <div class="col-header"><span>Pendiente</span> <i class="fas fa-clock"></i></div>
-                        <div class="card-list" id="col-wait"></div>
+                        <div class="kanban-head"><h3>En Cola</h3><span id="c-wait" class="badge">0</span></div>
+                        <div class="ot-list" id="l-wait"></div>
                     </div>
                     <div class="kanban-col" style="border-color: var(--primary);">
-                        <div class="col-header" style="color:var(--primary)"><span>En Proceso</span> <i class="fas fa-spinner fa-spin"></i></div>
-                        <div class="card-list" id="col-run"></div>
+                        <div class="kanban-head" style="color:var(--primary)"><h3>Produciendo</h3><span id="c-run" class="badge">0</span></div>
+                        <div class="ot-list" id="l-run"></div>
                     </div>
                     <div class="kanban-col">
-                        <div class="col-header"><span>Completado</span> <i class="fas fa-check-double"></i></div>
-                        <div class="card-list" id="col-done"></div>
+                        <div class="kanban-head"><h3>Completado</h3><span id="c-done" class="badge">0</span></div>
+                        <div class="ot-list" id="l-done"></div>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <section id="view-warehouse" class="view-section">
-                <h1>Inventario de Bobinas</h1>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ID Bobina</th>
-                            <th>Material</th>
-                            <th>Metraje Inicial</th>
-                            <th>Metraje Restante</th>
-                            <th>Estado</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="warehouse-body">
-                        </tbody>
-                </table>
-            </section>
+            <div id="v-stock-finished" class="view">
+                <div class="view-header">
+                    <h1>Inventario Producto Terminado</h1>
+                    <button class="btn btn-ghost" onclick="Engine.Inventory.exportStock()">Exportar Excel</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Referencia / OT</th>
+                                <th>Cliente</th>
+                                <th>Ubicación Almacén</th>
+                                <th>Cantidad Disponible</th>
+                                <th>Fecha Fabricación</th>
+                                <th>Operario</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-stock-finished">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <section id="view-analytics" class="view-section">
-                <h1>Rendimiento de Planta</h1>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 30px;">
-                    <div class="stat-box">
-                        <label>OEE Global</label>
-                        <div class="val" style="color:var(--primary)">92.4%</div>
-                    </div>
-                    <div class="stat-box">
-                        <label>Disponibilidad</label>
-                        <div class="val">96.1%</div>
-                    </div>
-                    <div class="stat-box">
-                        <label>Rendimiento</label>
-                        <div class="val">98.5%</div>
-                    </div>
-                    <div class="stat-box">
-                        <label>Calidad</label>
-                        <div class="val">99.8%</div>
-                    </div>
+            <div id="v-history" class="view">
+                <div class="view-header">
+                    <h1>Historial de Producción</h1>
                 </div>
-                <div class="chart-container">
-                    <canvas id="oeeChart" style="width: 100%; height: 400px;"></canvas>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>OT ID</th>
+                                <th>Cliente</th>
+                                <th>Metros</th>
+                                <th>Vel. Media</th>
+                                <th>Tiempo Total</th>
+                                <th>Estado</th>
+                                <th>Análisis</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-history"></tbody>
+                    </table>
                 </div>
-            </section>
+            </div>
 
-            <section id="view-history" class="view-section">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>Logs de Producción</h1>
-                    <button class="control-btn btn-op" style="width: auto;" onclick="Engine.Data.exportCSV()">EXCEL / CSV</button>
+            <div id="v-analytics" class="view">
+                <div class="view-header"><h1>Analítica OEE Industrial</h1></div>
+                <div class="card">
+                    <canvas id="chart-oee" style="width: 100%; height: 400px;"></canvas>
                 </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>OT</th>
-                            <th>Cliente</th>
-                            <th>Metros Reales</th>
-                            <th>Tiempo</th>
-                            <th>Vel. Media</th>
-                            <th>Mermas</th>
-                            <th>Operario</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-body"></tbody>
-                </table>
-            </section>
-
-            <section id="view-admin" class="view-section">
-                <h1>Panel de Administración Maestro</h1>
-                <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-                    <div class="stat-box" style="text-align: left;">
-                        <h3>Seguridad de la Base de Datos</h3>
-                        <p style="margin: 20px 0; color: var(--text-muted);">Iván, desde aquí puedes reiniciar el sistema o auditar los registros de acceso.</p>
-                        <button class="control-btn btn-stop" onclick="Engine.Data.wipe()">FORMATEAR SISTEMA</button>
-                    </div>
-                    <div class="stat-box" style="text-align: left;">
-                        <h3>Configuración de Máquina</h3>
-                        <p style="margin: 20px 0; color: var(--text-muted);">Ajuste de velocidad nominal y márgenes de error de sensores.</p>
-                        <button class="control-btn btn-op">CALIBRAR SENSORES</button>
-                    </div>
-                </div>
-            </section>
+            </div>
 
         </main>
     </div>
 
-    <div id="production-terminal">
-        <div class="term-header">
+    <div id="terminal">
+        <div class="term-nav">
             <div>
-                <h2 id="tm-client">CARGANDO CLIENTE...</h2>
-                <p id="tm-id" style="color: var(--primary); font-family: var(--font-mono); font-weight: 700;">OT-00000</p>
+                <h2 id="tm-client" style="font-size: 32px; font-weight: 900;">NOMBRE DEL CLIENTE</h2>
+                <p id="tm-id" style="font-family: var(--font-mono); color: var(--primary); letter-spacing: 3px;">OT-00000</p>
             </div>
-            <div style="display: flex; gap: 15px;">
-                <button class="control-btn btn-pause" id="tm-btn-pause" onclick="Engine.Production.pause()">PAUSAR</button>
-                <button class="control-btn btn-run" onclick="Engine.Production.finish()">FINALIZAR Y CERRAR</button>
+            <div style="display: flex; gap: 20px;">
+                <button class="btn btn-warning" id="tm-pause" onclick="Engine.Prod.pause()">Pausar</button>
+                <button class="btn btn-primary" onclick="Engine.Prod.finish()">Finalizar Orden</button>
             </div>
         </div>
-        <div class="term-body">
-            <div class="term-main">
-                <div class="timer-display" id="tm-clock">00:00:00</div>
-                <div class="term-stats">
-                    <div class="stat-box">
-                        <label>Metraje Real</label>
-                        <input type="number" id="tm-meters" class="stat-input" value="0" oninput="Engine.Production.sync()">
+        <div class="term-content">
+            <div class="term-center">
+                <div class="timer-main" id="tm-clock">00:00:00</div>
+                
+                <div class="term-inputs">
+                    <div class="input-card">
+                        <label>Metros Actuales</label>
+                        <input type="number" id="tm-val-m" class="big-input" value="0" oninput="Engine.Prod.sync()">
                     </div>
-                    <div class="stat-box">
-                        <label>Metraje Restante</label>
-                        <div class="val" id="tm-left">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <label>m/min Actual</label>
-                        <div class="val" id="tm-speed" style="color: var(--primary);">0.0</div>
+                    <div class="input-card">
+                        <label>m/min Instantáneos</label>
+                        <div id="tm-val-speed" class="big-input" style="color: var(--primary); border: none;">0.0</div>
                     </div>
                 </div>
             </div>
-            <div class="term-sidebar">
-                <h3 style="margin-bottom: 25px; font-size: 14px; letter-spacing: 2px;">PANEL DE INCIDENCIAS</h3>
-                <button class="control-btn btn-op" onclick="Engine.Production.logEvent('Cambio Bobina')">CAMBIO DE BOBINA</button>
-                <button class="control-btn btn-op" onclick="Engine.Production.logEvent('Limpieza Planchas')">LIMPIEZA DE PLANCHAS</button>
-                <button class="control-btn btn-op" onclick="Engine.Production.logEvent('Ajuste de Registro')">AJUSTE DE REGISTRO</button>
-                <button class="control-btn btn-op" onclick="Engine.Production.logEvent('Ajuste de Tinta')">AJUSTE DE TINTA</button>
-                <button class="control-btn btn-stop" onclick="Engine.Production.logEvent('Avería Mecánica')">AVERÍA MECÁNICA</button>
-                
-                <div style="margin-top: 40px; padding: 25px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(0,0,0,0.3);">
-                    <p style="font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 15px;">LOG DE ESTADO</p>
-                    <div id="tm-log-content" style="font-size: 12px; color: var(--text-muted); line-height: 1.8;">
-                        Esperando inicio...
+            <div class="term-right">
+                <h3 style="font-size: 11px; letter-spacing: 3px; color: var(--text-muted); margin-bottom: 30px;">REGISTRO DE INCIDENCIAS</h3>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-ghost" onclick="Engine.Prod.log('Cambio de Bobina')">Cambio Bobina</button>
+                    <button class="btn btn-ghost" onclick="Engine.Prod.log('Ajuste de Registro')">Ajuste Registro</button>
+                    <button class="btn btn-ghost" onclick="Engine.Prod.log('Limpieza de Planchas')">Limpieza Planchas</button>
+                    <button class="btn btn-ghost" onclick="Engine.Prod.log('Avería Mecánica')">Avería / Motor</button>
+                </div>
+                <div id="tm-event-log" style="margin-top: 40px; flex: 1; border-top: 1px solid var(--border); padding-top: 20px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); overflow-y: auto;">
                     </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="m-new-ot">
+        <div class="modal">
+            <h2>Configurar Nueva Orden de Trabajo</h2>
+            <div style="margin-top: 40px;">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" id="f-client" class="form-input" placeholder="Nombre de la empresa">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Metraje Objetivo</label>
+                        <input type="number" id="f-target" class="form-input" placeholder="5000">
+                    </div>
+                    <div class="form-group">
+                        <label>Ubicación Sugerida Almacén</label>
+                        <input type="text" id="f-location" class="form-input" value="PASILLO-A1">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 20px; margin-top: 20px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="Engine.Data.createOT()">Crear Orden</button>
+                    <button class="btn btn-ghost" style="flex: 1;" onclick="Engine.UI.modal('m-new-ot', false)">Cancelar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal-wrap" id="modal-new-ot">
-        <div class="modal-box">
-            <h2>Registrar Nueva Orden</h2>
-            <div style="margin-top: 30px;">
-                <div class="form-group">
-                    <label>NOMBRE DEL CLIENTE</label>
-                    <input type="text" id="form-cli" class="form-control" placeholder="Ej. Empresa Packaging S.L.">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group">
-                        <label>METROS TEÓRICOS</label>
-                        <input type="number" id="form-met" class="form-control" placeholder="10000">
-                    </div>
-                    <div class="form-group">
-                        <label>MATERIAL (BOBINA)</label>
-                        <select id="form-mat" class="form-control">
-                            <option value="B-001">Papel Estucado 80g</option>
-                            <option value="B-002">Polipropileno Brillo</option>
-                            <option value="B-003">Térmico Protegido</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 15px; margin-top: 30px;">
-                    <button class="control-btn btn-run" style="flex: 1;" onclick="Engine.Data.createOT()">GENERAR ORDEN</button>
-                    <button class="control-btn btn-op" style="flex: 1;" onclick="Engine.UI.toggleModal('modal-new-ot', false)">CANCELAR</button>
-                </div>
+    <div class="modal-overlay" id="m-stats">
+        <div class="modal" style="max-width: 600px;">
+            <h2 id="st-id">ESTADÍSTICAS OT</h2>
+            <div class="stats-detail-grid" style="margin-top: 30px;">
+                <div class="detail-box"><h5 id="st-client">CLIENTE</h5><p>Análisis Completo</p></div>
+                <div class="detail-box"><h5>METRAJE FINAL</h5><p id="st-m">0 m</p></div>
+                <div class="detail-box"><h5>VELOCIDAD MEDIA</h5><p id="st-avg">0 m/min</p></div>
+                <div class="detail-box"><h5>TIEMPO OPERATIVO</h5><p id="st-time">00:00:00</p></div>
             </div>
+            <div style="margin-top: 30px; background: #000; padding: 20px; border-radius: 12px;">
+                <p style="font-size: 10px; color: var(--primary); margin-bottom: 10px;">LOG DE INCIDENCIAS DEL TURNO</p>
+                <div id="st-logs" style="font-size: 12px; font-family: var(--font-mono); color: var(--warning);"></div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 30px;" onclick="Engine.UI.modal('m-stats', false)">Cerrar Informe</button>
         </div>
     </div>
 
     <script>
-        /**
-         * ENGINE CORE - IVAN EDITION
-         * Este objeto gestiona absolutamente toda la lógica del sistema.
-         */
+        /* ==========================================================================
+           ENGINE - NÚCLEO DEL ERP v2026.ULTIMATE
+           ========================================================================== */
+        
         const Engine = {
             State: {
-                currentUser: null,
+                user: null,
                 activeOT: null,
-                timerInterval: null,
+                timer: null,
                 isPaused: false,
                 db: {
                     ots: [],
-                    inventory: [
-                        { id: 'B-001', name: 'Papel Estucado 80g', total: 50000, current: 42000, status: 'ok' },
-                        { id: 'B-002', name: 'PP Brillo', total: 20000, current: 5000, status: 'low' },
-                        { id: 'B-003', name: 'Térmico', total: 30000, current: 30000, status: 'ok' }
-                    ],
-                    telemetry: [88, 92, 85, 94, 91, 89, 95]
+                    stock: [], // Producto terminado
+                    inventory: [] // Materia prima (bobinas)
                 }
             },
 
@@ -387,234 +962,250 @@
                 { id: 1, name: 'IVAN', role: 'ADMIN', pin: '1234', icon: 'fa-user-shield' },
                 { id: 2, name: 'ANNA', role: 'ADMIN', pin: '2222', icon: 'fa-user-tie' },
                 { id: 3, name: 'TONI', role: 'ADMIN', pin: '3333', icon: 'fa-user-cog' },
-                { id: 4, name: 'ISA', role: 'OPERADOR', pin: '1111', icon: 'fa-user' },
-                { id: 5, name: 'JAUME', role: 'OPERADOR', pin: '4444', icon: 'fa-user' }
+                { id: 4, name: 'ISA', role: 'OPERARIO', pin: '1111', icon: 'fa-user' },
+                { id: 5, name: 'JAUME', role: 'OPERARIO', pin: '4444', icon: 'fa-user' }
             ],
 
-            Init() {
-                // Generar Grid de Usuarios
-                const grid = document.getElementById('user-grid');
+            init() {
+                // Renderizar Login
+                const grid = document.getElementById('login-users');
                 this.Users.forEach(u => {
-                    const btn = document.createElement('div');
-                    btn.className = 'u-btn';
-                    btn.innerHTML = `<i class="fas ${u.icon}"></i><b>${u.name}</b><span>${u.role}</span>`;
-                    btn.onclick = () => {
-                        this.State.currentUser = u;
-                        document.querySelectorAll('.u-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        document.getElementById('auth-pin').focus();
+                    const card = document.createElement('div');
+                    card.className = 'user-card';
+                    card.id = `u-${u.id}`;
+                    card.innerHTML = `<i class="fas ${u.icon}"></i><span class="u-name">${u.name}</span><span class="u-role">${u.role}</span>`;
+                    card.onclick = () => {
+                        this.State.user = u;
+                        document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'));
+                        card.classList.add('active');
+                        document.getElementById('login-pin').focus();
                     };
-                    grid.appendChild(btn);
+                    grid.appendChild(card);
                 });
 
                 // Cargar DB
-                const saved = localStorage.getItem('tracklabel_full_db');
-                if(saved) this.State.db = JSON.parse(saved);
-
-                this.Data.renderAll();
+                const data = localStorage.getItem('tracklabel_ultimate_db');
+                if(data) this.State.db = JSON.parse(data);
+                
+                this.Data.render();
             },
 
             Auth: {
-                validate() {
-                    const pin = document.getElementById('auth-pin').value;
-                    const user = Engine.State.currentUser;
-                    if(!user || pin !== user.pin) return alert("PIN INCORRECTO O USUARIO NO SELECCIONADO");
+                login() {
+                    const pin = document.getElementById('login-pin').value;
+                    const user = Engine.State.user;
+                    if(!user || pin !== user.pin) return alert("ACCESO DENEGADO: PIN INCORRECTO");
 
-                    document.getElementById('login-overlay').style.transform = 'translateY(-100%)';
+                    document.getElementById('gatekeeper').style.transform = 'translateY(-100%)';
+                    document.getElementById('gatekeeper').style.opacity = '0';
                     document.getElementById('app-shell').style.opacity = '1';
-                    
-                    document.getElementById('user-display-name').innerText = user.name;
-                    document.getElementById('user-display-role').innerText = user.role;
-                    document.getElementById('user-avatar').innerText = user.name[0];
 
-                    if(user.role === 'ADMIN') document.getElementById('nav-admin').style.display = 'flex';
+                    document.getElementById('u-name').innerText = user.name;
+                    document.getElementById('u-role').innerText = user.role;
+                    document.getElementById('u-ava').innerText = user.name[0];
+
+                    if(user.role === 'ADMIN') document.getElementById('admin-section').style.display = 'block';
                     
                     Engine.UI.initCharts();
                 }
             },
 
-            Production: {
+            Prod: {
                 start(id) {
                     const ot = Engine.State.db.ots.find(o => o.id === id);
-                    if(!ot) return;
+                    if(ot.status === 'done') return Engine.UI.showStats(id);
                     
                     Engine.State.activeOT = ot;
                     ot.status = 'run';
-                    
                     document.getElementById('tm-client').innerText = ot.client;
                     document.getElementById('tm-id').innerText = ot.id;
-                    document.getElementById('tm-meters').value = ot.real;
-                    document.getElementById('tm-left').innerText = (ot.target - ot.real).toLocaleString();
+                    document.getElementById('tm-val-m').value = ot.real;
+                    document.getElementById('terminal').style.display = 'flex';
                     
-                    document.getElementById('production-terminal').style.display = 'flex';
-                    this.runTimer();
-                    Engine.Data.renderAll();
+                    this.launchTimer();
                 },
 
-                runTimer() {
-                    if(Engine.State.timerInterval) clearInterval(Engine.State.timerInterval);
-                    let start = Date.now() - Engine.State.activeOT.time;
-                    
-                    Engine.State.timerInterval = setInterval(() => {
-                        if(Engine.State.isPaused) return;
-                        Engine.State.activeOT.time = Date.now() - start;
-                        document.getElementById('tm-clock').innerText = Engine.UI.formatTime(Engine.State.activeOT.time);
+                launchTimer() {
+                    if(Engine.State.timer) clearInterval(Engine.State.timer);
+                    let baseTime = Engine.State.activeOT.time;
+                    let startTime = Date.now();
+
+                    Engine.State.timer = setInterval(() => {
+                        if(Engine.State.isPaused) {
+                            startTime = Date.now();
+                            return;
+                        }
+                        let now = Date.now();
+                        Engine.State.activeOT.time = baseTime + (now - startTime);
+                        document.getElementById('tm-clock').innerText = Engine.UI.fmtTime(Engine.State.activeOT.time);
                         this.sync();
                     }, 1000);
                 },
 
                 pause() {
                     Engine.State.isPaused = !Engine.State.isPaused;
-                    const btn = document.getElementById('tm-btn-pause');
+                    const btn = document.getElementById('tm-pause');
                     btn.innerText = Engine.State.isPaused ? 'REANUDAR' : 'PAUSAR';
-                    btn.className = Engine.State.isPaused ? 'control-btn btn-run' : 'control-btn btn-pause';
+                    btn.className = Engine.State.isPaused ? 'btn btn-primary' : 'btn btn-warning';
                 },
 
                 sync() {
-                    const m = parseFloat(document.getElementById('tm-meters').value) || 0;
-                    const ot = Engine.State.activeOT;
-                    ot.real = m;
-                    
-                    const min = ot.time / 60000;
-                    if(min > 0.1) {
-                        document.getElementById('tm-speed').innerText = (m / min).toFixed(1);
+                    const m = parseFloat(document.getElementById('tm-val-m').value) || 0;
+                    Engine.State.activeOT.real = m;
+                    const min = Engine.State.activeOT.time / 60000;
+                    if(min > 0.05) {
+                        const speed = (m / min).toFixed(1);
+                        document.getElementById('tm-val-speed').innerText = speed;
                     }
-                    document.getElementById('tm-left').innerText = (ot.target - m).toFixed(0);
                 },
 
-                logEvent(type) {
-                    const ot = Engine.State.activeOT;
-                    const time = new Date().toLocaleTimeString();
-                    ot.events = ot.events || [];
-                    ot.events.push(`[${time}] ${type}`);
-                    
-                    const logBox = document.getElementById('tm-log-content');
-                    logBox.innerHTML = ot.events.map(e => `<div>${e}</div>`).join('');
-                    
-                    if(type.includes('Avería') || type.includes('Cambio')) this.pause();
+                log(msg) {
+                    const entry = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                    Engine.State.activeOT.logs.push(entry);
+                    const logEl = document.getElementById('tm-event-log');
+                    logEl.innerHTML = `<div>${entry}</div>` + logEl.innerHTML;
                 },
 
                 finish() {
-                    if(!confirm("¿Deseas cerrar la Orden de Trabajo y guardar los datos?")) return;
+                    if(!confirm("¿CONFIRMAR CIERRE DE OT Y TRASPASO A STOCK?")) return;
                     
                     const ot = Engine.State.activeOT;
                     ot.status = 'done';
-                    ot.endDate = new Date().toLocaleString();
+                    ot.finishedAt = new Date().toLocaleString();
                     
-                    clearInterval(Engine.State.timerInterval);
-                    document.getElementById('production-terminal').style.display = 'none';
-                    
+                    // Lógica de Stock: Mover lo producido al almacén de terminados
+                    Engine.State.db.stock.push({
+                        id: ot.id,
+                        client: ot.client,
+                        qty: ot.real,
+                        location: ot.location || 'PASILLO-DEFAULT',
+                        date: new Date().toLocaleDateString(),
+                        op: Engine.State.user.name
+                    });
+
+                    clearInterval(Engine.State.timer);
+                    document.getElementById('terminal').style.display = 'none';
                     Engine.Data.save();
-                    Engine.Data.renderAll();
+                    Engine.Data.render();
                 }
             },
 
             Data: {
                 createOT() {
-                    const cli = document.getElementById('form-cli').value;
-                    const met = document.getElementById('form-met').value;
-                    if(!cli || !met) return alert("Completa todos los campos");
+                    const cli = document.getElementById('f-client').value;
+                    const tar = document.getElementById('f-target').value;
+                    const loc = document.getElementById('f-location').value;
+
+                    if(!cli || !tar) return alert("CAMPOS OBLIGATORIOS");
 
                     const newOT = {
-                        id: 'OT-' + Math.floor(Math.random()*90000+10000),
+                        id: 'OT-' + Math.floor(Math.random()*90000 + 10000),
                         client: cli.toUpperCase(),
-                        target: parseFloat(met),
+                        target: parseFloat(tar),
                         real: 0,
                         time: 0,
                         status: 'wait',
-                        op: Engine.State.currentUser.name,
-                        events: [],
-                        created: new Date().toLocaleString()
+                        location: loc.toUpperCase(),
+                        logs: [],
+                        op: Engine.State.user.name
                     };
 
                     Engine.State.db.ots.push(newOT);
                     this.save();
-                    this.renderAll();
-                    Engine.UI.toggleModal('modal-new-ot', false);
+                    this.render();
+                    Engine.UI.modal('m-new-ot', false);
                 },
 
-                renderAll() {
+                render() {
                     // Kanban
-                    const cols = { wait: 'col-wait', run: 'col-run', done: 'col-done' };
-                    Object.values(cols).forEach(id => document.getElementById(id).innerHTML = '');
-
-                    Engine.State.db.ots.forEach(ot => {
+                    const cols = { wait: 'l-wait', run: 'l-run', done: 'l-done' };
+                    Object.values(cols).forEach(c => document.getElementById(c).innerHTML = '');
+                    
+                    Engine.State.db.ots.forEach(o => {
                         const card = document.createElement('div');
                         card.className = 'ot-card';
                         card.innerHTML = `
-                            <h4>${ot.client}</h4>
-                            <p style="font-size:12px; color:var(--primary); font-family:var(--font-mono)">${ot.id}</p>
-                            <div class="meta">
-                                <span><i class="fas fa-bullseye"></i> ${ot.target}m</span>
-                                <span><i class="fas fa-user"></i> ${ot.op}</span>
+                            <span class="id-tag">${o.id}</span>
+                            <h4>${o.client}</h4>
+                            <div class="ot-meta">
+                                <span><i class="fas fa-crosshairs"></i> ${o.target}m</span>
+                                <span><i class="fas fa-user"></i> ${o.op}</span>
                             </div>
                         `;
-                        card.onclick = () => Engine.Production.start(ot.id);
-                        document.getElementById(cols[ot.status]).appendChild(card);
+                        card.onclick = () => Engine.Prod.start(o.id);
+                        document.getElementById(cols[o.status]).appendChild(card);
                     });
 
                     // Historial
-                    const hBody = document.getElementById('history-body');
-                    if(hBody) {
-                        hBody.innerHTML = Engine.State.db.ots.filter(o => o.status === 'done').map(o => `
-                            <tr>
-                                <td style="color:var(--primary); font-family:var(--font-mono)">${o.id}</td>
-                                <td><b>${o.client}</b></td>
-                                <td>${o.real} m</td>
-                                <td>${Engine.UI.formatTime(o.time)}</td>
-                                <td style="color:var(--success)">${(o.real/(o.time/60000)).toFixed(1)}</td>
-                                <td style="color:var(--danger)">${(o.target - o.real).toFixed(0)}m</td>
-                                <td>${o.op}</td>
-                            </tr>
-                        `).join('');
-                    }
+                    document.getElementById('table-history').innerHTML = Engine.State.db.ots.filter(o => o.status === 'done').map(o => `
+                        <tr>
+                            <td style="font-family:var(--font-mono); color:var(--primary)">${o.id}</td>
+                            <td><b>${o.client}</b></td>
+                            <td>${o.real} m</td>
+                            <td>${(o.real / (o.time/60000)).toFixed(1)} m/min</td>
+                            <td>${Engine.UI.fmtTime(o.time)}</td>
+                            <td><span class="badge badge-success">Finalizado</span></td>
+                            <td><button class="btn btn-ghost" style="padding:5px 10px" onclick="Engine.UI.showStats('${o.id}')">Análisis</button></td>
+                        </tr>
+                    `).join('');
 
-                    // Inventario
-                    const wBody = document.getElementById('warehouse-body');
-                    if(wBody) {
-                        wBody.innerHTML = Engine.State.db.inventory.map(b => `
-                            <tr>
-                                <td>${b.id}</td>
-                                <td>${b.name}</td>
-                                <td>${b.total} m</td>
-                                <td style="font-weight:800; color:${b.status === 'low' ? 'var(--danger)' : 'var(--success)'}">${b.current} m</td>
-                                <td><span class="status-pill" style="background:${b.status === 'low' ? 'var(--danger)' : 'var(--success)'}">${b.status.toUpperCase()}</span></td>
-                                <td><button class="btn-op" style="padding:5px 10px; border-radius:5px;">PEDIR</button></td>
-                            </tr>
-                        `).join('');
-                    }
+                    // Stock Terminado
+                    document.getElementById('table-stock-finished').innerHTML = Engine.State.db.stock.map(s => `
+                        <tr>
+                            <td style="font-family:var(--font-mono)">${s.id}</td>
+                            <td><b>${s.client}</b></td>
+                            <td><span class="badge badge-info">${s.location}</span></td>
+                            <td style="color:var(--success); font-weight:800">${s.qty.toLocaleString()} m</td>
+                            <td>${s.date}</td>
+                            <td>${s.op}</td>
+                            <td><button class="btn btn-ghost" style="padding:5px">Salida</button></td>
+                        </tr>
+                    `).join('');
+
+                    // Contadores
+                    document.getElementById('c-wait').innerText = Engine.State.db.ots.filter(o => o.status === 'wait').length;
+                    document.getElementById('c-run').innerText = Engine.State.db.ots.filter(o => o.status === 'run').length;
+                    document.getElementById('c-done').innerText = Engine.State.db.ots.filter(o => o.status === 'done').length;
                 },
 
-                save() { localStorage.setItem('tracklabel_full_db', JSON.stringify(Engine.State.db)); },
-                wipe() { if(confirm("¿Eliminar toda la base de datos?")) { localStorage.clear(); location.reload(); } }
+                save() { localStorage.setItem('tracklabel_ultimate_db', JSON.stringify(Engine.State.db)); }
             },
 
             UI: {
-                switchView(viewId, el) {
-                    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                view(id, el) {
+                    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
                     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                    document.getElementById('view-' + viewId).classList.add('active');
+                    document.getElementById('v-' + id).classList.add('active');
                     el.classList.add('active');
-                    Engine.Data.renderAll();
                 },
 
-                toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; },
+                modal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; },
 
-                formatTime(ms) {
+                fmtTime(ms) {
                     let s = Math.floor(ms/1000); let m = Math.floor(s/60); let h = Math.floor(m/60);
                     return `${h.toString().padStart(2,'0')}:${(m%60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
                 },
 
+                showStats(id) {
+                    const o = Engine.State.db.ots.find(x => x.id === id);
+                    document.getElementById('st-id').innerText = `INFORME OT: ${o.id}`;
+                    document.getElementById('st-client').innerText = o.client;
+                    document.getElementById('st-m').innerText = o.real + " m";
+                    document.getElementById('st-time').innerText = this.fmtTime(o.time);
+                    document.getElementById('st-avg').innerText = (o.real / (o.time/60000)).toFixed(1) + " m/min";
+                    document.getElementById('st-logs').innerHTML = o.logs.length ? o.logs.join('<br>') : 'Sin incidencias.';
+                    this.modal('m-stats', true);
+                },
+
                 initCharts() {
-                    const ctx = document.getElementById('oeeChart').getContext('2d');
-                    if(window.myChart) window.myChart.destroy();
-                    window.myChart = new Chart(ctx, {
+                    const ctx = document.getElementById('chart-oee').getContext('2d');
+                    new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
                             datasets: [{
-                                label: 'OEE Diario %',
-                                data: Engine.State.db.telemetry,
+                                label: 'OEE %',
+                                data: [88, 92, 90, 95, 93, 89, 94],
                                 borderColor: '#00f2ff',
                                 tension: 0.4,
                                 fill: true,
@@ -622,16 +1213,15 @@
                             }]
                         },
                         options: {
-                            responsive: true,
                             plugins: { legend: { display: false } },
-                            scales: { y: { beginAtZero: false, min: 70, grid: { color: '#30363d' } }, x: { grid: { display: false } } }
+                            scales: { y: { beginAtZero: false, min: 80 } }
                         }
                     });
                 }
             }
         };
 
-        window.onload = () => Engine.Init();
+        window.onload = () => Engine.init();
 
     </script>
 </body>
