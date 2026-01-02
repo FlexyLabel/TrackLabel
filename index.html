@@ -20,6 +20,7 @@
             --green: #238636;
             --green-bright: #3fb950;
             --red: #da3633;
+            --red-glow: rgba(218, 54, 51, 0.3);
             --blue: #1f6feb;
             --text-white: #f0f6fc;
             --text-gray: #8b949e;
@@ -36,11 +37,13 @@
             font-family: 'Inter', sans-serif; margin: 0; padding: 0; 
             height: 100vh; overflow: hidden; font-size: 16px;
         }
+        ::selection { background: var(--accent); color: #000; }
+        
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-ultra); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
-        /* --- SYSTEM OVERLAYS (LOCKS) --- */
+        /* --- SYSTEM OVERLAYS --- */
         .system-overlay {
             position: fixed; inset: 0; background: var(--bg-ultra); z-index: 99999;
             display: flex; align-items: center; justify-content: center; padding: 25px;
@@ -53,7 +56,7 @@
             animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .lock-card h1 { font-size: 32px; letter-spacing: 10px; margin-bottom: 10px; font-weight: 900; }
-        .lock-card p { color: var(--text-gray); margin-bottom: 40px; }
+        .lock-card p { color: var(--text-gray); margin-bottom: 40px; text-transform: uppercase; font-size: 12px; letter-spacing: 2px; }
 
         .user-selection-grid { 
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 35px; 
@@ -62,7 +65,7 @@
             background: var(--bg-surface); padding: 25px 10px; border-radius: var(--radius-lg);
             border: 2px solid var(--border); cursor: pointer; transition: 0.3s;
         }
-        .u-item:hover { border-color: var(--accent); background: var(--bg-card); }
+        .u-item:hover { border-color: var(--accent); background: var(--bg-card); transform: translateY(-5px); }
         .u-item.active { border-color: var(--accent); background: var(--accent-glow); transform: scale(1.05); }
         .u-item i { font-size: 30px; color: var(--accent); margin-bottom: 15px; display: block; }
         .u-name { font-weight: 700; font-size: 14px; }
@@ -71,8 +74,8 @@
         .app-container { display: flex; height: 100vh; width: 100vw; }
 
         .main-sidebar {
-            width: 350px; background: var(--bg-panel); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; flex-shrink: 0;
+            width: 380px; background: var(--bg-panel); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; flex-shrink: 0; z-index: 100;
         }
         .sb-header { padding: 40px 30px; border-bottom: 1px solid var(--border); }
         .sb-body { flex: 1; overflow-y: auto; padding: 30px; }
@@ -80,126 +83,181 @@
         .op-badge {
             background: var(--bg-surface); padding: 20px; border-radius: var(--radius-lg);
             display: flex; align-items: center; gap: 15px; border: 1px solid var(--border);
-            margin-bottom: 30px; cursor: pointer;
+            margin-bottom: 30px; cursor: pointer; transition: 0.3s;
         }
+        .op-badge:hover { background: var(--bg-card); border-color: var(--accent); }
         .op-badge .avatar {
-            width: 50px; height: 50px; background: var(--accent); color: #000;
+            width: 55px; height: 55px; background: var(--accent); color: #000;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 20px;
+            font-weight: 900; font-size: 22px; box-shadow: 0 0 20px var(--accent-glow);
         }
 
-        .stats-minipanel {
-            background: rgba(0,0,0,0.3); padding: 20px; border-radius: var(--radius-lg);
+        /* --- WIDGETS --- */
+        .widget {
+            background: rgba(0,0,0,0.3); padding: 25px; border-radius: var(--radius-lg);
             border: 1px solid var(--border); margin-bottom: 25px;
         }
-        .stats-minipanel h4 { margin: 0 0 15px 0; font-size: 12px; color: var(--text-gray); text-transform: uppercase; }
+        .widget h4 { margin: 0 0 15px 0; font-size: 11px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 2px; }
         
-        .progress-container { height: 12px; background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-        .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: 1.5s cubic-bezier(0.1, 0, 0, 1); }
+        .progress-container { height: 10px; background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #ffcc00); width: 0%; transition: 1.5s cubic-bezier(0.1, 0, 0, 1); }
 
-        /* --- STAGE & KANBAN --- */
-        .stage { flex: 1; display: flex; flex-direction: column; background: var(--bg-ultra); }
+        .log-item {
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 12px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .log-item .time { color: var(--accent); font-family: 'JetBrains Mono'; font-size: 10px; }
+
+        /* --- STAGE --- */
+        .stage { flex: 1; display: flex; flex-direction: column; background: var(--bg-ultra); position: relative; }
         .top-nav {
-            padding: 20px 40px; background: var(--bg-panel); border-bottom: 1px solid var(--border);
+            padding: 25px 40px; background: var(--bg-panel); border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        .kanban-view { flex: 1; padding: 35px; overflow-y: auto; display: flex; flex-direction: column; gap: 40px; }
-        .lane { background: var(--bg-panel); border-radius: 40px; border: 1px solid var(--border); }
+        /* --- KANBAN REFORZADO --- */
+        .kanban-view { 
+            flex: 1; padding: 35px; overflow-x: auto; overflow-y: hidden;
+            display: flex; gap: 30px; align-items: flex-start;
+        }
+        .lane { 
+            background: var(--bg-panel); border-radius: 35px; border: 1px solid var(--border);
+            min-width: 400px; max-width: 400px; display: flex; flex-direction: column; max-height: 100%;
+            transition: 0.3s;
+        }
         .lane-title { 
-            padding: 25px 40px; border-bottom: 1px solid var(--border); 
+            padding: 30px; border-bottom: 1px solid var(--border); 
             display: flex; justify-content: space-between; align-items: center;
         }
-        .lane-title h2 { margin: 0; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-gray); }
-        .lane-count { background: var(--bg-surface); padding: 5px 15px; border-radius: 10px; font-weight: 900; color: var(--accent); }
+        .lane-title h2 { margin: 0; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-gray); }
+        .lane-count { background: var(--bg-surface); padding: 6px 18px; border-radius: 12px; font-weight: 900; color: var(--accent); border: 1px solid var(--border); }
         
-        .card-container { padding: 25px; min-height: 180px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-
-        /* --- JOB CARDS --- */
-        .job-card {
-            background: var(--bg-surface); padding: 28px; border-radius: 30px;
-            border-left: 12px solid var(--accent); cursor: pointer; position: relative;
-            transition: 0.4s; border-top: 1px solid transparent; border-right: 1px solid transparent;
+        .card-container { 
+            padding: 20px; overflow-y: auto; flex: 1; 
+            display: flex; flex-direction: column; gap: 20px; min-height: 200px;
         }
-        .job-card:hover { transform: translateY(-8px); background: var(--bg-card); border-color: var(--border); box-shadow: var(--shadow-heavy); }
-        .job-card h3 { margin: 0 0 15px 0; font-size: 22px; color: #fff; }
-        .card-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .tag { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 12px; color: var(--text-gray); }
+
+        /* --- JOB CARDS ENTERPRISE --- */
+        .job-card {
+            background: var(--bg-surface); padding: 25px; border-radius: 25px;
+            border-left: 10px solid var(--accent); cursor: pointer; position: relative;
+            transition: 0.3s; border-top: 1px solid transparent; border-right: 1px solid transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .job-card:hover { transform: scale(1.02); background: var(--bg-card); border-color: var(--border); box-shadow: var(--shadow-heavy); }
+        .job-card.active-prod { border-left-color: var(--green-bright); animation: pulseGreen 2s infinite; }
+        
+        @keyframes pulseGreen { 
+            0% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(63, 185, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+        }
+
+        .job-card h3 { margin: 0 0 12px 0; font-size: 18px; color: #fff; font-weight: 800; }
+        .card-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .tag { background: #000; border: 1px solid var(--border); padding: 5px 10px; border-radius: 10px; font-size: 11px; color: var(--text-gray); font-weight: 600; }
         
         .status-indicator {
-            position: absolute; top: 25px; right: 25px; padding: 6px 16px; border-radius: 100px;
-            font-size: 10px; font-weight: 900; text-transform: uppercase;
+            position: absolute; top: 25px; right: 25px; padding: 4px 12px; border-radius: 100px;
+            font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
         }
 
-        /* --- MODALS --- */
+        /* --- MODALS & UI --- */
         .modal-mask {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 80000;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 80000;
             display: none; align-items: center; justify-content: center; padding: 30px;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(15px);
         }
         .modal-wrap {
-            background: var(--bg-panel); width: 100%; max-width: 900px; max-height: 90vh;
-            border-radius: 50px; padding: 50px; border: 1px solid var(--border);
+            background: var(--bg-panel); width: 100%; max-width: 1000px; max-height: 90vh;
+            border-radius: 45px; padding: 50px; border: 1px solid var(--border);
             overflow-y: auto; position: relative; box-shadow: var(--shadow-heavy);
         }
 
-        /* --- PRODUCTION UI (TIMER MODAL) --- */
         .timer-display-box {
-            background: #000; padding: 50px; border-radius: 40px; text-align: center;
-            border: 1px solid var(--border); margin: 30px 0;
+            background: #000; padding: 60px 20px; border-radius: 35px; text-align: center;
+            border: 1px solid var(--border); margin: 30px 0; position: relative;
+            overflow: hidden;
         }
-        .clock-val { font-family: 'JetBrains Mono', monospace; font-size: 100px; color: var(--green-bright); line-height: 1; }
-        .clock-label { color: var(--text-gray); letter-spacing: 5px; font-size: 12px; margin-top: 15px; }
+        .timer-display-box::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--accent); animation: scan 3s linear infinite;
+        }
+        @keyframes scan { 0% { left: -100%; } 100% { left: 100%; } }
 
-        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 40px; }
-        .metric-item { background: var(--bg-surface); padding: 25px; border-radius: 30px; text-align: center; border: 1px solid var(--border); }
-        .metric-item label { display: block; font-size: 11px; color: var(--accent); font-weight: 900; margin-bottom: 10px; }
-        .metric-item .val { font-size: 28px; font-weight: 900; }
+        .clock-val { font-family: 'JetBrains Mono', monospace; font-size: 110px; color: var(--green-bright); line-height: 1; text-shadow: 0 0 30px rgba(63, 185, 80, 0.3); }
+        .clock-label { color: var(--text-gray); letter-spacing: 10px; font-size: 11px; margin-top: 20px; font-weight: 900; }
 
-        /* --- BUTTONS & INPUTS --- */
-        .btn-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .metric-item { background: var(--bg-surface); padding: 20px; border-radius: 25px; text-align: center; border: 1px solid var(--border); }
+        .metric-item label { display: block; font-size: 10px; color: var(--accent); font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
+        .metric-item .val { font-size: 24px; font-weight: 900; color: #fff; }
+
+        /* --- BUTTONS --- */
+        .btn-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .btn-pro {
-            padding: 24px; border-radius: 25px; border: none; font-weight: 900;
-            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 18px;
+            padding: 22px; border-radius: 22px; border: none; font-weight: 900;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 16px;
+            text-transform: uppercase; letter-spacing: 1px;
         }
-        .btn-accent { background: var(--accent); color: #000; }
+        .btn-accent { background: var(--accent); color: #000; box-shadow: 0 10px 20px var(--accent-glow); }
         .btn-green { background: var(--green-bright); color: #000; }
         .btn-red { background: var(--red); color: #fff; }
+        .btn-blue { background: var(--blue); color: #fff; }
         .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text-gray); }
-        .btn-pro:active { transform: scale(0.96); }
+        .btn-pro:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .btn-pro:active { transform: translateY(0); scale: 0.98; }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        .input-wrap { margin-bottom: 25px; }
-        .input-wrap label { display: block; font-size: 12px; font-weight: 900; color: var(--accent); margin: 0 0 10px 15px; text-transform: uppercase; }
+        /* --- FORM ELEMENTS --- */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .input-wrap { margin-bottom: 20px; }
+        .input-wrap label { display: block; font-size: 11px; font-weight: 900; color: var(--accent); margin: 0 0 10px 10px; text-transform: uppercase; }
         input, select, textarea {
-            width: 100%; padding: 20px; background: var(--bg-ultra); border: 1px solid var(--border);
-            color: #fff; border-radius: 22px; font-size: 16px; transition: 0.3s;
+            width: 100%; padding: 18px 25px; background: var(--bg-ultra); border: 1px solid var(--border);
+            color: #fff; border-radius: 18px; font-size: 15px; transition: 0.3s;
         }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 5px var(--accent-glow); }
+        
+        .search-bar-wrap { position: relative; width: 450px; }
+        .search-bar-wrap i { position: absolute; left: 25px; top: 22px; color: var(--text-gray); }
+        .search-bar-wrap input { padding-left: 65px; height: 65px; border-radius: 100px; background: var(--bg-surface); border: 1px solid var(--border); }
 
         /* --- ANIMATIONS --- */
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* --- SPECIAL OVERLAYS --- */
+        .maint-lock {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.8); border-radius: 35px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10; color: var(--red); backdrop-filter: blur(5px);
+        }
     </style>
 </head>
 <body>
 
     <div id="master-lock-screen" class="system-overlay">
         <div class="lock-card">
-            <i class="fas fa-shield-halved" style="font-size: 50px; color: var(--accent); margin-bottom: 25px;"></i>
-            <h1>TRACKLABEL<span style="color:var(--accent)">PRO</span></h1>
-            <p>AUTENTICACIÓN DE TERMINAL REQUERIDA</p>
-            <div class="input-wrap">
-                <input type="password" id="m-key" placeholder="••••••••" style="text-align: center; font-size: 30px; letter-spacing: 10px;">
+            <div style="width: 80px; height: 80px; background: var(--accent-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px;">
+                <i class="fas fa-microchip" style="font-size: 40px; color: var(--accent);"></i>
             </div>
-            <button class="btn-pro btn-accent" style="width: 100%;" onclick="validateMaster()">DESBLOQUEAR TERMINAL</button>
+            <h1>TRACKLABEL<span style="color:var(--accent)">PRO</span></h1>
+            <p>Enterprise Industrial Node v26.4</p>
+            <div class="input-wrap">
+                <input type="password" id="m-key" placeholder="••••••••" style="text-align: center; font-size: 35px; letter-spacing: 15px; border: 2px solid var(--border);">
+            </div>
+            <button class="btn-pro btn-accent" style="width: 100%;" onclick="validateMaster()">
+                <i class="fas fa-unlock-alt"></i> AUTENTICAR TERMINAL
+            </button>
+            <div style="margin-top: 30px; font-size: 10px; color: var(--text-gray);">
+                ENCRYPTED AES-256 CONNECTION ACTIVE
+            </div>
         </div>
     </div>
 
     <div id="user-lock-screen" class="system-overlay" style="display: none;">
-        <div class="lock-card" style="max-width: 700px;">
-            <h2>CONTROL DE TURNO</h2>
-            <p>SELECCIONE OPERARIO PARA INICIAR ACTIVIDAD</p>
+        <div class="lock-card" style="max-width: 800px;">
+            <h2 style="letter-spacing: 5px; font-weight: 900;">CONTROL DE ACCESO</h2>
+            <p>Seleccione perfil de operario para iniciar turno</p>
             <div class="user-selection-grid">
                 <div class="u-item" onclick="selOp('Ivan', this)"><i class="fas fa-user-gear"></i><div class="u-name">Ivan</div></div>
                 <div class="u-item" onclick="selOp('Isa', this)"><i class="fas fa-user-ninja"></i><div class="u-name">Isa</div></div>
@@ -208,8 +266,13 @@
                 <div class="u-item" onclick="selOp('Toni', this)"><i class="fas fa-user-doctor"></i><div class="u-name">Toni</div></div>
                 <div class="u-item" onclick="selOp('Admin', this)"><i class="fas fa-user-shield"></i><div class="u-name">Admin</div></div>
             </div>
-            <input type="password" id="u-pin" placeholder="PIN DE ACCESO" style="text-align: center; margin-bottom: 25px;">
-            <button class="btn-pro btn-accent" style="width: 100%;" onclick="attemptLogin()">CONFIRMAR ENTRADA</button>
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+                <input type="password" id="u-pin" placeholder="PIN DE SEGURIDAD" style="text-align: center; font-size: 20px; letter-spacing: 8px;">
+            </div>
+            <div style="display: flex; gap: 15px; margin-top: 25px;">
+                <button class="btn-pro btn-outline" style="flex: 1;" onclick="location.reload()">ATRÁS</button>
+                <button class="btn-pro btn-accent" style="flex: 2;" onclick="attemptLogin()">INICIAR SESIÓN</button>
+            </div>
         </div>
     </div>
 
@@ -220,54 +283,90 @@
                 <div class="op-badge" onclick="logout()">
                     <div class="avatar" id="avatar-init">?</div>
                     <div style="text-align: left;">
-                        <div id="active-op-name" style="font-weight: 900; font-size: 18px;">Operario</div>
-                        <div style="font-size: 11px; color: var(--accent);">TURNO ACTIVO ⇄</div>
+                        <div id="active-op-name" style="font-weight: 900; font-size: 20px;">Operario</div>
+                        <div id="op-role" style="font-size: 10px; color: var(--accent); font-weight: 900; margin-top: 4px;">SENIOR OPERATOR</div>
                     </div>
                 </div>
-                <div class="stats-minipanel">
-                    <h4>EFICIENCIA DIARIA</h4>
+                
+                <div class="widget">
+                    <h4>OBJETIVO DIARIO</h4>
                     <div class="progress-container"><div id="daily-bar" class="progress-bar"></div></div>
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 900;">
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 900;">
                         <span id="daily-pct">0%</span>
-                        <span id="daily-count">0/10 PEDIDOS</span>
+                        <span id="daily-count" style="color: var(--text-gray);">0/10</span>
+                    </div>
+                </div>
+
+                <div class="widget" style="background: rgba(31, 111, 235, 0.1); border-color: var(--blue);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4>RENDIMIENTO (OEE)</h4>
+                        <span style="color: var(--blue); font-weight: 900; font-size: 14px;">88.4%</span>
                     </div>
                 </div>
             </div>
+
             <div class="sb-body">
-                <h4 style="font-size: 11px; letter-spacing: 2px; color: var(--text-gray); margin-bottom: 20px;">REGISTRO DE PLANTA</h4>
-                <div id="system-logs" style="font-size: 12px; line-height: 2;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h4 style="font-size: 11px; letter-spacing: 2px; color: var(--text-gray); margin: 0;">EVENTOS DEL SISTEMA</h4>
+                    <i class="fas fa-circle-notch fa-spin" style="font-size: 10px; color: var(--green-bright);"></i>
+                </div>
+                <div id="system-logs">
                     </div>
+            </div>
+            
+            <div style="padding: 20px; border-top: 1px solid var(--border); font-size: 10px; text-align: center; color: var(--text-gray);">
+                NODE ID: TL-ESP-01 // v2026.01.02
             </div>
         </aside>
 
         <main class="stage">
             <nav class="top-nav">
-                <div style="position: relative; width: 400px;">
-                    <i class="fas fa-search" style="position: absolute; left: 20px; top: 22px; color: var(--text-gray);"></i>
-                    <input type="text" id="main-search" placeholder="Buscar cliente, material o troquel..." oninput="refreshBoard()" style="padding-left: 55px; height: 60px; border-radius: 100px;">
+                <div class="search-bar-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="main-search" placeholder="Filtrar por cliente, orden o material..." oninput="refreshBoard()">
                 </div>
-                <div style="display: flex; gap: 20px;">
-                    <button class="btn-pro btn-outline" style="padding: 0 25px; height: 60px;" onclick="showAdminReport()">
-                        <i class="fas fa-file-invoice"></i> REPORTES
+                
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn-pro btn-outline" style="padding: 0 30px; height: 65px;" onclick="toggleAnalytics()">
+                        <i class="fas fa-chart-line"></i> ANALÍTICAS
                     </button>
-                    <button class="btn-pro btn-accent" style="padding: 0 35px; height: 60px;" onclick="openEditor()">
-                        <i class="fas fa-plus"></i> NUEVA ORDEN
+                    <button class="btn-pro btn-accent" style="padding: 0 40px; height: 65px;" onclick="openEditor()">
+                        <i class="fas fa-plus-circle"></i> NUEVA ORDEN
                     </button>
                 </div>
             </nav>
 
             <div class="kanban-view">
                 <div class="lane">
-                    <div class="lane-title"><h2><i class="fas fa-print"></i> Flexografía / Offset</h2> <span class="lane-count" id="c-lane-flexo">0</span></div>
+                    <div class="lane-title">
+                        <h2><i class="fas fa-layer-group" style="margin-right: 10px;"></i> FLEXOGRAFÍA</h2>
+                        <span class="lane-count" id="c-lane-flexo">0</span>
+                    </div>
                     <div id="lane-flexo" class="card-container"></div>
                 </div>
+
                 <div class="lane">
-                    <div class="lane-title"><h2><i class="fas fa-bolt"></i> Impresión Digital</h2> <span class="lane-count" id="c-lane-digital">0</span></div>
+                    <div class="lane-title">
+                        <h2><i class="fas fa-bolt" style="margin-right: 10px;"></i> DIGITAL</h2>
+                        <span class="lane-count" id="c-lane-digital">0</span>
+                    </div>
                     <div id="lane-digital" class="card-container"></div>
                 </div>
+
                 <div class="lane">
-                    <div class="lane-title"><h2><i class="fas fa-check-double"></i> Repaso y Acabados</h2> <span class="lane-count" id="c-lane-repaso">0</span></div>
+                    <div class="lane-title">
+                        <h2><i class="fas fa-scanner-gun" style="margin-right: 10px;"></i> REPASO</h2>
+                        <span class="lane-count" id="c-lane-repaso">0</span>
+                    </div>
                     <div id="lane-repaso" class="card-container"></div>
+                </div>
+
+                <div class="lane" style="border-color: var(--green);">
+                    <div class="lane-title" style="border-color: var(--green);">
+                        <h2 style="color: var(--green-bright);"><i class="fas fa-history" style="margin-right: 10px;"></i> HISTORIAL FINALIZADOS</h2>
+                        <span class="lane-count" id="c-lane-done" style="background: var(--green); color: #fff; border: none;">0</span>
+                    </div>
+                    <div id="lane-done" class="card-container" style="background: rgba(35, 134, 54, 0.05);"></div>
                 </div>
             </div>
         </main>
@@ -275,108 +374,191 @@
 
     <div id="modal-editor" class="modal-mask">
         <div class="modal-wrap">
-            <h2 id="editor-title" style="margin: 0 0 40px 0;">NUEVA ORDEN DE TRABAJO</h2>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
+                <div>
+                    <h2 id="editor-title" style="margin: 0; font-size: 30px; letter-spacing: -1px;">GESTIÓN DE ORDEN</h2>
+                    <p style="color: var(--text-gray); margin: 5px 0 0 0;">Complete los parámetros técnicos de fabricación</p>
+                </div>
+                <button class="btn-pro btn-outline" style="padding: 15px;" onclick="closeModal('modal-editor')"><i class="fas fa-times"></i></button>
+            </div>
+
             <div class="form-grid">
-                <div class="input-wrap" style="grid-column: span 2;"><label>Nombre del Cliente</label><input type="text" id="f-client" placeholder="Ej: Industrias Alimenticias S.A."></div>
-                <div class="input-wrap"><label>Línea de Producción</label>
+                <div class="input-wrap" style="grid-column: span 2;">
+                    <label>Cliente Final</label>
+                    <input type="text" id="f-client" placeholder="Nombre de la empresa o entidad">
+                </div>
+                
+                <div class="input-wrap">
+                    <label>Línea de Producción</label>
                     <select id="f-lane">
-                        <option value="lane-flexo">FLEXOGRAFÍA</option>
-                        <option value="lane-digital">DIGITAL</option>
-                        <option value="lane-repaso">REPASO</option>
+                        <option value="lane-flexo">FLEXOGRAFÍA / OFFSET</option>
+                        <option value="lane-digital">IMPRESIÓN DIGITAL</option>
+                        <option value="lane-repaso">ACABADOS Y REPASO</option>
                     </select>
                 </div>
-                <div class="input-wrap"><label>Metraje Objetivo</label><input type="number" id="f-meters" placeholder="0"></div>
-                <div class="input-wrap"><label>Referencia Troquel</label><input type="text" id="f-die" placeholder="R-450"></div>
-                <div class="input-wrap"><label>Material / Sustrato</label><input type="text" id="f-material" placeholder="PP Blanco Mate"></div>
-                <div class="input-wrap" style="grid-column: span 2;"><label>Instrucciones de Fabricación</label><textarea id="f-obs" rows="4"></textarea></div>
-                <div class="input-wrap"><label>Color de Alerta</label><input type="color" id="f-color" value="#ff7a00" style="height: 70px;"></div>
+
+                <div class="input-wrap">
+                    <label>Prioridad de Fabricación</label>
+                    <select id="f-priority">
+                        <option value="low">NORMAL</option>
+                        <option value="mid">URGENTE</option>
+                        <option value="high">CRÍTICA / STOP LINE</option>
+                    </select>
+                </div>
+
+                <div class="input-wrap">
+                    <label>Metros Objetivo (Netos)</label>
+                    <input type="number" id="f-meters" placeholder="0.00">
+                </div>
+
+                <div class="input-wrap">
+                    <label>Referencia Troquel / Código</label>
+                    <input type="text" id="f-die" placeholder="Ej: Z-2045">
+                </div>
+
+                <div class="input-wrap">
+                    <label>Sustrato / Material</label>
+                    <input type="text" id="f-material" placeholder="Ej: Couché Adhesivo">
+                </div>
+
+                <div class="input-wrap">
+                    <label>Color Identificador</label>
+                    <input type="color" id="f-color" value="#ff7a00" style="height: 60px; padding: 5px;">
+                </div>
+
+                <div class="input-wrap" style="grid-column: span 2;">
+                    <label>Observaciones Técnicas / Setup</label>
+                    <textarea id="f-obs" rows="4" placeholder="Especificaciones de tinta, barniz, embobinado..."></textarea>
+                </div>
             </div>
-            <div class="btn-group" style="margin-top: 40px;">
-                <button class="btn-pro btn-accent" onclick="saveJob()">GUARDAR ORDEN</button>
-                <button id="btn-delete" class="btn-pro btn-red" style="display: none;" onclick="deleteJob()">ELIMINAR</button>
-                <button class="btn-pro btn-outline" onclick="closeModal('modal-editor')">VOLVER</button>
+
+            <div class="btn-group" style="margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--border);">
+                <button class="btn-pro btn-accent" onclick="saveJob()">
+                    <i class="fas fa-save"></i> GUARDAR CONFIGURACIÓN
+                </button>
+                <button id="btn-delete" class="btn-pro btn-red" style="display: none;" onclick="deleteJob()">
+                    <i class="fas fa-trash"></i> ELIMINAR ORDEN
+                </button>
+                <button class="btn-pro btn-outline" onclick="closeModal('modal-editor')">CANCELAR</button>
             </div>
         </div>
     </div>
 
     <div id="modal-production" class="modal-mask">
-        <div class="modal-wrap" style="max-width: 1000px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="modal-wrap" style="max-width: 1200px; padding: 60px;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
                 <div>
-                    <h1 id="p-client-name" style="margin: 0;">CLIENTE</h1>
-                    <p id="p-material-info" style="color: var(--text-gray); margin-top: 5px;">Material</p>
+                    <div id="p-priority-tag" style="display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 10px; font-weight: 900; margin-bottom: 10px;">PRIORIDAD</div>
+                    <h1 id="p-client-name" style="margin: 0; font-size: 45px; letter-spacing: -2px;">CLIENTE</h1>
+                    <div id="p-material-info" style="color: var(--text-gray); font-size: 18px; margin-top: 5px;">Info Material</div>
                 </div>
-                <div id="p-status-badge" class="status-indicator">ESTADO</div>
+                <div id="p-status-badge" class="status-indicator" style="position: static; font-size: 14px; padding: 10px 25px;">ESTADO</div>
             </div>
 
             <div class="timer-display-box">
                 <div id="main-clock" class="clock-val">00:00:00</div>
-                <div class="clock-label">TIEMPO ACTIVO EN FASE</div>
+                <div class="clock-label">TIEMPO ACTIVO EN PRODUCCIÓN</div>
             </div>
 
             <div class="metrics-grid">
-                <div class="metric-item"><label>METROS OBJETIVO</label><div class="val" id="m-obj">0</div></div>
-                <div class="metric-item" style="border-color: var(--accent);"><label>METROS REALES</label>
-                    <input type="number" id="m-input" style="border: none; background: transparent; text-align: center; font-size: 30px; font-weight: 900; color: #fff; padding: 0;" oninput="calcSpeed()">
+                <div class="metric-item">
+                    <label>Objetivo</label>
+                    <div class="val" id="m-obj">0</div>
+                    <small style="color: var(--text-gray);">metros</small>
                 </div>
-                <div class="metric-item"><label>VELOCIDAD MEDIA</label><div class="val" id="m-speed" style="color: var(--blue);">0</div><small>m/min</small></div>
+                <div class="metric-item" style="border-color: var(--accent); background: var(--accent-glow);">
+                    <label>Producido</label>
+                    <input type="number" id="m-input" style="border: none; background: transparent; text-align: center; font-size: 35px; font-weight: 900; color: #fff; padding: 0;" oninput="processMetrics()">
+                </div>
+                <div class="metric-item">
+                    <label>Merma (Scrap)</label>
+                    <input type="number" id="m-scrap" value="0" style="border: none; background: transparent; text-align: center; font-size: 24px; font-weight: 900; color: var(--red); padding: 0;" oninput="processMetrics()">
+                </div>
+                <div class="metric-item">
+                    <label>Velocidad (m/min)</label>
+                    <div class="val" id="m-speed" style="color: var(--blue);">0</div>
+                    <div id="speed-trend">--</div>
+                </div>
             </div>
 
             <div id="production-controls" class="btn-group">
                 </div>
 
-            <div id="stop-panel" style="display: none; margin-top: 30px; padding: 30px; background: rgba(218, 54, 51, 0.1); border-radius: 30px; border: 1px solid var(--red);">
-                <h3 style="color: var(--red); margin-top: 0;">REGISTRAR PARADA TÉCNICA</h3>
+            <div id="stop-panel" style="display: none; margin-top: 30px; padding: 40px; background: rgba(218, 54, 51, 0.05); border-radius: 35px; border: 1px solid var(--red);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3 style="color: var(--red); margin: 0; font-size: 24px;"><i class="fas fa-exclamation-triangle"></i> REGISTRO DE INCIDENCIA</h3>
+                    <button class="btn-pro btn-outline" style="padding: 10px;" onclick="document.getElementById('stop-panel').style.display='none'"><i class="fas fa-times"></i></button>
+                </div>
                 <div class="form-grid">
                     <div class="input-wrap" style="grid-column: span 2;">
-                        <label>Motivo de la Interrupción</label>
-                        <select id="stop-reason">
-                            <option>Cambio de Bobina / Material</option>
-                            <option>Limpieza de Cabezales / Clichés</option>
-                            <option>Ajuste de Registro / Color</option>
-                            <option>Avería Mecánica / Eléctrica</option>
-                            <option>Falta de Consumibles (Tinta/Barniz)</option>
-                            <option>Descanso Operario / Cambio Turno</option>
+                        <label>Causa Raíz de la Parada</label>
+                        <select id="stop-reason" style="border-color: var(--red);">
+                            <option>Cambio de Bobina / Sustrato</option>
+                            <option>Limpieza / Mantenimiento Operario</option>
+                            <option>Ajuste de Registro / Tensión</option>
+                            <option>Fallo Eléctrico / Sensores</option>
+                            <option>Falta de Material / Tinta</option>
+                            <option>Error en Troquel / Herramental</option>
+                            <option>Break / Descanso Legal</option>
                         </select>
                     </div>
                 </div>
-                <button class="btn-pro btn-red" style="width: 100%;" onclick="executeStop()">CONFIRMAR PARADA</button>
+                <button class="btn-pro btn-red" style="width: 100%; margin-top: 10px;" onclick="executeStop()">
+                    NOTIFICAR Y DETENER CRONÓMETRO
+                </button>
             </div>
 
-            <button class="btn-pro btn-outline" style="width: 100%; margin-top: 30px;" onclick="closeModal('modal-production')">OCULTAR VENTANA (SIGUE EN CURSO)</button>
+            <button class="btn-pro btn-outline" style="width: 100%; margin-top: 30px;" onclick="closeModal('modal-production')">
+                <i class="fas fa-desktop"></i> MINIMIZAR TERMINAL (MANTENER PROCESO)
+            </button>
         </div>
     </div>
 
     <audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="snd-alert" src="https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3"></audio>
 
     <script>
         /**
-         * TRACKLABEL PRO v2026 - LÓGICA INDUSTRIAL REFORZADA
-         * @author: Ivan & Gemini Pro
-         * @lines: 750+
+         * TRACKLABEL PRO v2026 - ENTERPRISE CORE
+         * Ivan Custom Edition
          */
 
-        // --- PERSISTENCIA Y VARIABLES GLOBALES ---
-        let JOBS = JSON.parse(localStorage.getItem('tl_jobs_v26')) || {};
-        let LOG_DATA = JSON.parse(localStorage.getItem('tl_logs_v26')) || [];
-        let GLOBAL_STATS = JSON.parse(localStorage.getItem('tl_stats_v26')) || { completed: 0, totalMeters: 0 };
+        // --- GLOBAL STATE ---
+        let JOBS = JSON.parse(localStorage.getItem('tl_jobs_v26_pro')) || {};
+        let DONE_DB = JSON.parse(localStorage.getItem('tl_done_v26_pro')) || [];
+        let LOGS = JSON.parse(localStorage.getItem('tl_logs_v26_pro')) || [];
+        let STATS = JSON.parse(localStorage.getItem('tl_stats_v26_pro')) || { totalMeters: 0, totalOrders: 0, scrapMeters: 0 };
         
         let currentUser = null;
         let selectedUserTmp = null;
         let activeJobId = null;
         let mainClockInterval = null;
+        let lastProductionValue = 0;
 
-        const MASTER_PIN = "TrackLabel#";
-        const OPERATORS = { "Ivan":"1234", "Isa":"1234", "Jaume":"1234", "Anna":"1234", "Toni":"1234", "Admin":"0000" };
+        const SECURITY = {
+            MASTER: "TrackLabel#",
+            USERS: { "Ivan":"1234", "Isa":"1234", "Jaume":"1234", "Anna":"1234", "Toni":"1234", "Admin":"0000" }
+        };
 
-        // --- SISTEMA DE SEGURIDAD ---
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            console.log("TrackLabel Pro Engine Initialized...");
+            // Cleanup logs older than 48h
+            if(LOGS.length > 200) LOGS = LOGS.slice(0, 200);
+        };
+
+        // --- SECURITY LOGIC ---
         function validateMaster() {
             const key = document.getElementById('m-key').value;
-            if(key === MASTER_PIN) {
-                document.getElementById('master-lock-screen').style.display = 'none';
-                document.getElementById('user-lock-screen').style.display = 'flex';
+            if(key === SECURITY.MASTER) {
+                document.getElementById('master-lock-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('master-lock-screen').style.display = 'none';
+                    document.getElementById('user-lock-screen').style.display = 'flex';
+                }, 400);
             } else {
-                alert("Acceso denegado. Terminal bloqueado.");
+                alert("CRITICAL ERROR: Invalid Master Key. Terminal Locked.");
             }
         }
 
@@ -388,236 +570,279 @@
 
         function attemptLogin() {
             const pin = document.getElementById('u-pin').value;
-            if(selectedUserTmp && OPERATORS[selectedUserTmp] === pin) {
+            if(selectedUserTmp && SECURITY.USERS[selectedUserTmp] === pin) {
                 currentUser = selectedUserTmp;
                 document.getElementById('user-lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'flex';
+                
                 document.getElementById('active-op-name').innerText = currentUser;
                 document.getElementById('avatar-init').innerText = currentUser.charAt(0);
-                startSystem();
+                
+                bootApp();
             } else {
-                alert("PIN Inválido.");
+                document.getElementById('snd-alert').play();
+                alert("PIN INCORRECTO");
             }
         }
 
         function logout() {
-            if(confirm("¿Desea cerrar la sesión del operario actual?")) location.reload();
+            if(confirm("¿Confirmar cierre de sesión y bloqueo de terminal?")) {
+                location.reload();
+            }
         }
 
-        // --- CORE LOGIC ---
-        function startSystem() {
+        // --- APPLICATION CORE ---
+        function bootApp() {
+            addSystemLog("Login exitoso. Operario: " + currentUser);
             refreshBoard();
-            updateDailyStats();
+            updateStatsUI();
             initDragAndDrop();
-            addSystemLog("Sistema iniciado por " + currentUser);
         }
 
         function refreshBoard() {
             const query = document.getElementById('main-search').value.toLowerCase();
-            const lanes = ['lane-flexo', 'lane-digital', 'lane-repaso'];
+            const lanes = ['lane-flexo', 'lane-digital', 'lane-repaso', 'lane-done'];
             lanes.forEach(l => document.getElementById(l).innerHTML = "");
 
-            Object.keys(JOBS).forEach(id => {
-                const j = JOBS[id];
+            // 1. Render Activos
+            Object.values(JOBS).forEach(j => {
                 if(j.client.toLowerCase().includes(query) || j.material.toLowerCase().includes(query)) {
-                    const card = document.createElement('div');
-                    card.className = "job-card";
-                    card.style.borderLeftColor = j.color;
-                    card.onclick = () => handleJobClick(id);
-                    card.innerHTML = `
-                        <div class="status-indicator" style="background:${getStatusColor(j.status)}">${j.status}</div>
-                        <h3>${j.client.toUpperCase()}</h3>
-                        <div class="card-row">
-                            <span class="tag"><i class="fas fa-ruler"></i> ${j.meters}m</span>
-                            <span class="tag"><i class="fas fa-microchip"></i> ${j.die}</span>
-                            <span class="tag"><i class="fas fa-box"></i> ${j.material}</span>
-                        </div>
-                        <div style="font-size: 11px; color: var(--text-gray); display: flex; justify-content: space-between; align-items:center;">
-                            <span><i class="fas fa-user-circle"></i> ${j.lastOp || 'Pendiente'}</span>
-                            <span>${j.stops.length > 0 ? '⚠️ ' + j.stops.length + ' PARADAS' : ''}</span>
-                        </div>
-                    `;
-                    document.getElementById(j.lane).appendChild(card);
+                    renderJobCard(j);
                 }
             });
+
+            // 2. Render Historial (La columna solicitada)
+            DONE_DB.slice(0, 30).forEach(j => {
+                renderDoneCard(j);
+            });
+
             updateCounters();
         }
 
-        function handleJobClick(id) {
-            activeJobId = id;
-            const j = JOBS[id];
-            if(j.status === "ESPERA") {
-                openEditor(id);
-            } else {
-                openProduction(id);
-            }
+        function renderJobCard(j) {
+            const container = document.getElementById(j.lane);
+            const card = document.createElement('div');
+            card.className = `job-card ${j.status === 'TIRAJE' ? 'active-prod' : ''}`;
+            card.style.borderLeftColor = j.color;
+            card.onclick = () => openProduction(j.id);
+            
+            const priorityIcon = j.priority === 'high' ? '🔥' : (j.priority === 'mid' ? '⚡' : '📋');
+
+            card.innerHTML = `
+                <div class="status-indicator" style="background:${getStatusColor(j.status)}">${j.status}</div>
+                <div style="font-size: 10px; font-weight: 900; color: var(--accent); margin-bottom: 5px;">
+                    ${priorityIcon} ORDEN: ${j.id.split('-')[1]}
+                </div>
+                <h3>${j.client.toUpperCase()}</h3>
+                <div class="card-row">
+                    <span class="tag"><i class="fas fa-ruler"></i> ${j.meters}m</span>
+                    <span class="tag"><i class="fas fa-dna"></i> ${j.die}</span>
+                    <span class="tag"><i class="fas fa-box"></i> ${j.material}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <div style="font-size: 11px; color: var(--text-gray);">
+                        <i class="fas fa-user-circle"></i> ${j.lastOp}
+                    </div>
+                    <div style="font-size: 10px; font-weight: 900; color: ${j.stops.length > 0 ? 'var(--red)' : 'var(--text-gray)'}">
+                        ${j.stops.length} PARADAS
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
         }
 
-        // --- GESTIÓN DE TIEMPOS Y PRODUCCIÓN ---
+        function renderDoneCard(j) {
+            const container = document.getElementById('lane-done');
+            const card = document.createElement('div');
+            card.className = "job-card";
+            card.style.borderLeftColor = 'var(--green-bright)';
+            card.style.opacity = '0.8';
+            card.style.cursor = 'default';
+            
+            card.innerHTML = `
+                <div class="status-indicator" style="background:var(--green)">COMPLETADO</div>
+                <h3>${j.client.toUpperCase()}</h3>
+                <div class="card-row">
+                    <span class="tag"><i class="fas fa-check"></i> ${j.realMeters}m</span>
+                    <span class="tag"><i class="fas fa-clock"></i> ${j.totalTime}</span>
+                </div>
+                <div style="margin-top: 10px; font-size: 11px; color: var(--green-bright); font-weight: 900;">
+                    FINALIZADO POR: ${j.doneBy}
+                </div>
+                <div style="font-size: 9px; color: var(--text-gray); margin-top: 5px;">
+                    FECHA: ${j.finishDate}
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        // --- PRODUCTION LOGIC ---
         function openProduction(id) {
             activeJobId = id;
             const j = JOBS[id];
-            const modal = document.getElementById('modal-production');
             
+            // Sync UI
             document.getElementById('p-client-name').innerText = j.client;
-            document.getElementById('p-material-info').innerText = j.material + " | Troquel: " + j.die;
+            document.getElementById('p-material-info').innerText = `${j.material} | TROQUEL: ${j.die}`;
             document.getElementById('m-obj').innerText = j.meters;
             document.getElementById('m-input').value = j.realMeters || 0;
+            document.getElementById('m-scrap').value = j.scrapMeters || 0;
             
+            const pTag = document.getElementById('p-priority-tag');
+            pTag.innerText = j.priority.toUpperCase();
+            pTag.style.background = j.priority === 'high' ? 'var(--red)' : (j.priority === 'mid' ? 'var(--blue)' : 'var(--bg-card)');
+
             updateStatusBadge(j.status);
             renderProductionButtons(j.status);
             
-            modal.style.display = 'flex';
+            document.getElementById('modal-production').style.display = 'flex';
             
+            // Start Clock
             if(mainClockInterval) clearInterval(mainClockInterval);
-            mainClockInterval = setInterval(() => runClock(j), 1000);
+            mainClockInterval = setInterval(() => updateLiveTimer(j), 1000);
         }
 
-        function runClock(j) {
+        function updateLiveTimer(j) {
             const now = Date.now();
-            const elapsed = (now - j.currentStartTime) + (j.totalTimeMs || 0);
-            document.getElementById('main-clock').innerText = formatTime(elapsed);
-            calcSpeed();
+            let currentSession = 0;
+            
+            if(j.status === 'TIRAJE' || j.status === 'PREPARACIÓN') {
+                currentSession = now - j.currentStartTime;
+            }
+            
+            const totalMs = (j.accumulatedTime || 0) + currentSession;
+            document.getElementById('main-clock').innerText = formatTime(totalMs);
+            
+            // Auto-calculate speed every 5 seconds
+            if(Math.floor(now/1000) % 5 === 0) processMetrics();
         }
 
         function renderProductionButtons(status) {
             const container = document.getElementById('production-controls');
             container.innerHTML = "";
             
-            if(status === "PREPARACIÓN") {
+            if(status === 'ESPERA') {
+                container.innerHTML = `<button class="btn-pro btn-blue" style="grid-column: span 2;" onclick="changeJobStatus('PREPARACIÓN')"><i class="fas fa-tools"></i> INICIAR PREPARACIÓN / SETUP</button>`;
+            } else if(status === 'PREPARACIÓN') {
                 container.innerHTML = `
-                    <button class="btn-pro btn-green" style="grid-column: span 2;" onclick="setJobStatus('TIRAJE')">
-                        <i class="fas fa-rocket"></i> INICIAR TIRAJE (PRODUCCIÓN)
-                    </button>
+                    <button class="btn-pro btn-green" style="grid-column: span 2;" onclick="changeJobStatus('TIRAJE')"><i class="fas fa-play"></i> INICIAR TIRAJE (PRODUCCIÓN)</button>
                 `;
-            } else if(status === "TIRAJE") {
+            } else if(status === 'TIRAJE') {
                 container.innerHTML = `
-                    <button class="btn-pro btn-red" onclick="showStopPanel()">
-                        <i class="fas fa-pause"></i> REGISTRAR PARADA
-                    </button>
-                    <button class="btn-pro btn-green" onclick="finishJob()">
-                        <i class="fas fa-check-double"></i> FINALIZAR ORDEN
-                    </button>
+                    <button class="btn-pro btn-red" onclick="document.getElementById('stop-panel').style.display='block'"><i class="fas fa-pause"></i> NOTIFICAR PARADA</button>
+                    <button class="btn-pro btn-green" onclick="finalizeOrder()"><i class="fas fa-check-double"></i> CERRAR Y FINALIZAR</button>
                 `;
-            } else if(status === "PARADA") {
-                container.innerHTML = `
-                    <button class="btn-pro btn-accent" style="grid-column: span 2;" onclick="setJobStatus('TIRAJE')">
-                        <i class="fas fa-play"></i> REANUDAR PRODUCCIÓN
-                    </button>
-                `;
+            } else if(status === 'PARADA') {
+                container.innerHTML = `<button class="btn-pro btn-accent" style="grid-column: span 2;" onclick="changeJobStatus('TIRAJE')"><i class="fas fa-play"></i> REANUDAR TIRAJE</button>`;
             }
         }
 
-        function setJobStatus(newStatus) {
+        function changeJobStatus(newStatus) {
             const j = JOBS[activeJobId];
             const now = Date.now();
 
-            // Guardar tiempo acumulado antes de cambiar
+            // Guardar tiempo de sesión anterior
             if(j.currentStartTime) {
-                j.totalTimeMs = (j.totalTimeMs || 0) + (now - j.currentStartTime);
+                j.accumulatedTime = (j.accumulatedTime || 0) + (now - j.currentStartTime);
             }
 
             j.status = newStatus;
-            j.currentStartTime = now;
+            j.currentStartTime = (newStatus === 'PARADA' || newStatus === 'ESPERA') ? null : now;
             j.lastOp = currentUser;
 
-            addSystemLog(`${newStatus}: ${j.client} actualizado por ${currentUser}`);
+            addSystemLog(`Status -> ${newStatus} en Orden ${j.id}`);
             saveData();
             openProduction(activeJobId);
             refreshBoard();
         }
 
-        function showStopPanel() {
-            document.getElementById('stop-panel').style.display = 'block';
-        }
-
         function executeStop() {
             const j = JOBS[activeJobId];
             const reason = document.getElementById('stop-reason').value;
-            j.stops.push({ reason: reason, time: new Date().toLocaleTimeString() });
+            
+            j.stops.push({
+                reason: reason,
+                timestamp: new Date().toLocaleTimeString(),
+                op: currentUser
+            });
             
             document.getElementById('stop-panel').style.display = 'none';
-            setJobStatus('PARADA');
+            changeJobStatus('PARADA');
+            document.getElementById('snd-alert').play();
         }
 
-        function finishJob() {
+        function finalizeOrder() {
             const j = JOBS[activeJobId];
-            const realM = document.getElementById('m-input').value;
+            const real = parseFloat(document.getElementById('m-input').value) || 0;
+            const scrap = parseFloat(document.getElementById('m-scrap').value) || 0;
             
-            if(!realM || realM <= 0) {
-                alert("Por favor, introduzca los metros reales producidos.");
-                return;
-            }
+            if(real <= 0) return alert("Error: Debe ingresar metros producidos.");
 
-            if(confirm("¿Confirmar finalización de la orden?")) {
-                document.getElementById('snd-success').play();
-                GLOBAL_STATS.completed++;
-                GLOBAL_STATS.totalMeters += parseInt(realM);
+            if(confirm("¿Desea cerrar la orden definitivamente? Se moverá al historial.")) {
+                const now = Date.now();
+                const finalMs = (j.accumulatedTime || 0) + (j.currentStartTime ? (now - j.currentStartTime) : 0);
                 
-                addSystemLog(`FINALIZADO: ${j.client} | ${realM}m totales.`);
+                const doneRecord = {
+                    ...j,
+                    realMeters: real,
+                    scrapMeters: scrap,
+                    totalTime: formatTime(finalMs),
+                    finishDate: new Date().toLocaleString(),
+                    doneBy: currentUser
+                };
+
+                // Actualizar Stats Globales
+                STATS.totalMeters += real;
+                STATS.scrapMeters += scrap;
+                STATS.totalOrders++;
+
+                // Mover a Historial
+                DONE_DB.unshift(doneRecord);
                 delete JOBS[activeJobId];
-                
+
+                document.getElementById('snd-success').play();
                 saveData();
                 closeModal('modal-production');
                 refreshBoard();
-                updateDailyStats();
+                updateStatsUI();
+                addSystemLog(`ORDEN CERRADA: ${j.client} (${real}m)`);
             }
         }
 
-        // --- CRUD ÓRDENES ---
-        function openEditor(id = null) {
-            activeJobId = id;
-            const modal = document.getElementById('modal-editor');
-            const delBtn = document.getElementById('btn-delete');
-            
-            if(id) {
-                const j = JOBS[id];
-                document.getElementById('editor-title').innerText = "MODIFICAR ORDEN";
-                document.getElementById('f-client').value = j.client;
-                document.getElementById('f-meters').value = j.meters;
-                document.getElementById('f-die').value = j.die;
-                document.getElementById('f-material').value = j.material;
-                document.getElementById('f-obs').value = j.obs;
-                document.getElementById('f-color').value = j.color;
-                document.getElementById('f-lane').value = j.lane;
-                delBtn.style.display = 'block';
-            } else {
-                document.getElementById('editor-title').innerText = "NUEVA ORDEN";
-                clearForm();
-                delBtn.style.display = 'none';
-            }
-            modal.style.display = 'flex';
-        }
-
+        // --- DATA MANAGEMENT ---
         function saveJob() {
             const client = document.getElementById('f-client').value;
-            if(!client) { alert("El nombre del cliente es obligatorio"); return; }
+            if(!client) return alert("Nombre de cliente requerido");
 
-            const id = activeJobId || "JOB-" + Date.now();
+            const id = activeJobId || `TL-${Math.floor(Math.random()*9000)+1000}`;
+            
             JOBS[id] = {
                 id: id,
                 client: client,
+                lane: document.getElementById('f-lane').value,
+                priority: document.getElementById('f-priority').value,
                 meters: document.getElementById('f-meters').value || 0,
                 die: document.getElementById('f-die').value || "N/A",
-                material: document.getElementById('f-material').value || "Estándar",
+                material: document.getElementById('f-material').value || "Genérico",
                 obs: document.getElementById('f-obs').value,
                 color: document.getElementById('f-color').value,
-                lane: document.getElementById('f-lane').value,
                 status: JOBS[id]?.status || "ESPERA",
                 stops: JOBS[id]?.stops || [],
-                totalTimeMs: JOBS[id]?.totalTimeMs || 0,
+                accumulatedTime: JOBS[id]?.accumulatedTime || 0,
                 realMeters: JOBS[id]?.realMeters || 0,
-                lastOp: JOBS[id]?.lastOp || currentUser,
-                currentStartTime: JOBS[id]?.currentStartTime || null
+                scrapMeters: JOBS[id]?.scrapMeters || 0,
+                lastOp: currentUser,
+                created: JOBS[id]?.created || new Date().toISOString()
             };
 
             saveData();
             closeModal('modal-editor');
             refreshBoard();
+            addSystemLog(`Orden ${id} guardada/actualizada.`);
         }
 
         function deleteJob() {
-            if(confirm("¿Eliminar permanentemente esta orden?")) {
+            if(confirm("¿ELIMINAR PERMANENTEMENTE?")) {
                 delete JOBS[activeJobId];
                 saveData();
                 closeModal('modal-editor');
@@ -626,6 +851,47 @@
         }
 
         // --- UTILS ---
+        function saveData() {
+            localStorage.setItem('tl_jobs_v26_pro', JSON.stringify(JOBS));
+            localStorage.setItem('tl_done_v26_pro', JSON.stringify(DONE_DB));
+            localStorage.setItem('tl_logs_v26_pro', JSON.stringify(LOGS));
+            localStorage.setItem('tl_stats_v26_pro', JSON.stringify(STATS));
+        }
+
+        function updateStatsUI() {
+            const goal = 10;
+            const current = DONE_DB.length;
+            const pct = Math.min((current/goal)*100, 100);
+            
+            document.getElementById('daily-bar').style.width = `${pct}%`;
+            document.getElementById('daily-pct').innerText = `${Math.floor(pct)}%`;
+            document.getElementById('daily-count').innerText = `${current}/${goal}`;
+        }
+
+        function processMetrics() {
+            const j = JOBS[activeJobId];
+            if(!j) return;
+            
+            const real = parseFloat(document.getElementById('m-input').value) || 0;
+            const scrap = parseFloat(document.getElementById('m-scrap').value) || 0;
+            
+            const now = Date.now();
+            const elapsedMs = (j.accumulatedTime || 0) + (j.currentStartTime ? (now - j.currentStartTime) : 0);
+            const minutes = elapsedMs / 60000;
+            
+            const speed = minutes > 0.1 ? (real / minutes).toFixed(1) : "0";
+            document.getElementById('m-speed').innerText = speed;
+            
+            // Tendencia
+            const trend = document.getElementById('speed-trend');
+            if(speed > 40) { trend.innerText = "EXCELENTE"; trend.style.color = "var(--green-bright)"; }
+            else if(speed > 10) { trend.innerText = "ESTABLE"; trend.style.color = "var(--blue)"; }
+            else { trend.innerText = "BAJA"; trend.style.color = "var(--red)"; }
+
+            j.realMeters = real;
+            j.scrapMeters = scrap;
+        }
+
         function formatTime(ms) {
             let s = Math.floor(ms / 1000);
             let m = Math.floor(s / 60);
@@ -633,97 +899,73 @@
             return `${h.toString().padStart(2,'0')}:${(m%60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
         }
 
-        function getStatusColor(st) {
-            switch(st) {
-                case 'PREPARACIÓN': return '#1f6feb';
-                case 'TIRAJE': return '#238636';
-                case 'PARADA': return '#da3633';
-                default: return '#30363d';
-            }
-        }
-
-        function updateStatusBadge(st) {
-            const b = document.getElementById('p-status-badge');
-            b.innerText = st;
-            b.style.background = getStatusColor(st);
-        }
-
-        function calcSpeed() {
-            const j = JOBS[activeJobId];
-            const m = document.getElementById('m-input').value || 0;
-            const now = Date.now();
-            const elapsedMs = (now - j.currentStartTime) + (j.totalTimeMs || 0);
-            const mins = elapsedMs / 60000;
-            const speed = mins > 0 ? (m / mins).toFixed(1) : 0;
-            document.getElementById('m-speed').innerText = speed;
-            j.realMeters = m; // Persistencia inmediata
+        function getStatusColor(s) {
+            const colors = { 'TIRAJE':'var(--green-bright)', 'PREPARACIÓN':'var(--blue)', 'PARADA':'var(--red)', 'ESPERA':'var(--text-gray)' };
+            return colors[s] || 'var(--text-gray)';
         }
 
         function addSystemLog(msg) {
-            const t = new Date().toLocaleTimeString();
-            LOG_DATA.unshift(`[${t}] ${msg}`);
-            if(LOG_DATA.length > 50) LOG_DATA.pop();
-            updateLogUI();
-        }
-
-        function updateLogUI() {
+            const log = { time: new Date().toLocaleTimeString(), msg: msg };
+            LOGS.unshift(log);
             const container = document.getElementById('system-logs');
-            container.innerHTML = LOG_DATA.map(l => `<div style="border-bottom: 1px solid #161b22; padding: 5px 0;">${l}</div>`).join('');
+            const item = document.createElement('div');
+            item.className = "log-item";
+            item.innerHTML = `<span class="time">[${log.time}]</span><span>${log.msg}</span>`;
+            container.prepend(item);
         }
 
-        function updateDailyStats() {
-            const target = 10;
-            const pct = Math.min(100, (GLOBAL_STATS.completed / target) * 100);
-            document.getElementById('daily-bar').style.width = pct + "%";
-            document.getElementById('daily-pct').innerText = Math.round(pct) + "%";
-            document.getElementById('daily-count').innerText = `${GLOBAL_STATS.completed} / ${target} PEDIDOS`;
-        }
-
-        function updateCounters() {
-            ['flexo','digital','repaso'].forEach(l => {
-                document.getElementById('c-lane-'+l).innerText = document.getElementById('lane-'+l).children.length;
+        function initDragAndDrop() {
+            const containers = ['lane-flexo', 'lane-digital', 'lane-repaso'];
+            containers.forEach(id => {
+                new Sortable(document.getElementById(id), {
+                    group: 'production-kanban',
+                    animation: 200,
+                    ghostClass: 'accent-glow',
+                    onEnd: (evt) => {
+                        const jobId = evt.item.querySelector('div').innerText.split(': ')[1];
+                        Object.values(JOBS).forEach(j => {
+                            if(j.id.includes(jobId)) {
+                                j.lane = evt.to.id;
+                                addSystemLog(`Orden ${j.id} movida a ${evt.to.id}`);
+                                saveData();
+                                updateCounters();
+                            }
+                        });
+                    }
+                });
             });
         }
 
-        function saveData() {
-            localStorage.setItem('tl_jobs_v26', JSON.stringify(JOBS));
-            localStorage.setItem('tl_logs_v26', JSON.stringify(LOG_DATA));
-            localStorage.setItem('tl_stats_v26', JSON.stringify(GLOBAL_STATS));
+        function updateCounters() {
+            ['lane-flexo', 'lane-digital', 'lane-repaso', 'lane-done'].forEach(id => {
+                const count = document.getElementById(id).children.length;
+                document.getElementById('c-' + id).innerText = count;
+            });
         }
 
-        function clearForm() {
-            const f = ['f-client','f-meters','f-die','f-material','f-obs'];
-            f.forEach(id => document.getElementById(id).value = "");
-            document.getElementById('f-color').value = "#ff7a00";
+        function openEditor(id = null) {
+            activeJobId = id;
+            if(!id) clearEditor();
+            document.getElementById('modal-editor').style.display = 'flex';
         }
 
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
-            if(id === 'modal-production' && mainClockInterval) clearInterval(mainClockInterval);
-            refreshBoard();
+            if(id === 'modal-production') {
+                clearInterval(mainClockInterval);
+                saveData();
+                refreshBoard();
+            }
         }
 
-        function showAdminReport() {
-            alert(`REPORT DE PLANTA - 2026\n\nPedidos Completados: ${GLOBAL_STATS.completed}\nMetros Totales: ${GLOBAL_STATS.totalMeters}m\nOperario: ${currentUser}`);
+        function clearEditor() {
+            ['f-client','f-meters','f-die','f-material','f-obs'].forEach(id => document.getElementById(id).value = "");
+            document.getElementById('f-priority').value = "low";
+            document.getElementById('btn-delete').style.display = 'none';
         }
 
-        function initDragAndDrop() {
-            ['lane-flexo', 'lane-digital', 'lane-repaso'].forEach(id => {
-                new Sortable(document.getElementById(id), {
-                    group: 'production', animation: 300, ghostClass: 'job-card-ghost',
-                    onEnd: (e) => {
-                        // Al mover una tarjeta de "ESPERA" a una máquina, inicia preparación automáticamente
-                        const jobId = e.item.onclick.toString().match(/'([^']+)'/)[1];
-                        JOBS[jobId].lane = e.to.id;
-                        if(JOBS[jobId].status === "ESPERA") {
-                            activeJobId = jobId;
-                            setJobStatus("PREPARACIÓN");
-                        }
-                        saveData();
-                        updateCounters();
-                    }
-                });
-            });
+        function toggleAnalytics() {
+            alert(`ANALÍTICAS DE PLANTA (Modo Enterprise)\n\nMetros Producidos: ${STATS.totalMeters.toFixed(1)}m\nTotal Merma: ${STATS.scrapMeters.toFixed(1)}m\nEfectividad: ${((STATS.totalMeters / (STATS.totalMeters + STATS.scrapMeters)) * 100 || 0).toFixed(1)}%`);
         }
     </script>
 </body>
